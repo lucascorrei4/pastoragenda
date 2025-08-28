@@ -1,0 +1,427 @@
+{
+  "common": {
+    "loading": "Carregando...",
+    "save": "Salvar",
+    "cancel": "Cancelar",
+    "edit": "Editar",
+    "delete": "Excluir",
+    "create": "Criar",
+    "update": "Atualizar",
+    "back": "Voltar",
+    "next": "Próximo",
+    "previous": "Anterior",
+    "confirm": "Confirmar",
+    "close": "Fechar",
+    "remove": "Remover",
+    "add": "Adicionar",
+    "view": "Visualizar",
+    "search": "Pesquisar",
+    "filter": "Filtrar",
+    "all": "Todos",
+    "none": "Nenhum",
+    "required": "Obrigatório",
+    "optional": "Opcional",
+    "error": "Erro",
+    "success": "Sucesso",
+    "warning": "Aviso",
+    "info": "Informação",
+    "pastor": "Pastor",
+    "to": "até",
+    "eventType": "Tipo de Evento",
+    "minutes": "minutos",
+    "text": "Texto",
+    "saving": "Salvando...",
+    "and": "e",
+    "min": "min",
+    "domain": "pastortalk.com",
+    "share": "Compartilhar",
+    "goHome": "Ir para o Início",
+    "today": "Hoje"
+  },
+  "navigation": {
+    "home": "Início",
+    "dashboard": "Painel",
+    "profile": "Perfil",
+    "eventTypes": "Tipos de Evento",
+    "bookings": "Agendamentos",
+    "settings": "Configurações",
+    "signIn": "Entrar",
+    "signUp": "Cadastrar",
+    "signOut": "Sair"
+  },
+  "dashboard": {
+    "welcome": "Bem-vindo de volta, {{name}}!",
+    "subtitle": "Aqui está o que está acontecendo com seu ministério hoje.",
+    "stats": {
+      "totalBookings": "Total de Agendamentos",
+      "thisMonth": "Este Mês",
+      "eventTypes": "Tipos de Evento"
+    },
+    "quickActions": {
+      "title": "Ações Rápidas",
+      "createEventType": "Criar Tipo de Evento",
+      "createEventTypeDesc": "Configure novos tipos de compromisso",
+      "updateProfile": "Atualizar Perfil",
+      "updateProfileDesc": "Edite suas informações públicas"
+    },
+    "recentBookings": {
+      "title": "Agendamentos Recentes",
+      "viewAll": "Ver todos",
+      "noBookings": "Nenhum agendamento ainda",
+      "noBookingsDesc": "Crie tipos de evento para começar a receber agendamentos",
+      "customQandA": "P&R Personalizadas"
+    },
+    "profileCompletion": {
+      "title": "Complete a configuração do seu perfil",
+      "description": "Configure seu alias único e informações do perfil para que as pessoas possam encontrar e agendar compromissos com você.",
+      "button": "Completar Perfil"
+    }
+  },
+  "eventTypes": {
+    "title": "Tipos de Evento",
+    "createButton": "Criar Tipo de Evento",
+    "editButton": "Editar Tipo de Evento",
+    "noEventTypes": "Nenhum tipo de evento ainda",
+    "noEventTypesDesc": "Crie seu primeiro tipo de evento para começar a receber agendamentos",
+    "form": {
+      "title": "Criar Tipo de Evento",
+      "editTitle": "Editar Tipo de Evento",
+      "eventTitle": "Título do Evento",
+      "eventTitlePlaceholder": "ex., Sessão de Aconselhamento de 30 Minutos",
+      "duration": "Duração (minutos)",
+      "description": "Descrição",
+      "descriptionPlaceholder": "Descreva sobre o que se trata este tipo de compromisso...",
+      "availability": "Disponibilidade Semanal",
+      "weeklyAvailability": "Disponibilidade Semanal",
+      "customQuestions": "Perguntas Personalizadas para Usuários",
+      "addQuestion": "+ Adicionar Pergunta Personalizada",
+      "question": "Pergunta",
+      "questionPlaceholder": "Digite sua pergunta",
+      "type": "Tipo",
+      "textInput": "Entrada de texto",
+      "singleChoice": "Escolha única",
+      "multipleChoice": "Múltipla escolha",
+      "required": "Obrigatório",
+      "durationOptions": {
+        "15min": "15 minutos",
+        "30min": "30 minutos",
+        "45min": "45 minutos",
+        "1hour": "1 hora",
+        "1.5hours": "1.5 horas",
+        "2hours": "2 horas"
+      },
+      "options": "Opções (uma por linha)",
+      "optionsPlaceholder": "Opção 1\nOpção 2\nOpção 3",
+      "addTimeSlot": "Adicionar horário",
+      "removeTimeSlot": "Remover",
+      "remove": "Remover",
+      "save": "Salvar",
+      "cancel": "Cancelar",
+      "delete": "Excluir",
+      "confirmDelete": "Tem certeza de que deseja excluir este tipo de evento?",
+      "deleteSuccess": "Tipo de evento excluído com sucesso",
+      "deleteError": "Falha ao excluir tipo de evento",
+      "saveSuccess": "Tipo de evento salvo com sucesso",
+      "saveError": "Falha ao salvar tipo de evento",
+      "loadError": "Falha ao carregar tipos de evento",
+      "saving": "Salvando...",
+      "create": "Criar Tipo de Evento",
+      "update": "Atualizar Tipo de Evento",
+      "validation": {
+        "titleRequired": "Título é obrigatório",
+        "durationRange": "Duração deve estar entre 15 minutos e 8 horas",
+        "availabilityRequired": "Por favor, defina disponibilidade para pelo menos um dia"
+      },
+      "messages": {
+        "updateSuccess": "Tipo de evento atualizado com sucesso",
+        "createSuccess": "Tipo de evento criado com sucesso",
+        "deleteSuccess": "Tipo de evento excluído com sucesso",
+        "saveError": "Falha ao salvar tipo de evento",
+        "deleteError": "Falha ao excluir tipo de evento",
+        "confirmDelete": "Tem certeza de que deseja excluir este tipo de evento? Isso também cancelará todos os agendamentos futuros."
+      }
+    },
+    "card": {
+      "duration": "{{duration}} minutos",
+      "availability": "Disponibilidade",
+      "noAvailability": "Nenhuma disponibilidade definida"
+    }
+  },
+  "home": {
+    "hero": {
+      "title": "Conecte-se com Seu Pastor",
+      "subtitle": "Agende encontros significativos com orientação e apoio espiritual",
+      "description": "O PastorTalk facilita para líderes religiosos gerenciarem suas agendas e para as pessoas reservarem consultas significativas. Simplifique seu ministério com nossa plataforma intuitiva de agendamento.",
+      "cta": "Começar"
+    },
+    "features": {
+      "title": "Por que escolher o PastorTalk?",
+      "subtitle": "Tudo o que você precisa para gerenciar seu ministério",
+      "description": "O PastorTalk fornece uma solução abrangente para líderes religiosos gerenciarem compromissos, compartilharem sua disponibilidade e se conectarem com sua comunidade.",
+      "feature1": {
+        "title": "Agendamento Fácil",
+        "description": "Crie tipos de evento personalizados com durações específicas e regras de disponibilidade. Deixe as pessoas agendarem compromissos que se encaixem na sua agenda."
+      },
+      "feature2": {
+        "title": "Conexão com a Comunidade",
+        "description": "Compartilhe sua URL de perfil única com sua comunidade. As pessoas podem facilmente encontrá-lo e agendar compromissos com você."
+      },
+      "feature3": {
+        "title": "Disponibilidade Inteligente",
+        "description": "Configure sua disponibilidade semanal e deixe nosso sistema encontrar automaticamente os melhores horários para compromissos."
+      },
+      "feature4": {
+        "title": "Seguro e Privado",
+        "description": "Construído com segurança em mente. Seus dados estão protegidos e os compromissos são gerenciados com privacidade e cuidado."
+      }
+    },
+    "cta": {
+      "title": "Pronto para se Conectar?",
+      "subtitle": "Comece sua jornada espiritual hoje",
+      "description": "Comece a gerenciar seus compromissos ministeriais com facilidade e conecte-se com sua comunidade.",
+      "button": "Agendar um Compromisso"
+    },
+    "learnMore": "Saiba Mais",
+    "footer": {
+      "description": "Simplificando o agendamento ministerial para líderes religiosos e suas comunidades.",
+      "copyright": "© 2024 PastorTalk. Todos os direitos reservados."
+    }
+  },
+  "auth": {
+    "signIn": {
+      "title": "Entre na sua conta",
+      "subtitle": "Bem-vindo de volta ao PastorTalk",
+      "email": "Endereço de email",
+      "password": "Senha",
+      "forgotPassword": "Esqueceu sua senha?",
+      "button": "Entrar",
+      "noAccount": "Não tem uma conta?",
+      "signUp": "Cadastre-se"
+    },
+    "signUp": {
+      "title": "Crie sua conta",
+      "subtitle": "Junte-se ao PastorTalk hoje",
+      "fullName": "Nome completo",
+      "email": "Endereço de email",
+      "password": "Senha",
+      "confirmPassword": "Confirmar senha",
+      "button": "Criar conta",
+      "hasAccount": "Já tem uma conta?",
+      "signIn": "Entrar"
+    },
+    "terms": "Ao se cadastrar, você concorda com nossos",
+    "termsOfService": "Termos de Serviço",
+    "privacyPolicy": "Política de Privacidade"
+  },
+  "profile": {
+    "title": "Configurações do Perfil",
+    "personalInfo": "Informações Pessoais",
+    "fullName": "Nome Completo",
+    "fullNamePlaceholder": "Digite seu nome completo",
+    "alias": "Alias Único",
+    "aliasPlaceholder": "seu-alias",
+    "aliasDescription": "Este será sua URL única. Apenas letras minúsculas, números e hífens são permitidos.",
+    "aliasValidation": "Apenas letras minúsculas, números e hífens são permitidos",
+    "bio": "Biografia",
+    "bioPlaceholder": "Conte às pessoas sobre você e seu ministério...",
+    "bioDescription": "Isto será exibido em sua página de perfil público.",
+    "avatar": "Foto do Perfil",
+    "avatarDescription": "Faça upload de uma foto de perfil para ajudar as pessoas a reconhecê-lo",
+    "uploadPhoto": "Enviar Foto",
+    "uploading": "Enviando...",
+    "saveChanges": "Salvar Alterações",
+    "saving": "Salvando...",
+    "changesSaved": "Alterações salvas com sucesso!",
+    "errorSaving": "Falha ao salvar alterações. Tente novamente.",
+    "loadError": "Falha ao carregar perfil",
+    "createError": "Falha ao criar perfil",
+    "publicProfile": "Seu Perfil Público",
+    "profileAvailableAt": "Seu perfil estará disponível em:",
+    "shareLinkDescription": "Compartilhe este link com sua comunidade para que eles possam agendar compromissos com você."
+  },
+  "bookings": {
+    "title": "Agendamentos",
+    "filter": {
+      "all": "Todos",
+      "upcoming": "Próximos",
+      "past": "Passados",
+      "cancelled": "Cancelados"
+    },
+    "status": {
+      "confirmed": "confirmado",
+      "cancelled": "cancelado"
+    },
+    "time": {
+      "hour": "Hora",
+      "meeting": "Reunião",
+      "min": "min",
+      "questionPrefix": "P:"
+    },
+    "actions": {
+      "cancel": "Cancelar agendamento",
+      "cancelling": "Cancelando...",
+      "confirmCancel": "Tem certeza de que deseja cancelar este agendamento?",
+      "cancelSuccess": "Agendamento cancelado com sucesso",
+      "cancelError": "Falha ao cancelar agendamento"
+    },
+    "noBookings": {
+      "all": "Nenhum agendamento ainda",
+      "upcoming": "Nenhum agendamento próximo",
+      "past": "Nenhum agendamento passado",
+      "cancelled": "Nenhum agendamento cancelado"
+    },
+    "noBookingsDesc": {
+      "all": "Crie tipos de evento para começar a receber agendamentos da sua comunidade.",
+      "upcoming": "Todos os seus compromissos próximos aparecerão aqui.",
+      "past": "Seus compromissos concluídos aparecerão aqui.",
+      "cancelled": "Compromissos cancelados aparecerão aqui."
+    },
+    "details": {
+      "eventType": "Tipo de Evento",
+      "date": "Data",
+      "time": "Horário",
+      "duration": "Duração",
+      "bookerName": "Nome do Agendador",
+      "bookerEmail": "Email do Agendador",
+      "bookerPhone": "Telefone do Agendador",
+      "description": "Descrição",
+      "customQandA": "Perguntas e Respostas Personalizadas",
+      "bookedOn": "Agendado em",
+      "count": "{{count}} agendamentos",
+      "hour": "Hora",
+      "meeting": "Reunião",
+      "min": "min"
+    },
+    "loadError": "Falha ao carregar agendamentos"
+  },
+  "booking": {
+    "title": "Agendar Compromisso",
+    "selectDate": "Selecione uma data",
+    "selectTime": "Selecione um horário em {{date}}",
+    "availableSlots": "horários disponíveis",
+    "bookedSlots": "horários reservados",
+    "available": "Disponível",
+    "booked": "Reservado",
+    "noTimeSlotsAvailable": "Nenhum horário disponível nesta data",
+    "tryDifferentDate": "Tente selecionar uma data diferente",
+    "continueToConfirmation": "Continuar para Confirmação",
+    "selectAvailableTimeToContinue": "Por favor, selecione um horário disponível para continuar",
+    "with": "com {{name}}",
+    "noAvailableSlots": "Nenhum horário disponível para esta data",
+    "continue": "Continuar",
+    "loadError": "Falha ao carregar informações do evento",
+    "calendar": {
+      "legend": "Legenda do Calendário",
+      "available": "Disponível",
+      "booked": "Reservado",
+      "past": "Datas passadas"
+    },
+    "timeSlots": {
+      "legend": "Legenda dos Horários",
+      "available": "Disponível",
+      "booked": "Reservado"
+    }
+  },
+  "bookingConfirmation": {
+    "title": "Confirmar Compromisso",
+    "with": "com {{name}}",
+    "appointmentSummary": "Resumo do Compromisso",
+    "summarySubtitle": "Revise os detalhes do seu compromisso abaixo",
+    "eventInfo": "Informações do Evento",
+    "yourInformation": "Suas Informações",
+    "fullName": "Nome Completo",
+    "fullNamePlaceholder": "Digite seu nome completo",
+    "email": "Endereço de Email",
+    "emailPlaceholder": "Digite seu endereço de email",
+    "emailDescription": "Enviaremos um email de confirmação com os detalhes do compromisso.",
+    "phone": "Número de Telefone",
+    "phonePlaceholder": "Digite seu número de telefone (opcional)",
+    "phoneDescription": "Opcional: Caso precisemos entrar em contato sobre seu compromisso.",
+    "description": "Descrição",
+    "descriptionPlaceholder": "Conte-nos sobre o que gostaria de discutir ou pedidos especiais (opcional)",
+    "descriptionDescription": "Opcional: Ajude-nos a preparar para seu compromisso.",
+    "additionalQuestions": "Perguntas Adicionais",
+    "answerPlaceholder": "Sua resposta",
+    "importantInfo": "Informações Importantes",
+    "importantInfoItems": [
+      "Chegue no horário para seu compromisso",
+      "Se precisar cancelar, entre em contato com {{name}} o quanto antes",
+      "Você receberá um email de confirmação em breve"
+    ],
+    "confirmButton": "Confirmar Compromisso",
+    "bookingAppointment": "Agendando Compromisso...",
+    "backToTimeSelection": "← Voltar para seleção de horário",
+    "bookingSuccess": "Compromisso agendado com sucesso!"
+  },
+  "bookingSuccess": {
+    "title": "Compromisso Confirmado!",
+    "subtitle": "Seu compromisso com {{name}} foi agendado com sucesso.",
+    "appointmentDetails": "Detalhes do Compromisso",
+    "pastor": "Pastor",
+    "event": "Evento",
+    "date": "Data",
+    "time": "Horário",
+    "phone": "Telefone",
+    "description": "Descrição",
+    "whatsNext": "E Agora?",
+    "nextSteps": [
+      "Você receberá um email de confirmação em breve",
+      "Chegue no horário para seu compromisso",
+      "Se precisar cancelar, entre em contato com {{name}} o quanto antes"
+    ],
+    "viewPastorProfile": "Ver Perfil do Pastor",
+    "backToHome": "← Voltar ao Início",
+    "pageNotFound": "Esta página requer informações de agendamento."
+  },
+  "publicProfile": {
+    "bookAppointment": "Agendar Compromisso",
+    "about": "Sobre",
+    "eventTypes": "Compromissos Disponíveis",
+    "noEventTypes": "Nenhum compromisso disponível",
+    "noEventTypesDesc": "{{name}} ainda não configurou nenhum tipo de compromisso.",
+    "qrCode": "Código QR",
+    "qrDescription": "Escanear para compartilhar",
+    "mobileQrTitle": "Compartilhar este perfil",
+    "mobileQrDescription": "Escanear para compartilhar com outros",
+    "footer": "Desenvolvido por PastorTalk",
+    "notFound": "Pastor Não Encontrado",
+    "notFoundDesc": "O pastor que você está procurando não foi encontrado.",
+    "loadError": "Falha ao carregar perfil",
+    "shareTitle": "Agende um compromisso com {{name}}",
+    "shareText": "Agende uma reunião com {{name}} no PastorTalk",
+    "linkCopied": "Link do perfil copiado para a área de transferência!"
+  },
+  "errors": {
+    "general": "Algo deu errado. Tente novamente.",
+    "required": "Este campo é obrigatório.",
+    "invalidEmail": "Digite um endereço de email válido.",
+    "invalidPhone": "Digite um número de telefone válido.",
+    "networkError": "Erro de rede. Verifique sua conexão.",
+    "unauthorized": "Você não está autorizado a executar esta ação.",
+    "notFound": "O recurso solicitado não foi encontrado.",
+    "serverError": "Erro do servidor. Tente novamente mais tarde."
+  },
+  "validation": {
+    "required": "{{field}} é obrigatório",
+    "minLength": "{{field}} deve ter pelo menos {{min}} caracteres",
+    "maxLength": "{{field}} deve ter no máximo {{max}} caracteres",
+    "email": "Digite um endereço de email válido",
+    "phone": "Digite um número de telefone válido",
+    "uniqueAlias": "Este alias já está em uso. Escolha outro."
+  },
+  "time": {
+    "minutes": "{{count}} minuto",
+    "minutes_plural": "{{count}} minutos",
+    "hours": "{{count}} hora",
+    "hours_plural": "{{count}} horas"
+  },
+  "days": {
+    "monday": "Segunda-feira",
+    "tuesday": "Terça-feira",
+    "wednesday": "Quarta-feira",
+    "thursday": "Quinta-feira",
+    "friday": "Sexta-feira",
+    "saturday": "Sábado",
+    "sunday": "Domingo"
+  }
+}

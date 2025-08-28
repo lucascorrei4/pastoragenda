@@ -1,0 +1,312 @@
+import { useState, useEffect } from 'react'
+import { Link } from 'react-router-dom'
+import { useAuth } from '../contexts/AuthContext'
+import { useTranslation } from 'react-i18next'
+import { supabase } from '../lib/supabase'
+import { Calendar, Clock, Users, TrendingUp, MessageSquare } from 'lucide-react'
+import type { Profile, EventType, BookingWithDetails } from '../lib/supabase'
+
+function DashboardPage() {
+  const { user } = useAuth()
+  const { t } = useTranslation()
+  const [profile, setProfile] = useState<Profile | null>(null)
+  const [eventTypes, setEventTypes] = useState<EventType[]>([])
+  const [recentBookings, setRecentBookings] = useState<BookingWithDetails[]>([])
+  const [stats, setStats] = useState({
+    totalBookings: 0,
+    thisMonthBookings: 0,
+    totalEventTypes: 0
+  })
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    if (user) {
+      fetchDashboardData()
+    }
+  }, [user])
+
+  const fetchDashboardData = async () => {
+    try {
+      setLoading(true)
+      
+      // Fetch profile
+      const { data: profileData } = await supabase
+        .from('profiles')
+        .select('*')
+        .eq('id', user?.id)
+        .single()
+
+      if (profileData) {
+        setProfile(profileData)
+      }
+
+      // Fetch event types
+      const { data: eventTypesData } = await supabase
+        .from('event_types')
+        .select('*')
+        .eq('user_id', user?.id)
+
+      if (eventTypesData) {
+        setEventTypes(eventTypesData)
+      }
+
+      // Fetch recent bookings - first get event type IDs for this user
+      const { data: userEventTypes } = await supabase
+        .from('event_types')
+        .select('id')
+        .eq('user_id', user?.id)
+
+      if (userEventTypes && userEventTypes.length > 0) {
+        const eventTypeIds = userEventTypes.map(et => et.id)
+        
+        // Fetch recent bookings for user's event types
+        const { data: bookingsData } = await supabase
+          .from('bookings')
+          .select(`
+            *,
+            event_types (
+              title,
+              duration,
+              custom_questions
+            )
+          `)
+          .in('event_type_id', eventTypeIds)
+          .order('start_time', { ascending: false })
+          .limit(5)
+
+        if (bookingsData) {
+          setRecentBookings(bookingsData)
+        }
+
+        // Calculate stats
+        const { count: totalBookings } = await supabase
+          .from('bookings')
+          .select('*', { count: 'exact', head: true })
+          .in('event_type_id', eventTypeIds)
+
+        const thisMonth = new Date()
+        thisMonth.setDate(1)
+        thisMonth.setHours(0, 0, 0, 0)
+
+        const { count: thisMonthBookings } = await supabase
+          .from('bookings')
+          .select('*', { count: 'exact', head: true })
+          .in('event_type_id', eventTypeIds)
+          .gte('start_time', thisMonth.toISOString())
+
+        setStats({
+          totalBookings: totalBookings || 0,
+          thisMonthBookings: thisMonthBookings || 0,
+          totalEventTypes: eventTypesData?.length || 0
+        })
+      } else {
+        // No event types, set stats to 0
+        setStats({
+          totalBookings: 0,
+          thisMonthBookings: 0,
+          totalEventTypes: 0
+        })
+      }
+
+    } catch (error) {
+      console.error('Error fetching dashboard data:', error)
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center h-64">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600"></div>
+      </div>
+    )
+  }
+
+  return (
+    <div className="space-y-6">
+      {/* Welcome Section */}
+      <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
+        <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
+          {t('dashboard.welcome', { name: profile?.full_name || t('common.pastor') })}
+        </h1>
+        <p className="text-gray-600 dark:text-gray-300 mt-2">
+          {t('dashboard.subtitle')}
+        </p>
+      </div>
+
+      {/* Stats Grid */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
+          <div className="flex items-center">
+            <div className="flex-shrink-0">
+              <Calendar className="h-8 w-8 text-primary-600" />
+            </div>
+            <div className="ml-4">
+              <p className="text-sm font-medium text-gray-500 dark:text-gray-400">{t('dashboard.stats.totalBookings')}</p>
+              <p className="text-2xl font-semibold text-gray-900 dark:text-white">{stats.totalBookings}</p>
+            </div>
+          </div>
+        </div>
+
+        <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
+          <div className="flex items-center">
+            <div className="flex-shrink-0">
+              <TrendingUp className="h-8 w-8 text-primary-600" />
+            </div>
+            <div className="ml-4">
+              <p className="text-sm font-medium text-gray-500 dark:text-gray-400">{t('dashboard.stats.thisMonth')}</p>
+              <p className="text-2xl font-semibold text-gray-900 dark:text-white">{stats.thisMonthBookings}</p>
+            </div>
+          </div>
+        </div>
+
+        <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
+          <div className="flex items-center">
+            <div className="flex-shrink-0">
+              <Clock className="h-8 w-8 text-primary-600" />
+            </div>
+            <div className="ml-4">
+              <p className="text-sm font-medium text-gray-500 dark:text-gray-400">{t('dashboard.stats.eventTypes')}</p>
+              <p className="text-2xl font-semibold text-gray-900 dark:text-white">{stats.totalEventTypes}</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Quick Actions */}
+      <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
+        <h2 className="text-lg font-medium text-gray-900 dark:text-white mb-4">{t('dashboard.quickActions.title')}</h2>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <Link
+            to="/dashboard/event-types"
+            className="flex items-center p-4 border border-gray-200 dark:border-gray-600 rounded-lg hover:border-primary-300 hover:bg-primary-50 dark:hover:bg-primary-900/20 transition-colors"
+          >
+            <Calendar className="h-6 w-6 text-primary-600 mr-3" />
+            <div>
+              <h3 className="font-medium text-gray-900 dark:text-white">{t('dashboard.quickActions.createEventType')}</h3>
+              <p className="text-sm text-gray-500 dark:text-gray-400">{t('dashboard.quickActions.createEventTypeDesc')}</p>
+            </div>
+          </Link>
+
+          <Link
+            to="/dashboard/profile"
+            className="flex items-center p-4 border border-gray-200 dark:border-gray-600 rounded-lg hover:border-primary-300 hover:bg-primary-50 dark:hover:bg-primary-900/20 transition-colors"
+          >
+            <Users className="h-6 w-6 text-primary-600 mr-3" />
+            <div>
+              <h3 className="font-medium text-gray-900 dark:text-white">{t('dashboard.quickActions.updateProfile')}</h3>
+              <p className="text-sm text-gray-500 dark:text-gray-400">{t('dashboard.quickActions.updateProfileDesc')}</p>
+            </div>
+          </Link>
+        </div>
+      </div>
+
+      {/* Recent Bookings */}
+      <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
+        <div className="flex items-center justify-between mb-4">
+          <h2 className="text-lg font-medium text-gray-900 dark:text-white">{t('dashboard.recentBookings.title')}</h2>
+          <Link
+            to="/dashboard/bookings"
+            className="text-sm font-medium text-primary-600 dark:text-primary-400 hover:text-primary-500 dark:hover:text-primary-300"
+          >
+            {t('dashboard.recentBookings.viewAll')}
+          </Link>
+        </div>
+        
+        {recentBookings.length > 0 ? (
+          <div className="space-y-4">
+            {recentBookings.map((booking) => (
+              <div key={booking.id} className="flex items-center justify-between p-4 border border-gray-200 dark:border-gray-600 rounded-lg">
+                <div className="flex-1">
+                  <p className="font-medium text-gray-900 dark:text-white">{booking.booker_name}</p>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">{booking.booker_email}</p>
+                  {booking.booker_phone && (
+                    <p className="text-sm text-gray-500 dark:text-gray-400">{booking.booker_phone}</p>
+                  )}
+                  <p className="text-sm text-gray-500 dark:text-gray-400">
+                    {new Date(booking.start_time).toLocaleDateString()} at{' '}
+                    {new Date(booking.start_time).toLocaleTimeString()}
+                  </p>
+                   {booking.booker_description && (
+                     <p className="text-sm text-gray-600 dark:text-gray-400 mt-2 italic">
+                       "{booking.booker_description}"
+                     </p>
+                   )}
+                   {booking.custom_answers && Object.keys(booking.custom_answers).length > 0 && (
+                     <div className="mt-2 p-3 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded text-xs">
+                       <div className="flex items-start space-x-2 mb-2">
+                         <MessageSquare className="w-4 h-4 text-blue-500 dark:text-blue-400 mt-0.5 flex-shrink-0" />
+                         <span className="font-medium text-blue-700 dark:text-blue-300">{t('dashboard.recentBookings.customQandA')}:</span>
+                       </div>
+                       <div className="space-y-1 ml-6">
+                         {Object.entries(booking.custom_answers).map(([questionId, answer]) => {
+                           // Find the corresponding question from event type
+                           const question = booking.event_types.custom_questions?.find(q => q.id === questionId)
+                           return (
+                             <div key={questionId} className="text-blue-600 dark:text-blue-200">
+                               <span className="font-medium">{question?.question || 'Question'}: </span>
+                               <span>{Array.isArray(answer) ? answer.join(', ') : answer}</span>
+                             </div>
+                           )
+                         })}
+                       </div>
+                     </div>
+                   )}
+                </div>
+                <div className="text-right">
+                  <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
+                    booking.status === 'confirmed' 
+                      ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200' 
+                      : 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200'
+                  }`}>
+                    {booking.status}
+                  </span>
+                </div>
+              </div>
+            ))}
+          </div>
+        ) : (
+          <div className="text-center py-8">
+            <Clock className="h-12 w-12 text-gray-400 dark:text-gray-500 mx-auto mb-4" />
+            <p className="text-gray-500 dark:text-gray-400">{t('dashboard.recentBookings.noBookings')}</p>
+            <p className="text-sm text-gray-400 dark:text-gray-500 mt-1">
+              {t('dashboard.recentBookings.noBookingsDesc')}
+            </p>
+          </div>
+        )}
+      </div>
+
+      {/* Profile Completion */}
+      {profile && !profile.alias && (
+        <div className="bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-lg p-6">
+          <div className="flex">
+            <div className="flex-shrink-0">
+              <Users className="h-5 w-5 text-yellow-400 dark:text-yellow-500" />
+            </div>
+            <div className="ml-3">
+              <h3 className="text-sm font-medium text-yellow-800 dark:text-yellow-200">
+                {t('dashboard.profileCompletion.title')}
+              </h3>
+              <div className="mt-2 text-sm text-yellow-700 dark:text-yellow-300">
+                <p>
+                  {t('dashboard.profileCompletion.description')}
+                </p>
+              </div>
+              <div className="mt-4">
+                <Link
+                  to="/dashboard/profile"
+                  className="bg-yellow-50 dark:bg-yellow-900/30 text-yellow-800 dark:text-yellow-200 hover:bg-yellow-100 dark:hover:bg-yellow-900/50 px-4 py-2 rounded-md text-sm font-medium"
+                >
+                  {t('dashboard.profileCompletion.button')}
+                </Link>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  )
+}
+
+export default DashboardPage

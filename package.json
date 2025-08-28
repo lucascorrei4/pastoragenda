@@ -1,0 +1,23 @@
+{
+  "name": "pastortalk",
+  "version": "1.0.0",
+  "description": "A Calendly-like application for pastors and religious leaders to manage appointments",
+  "private": true,
+  "workspaces": [
+    "packages/client",
+    "packages/supabase"
+  ],
+  "scripts": {
+    "dev": "concurrently \"npm run dev:client\" \"npm run dev:supabase\"",
+    "dev:client": "npm run dev --workspace=packages/client",
+    "dev:supabase": "npm run dev --workspace=packages/supabase",
+    "build": "npm run build --workspaces",
+    "build:client": "npm run build --workspace=packages/client",
+    "build:supabase": "npm run build --workspace=packages/supabase",
+    "lint": "npm run lint --workspaces",
+    "type-check": "npm run type-check --workspaces"
+  },
+  "devDependencies": {
+    "concurrently": "^8.2.2"
+  }
+}
