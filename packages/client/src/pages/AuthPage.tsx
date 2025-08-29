@@ -39,21 +39,21 @@ function AuthPage() {
 
     setIsLoading(true)
     try {
-      // First, check if user exists by trying to sign in
-      const { data: signInData, error: signInError } = await supabase.auth.signInWithOtp({
+      // First try to sign in (check if user exists)
+      const { error: signInError } = await supabase.auth.signInWithOtp({
         email,
         options: {
-          emailRedirectTo: window.location.origin + '/dashboard'
+          emailRedirectTo: `${window.location.origin}/dashboard`
         }
       })
 
       if (signInError) {
-        // If sign in fails, try sign up
-        const { data: signUpData, error: signUpError } = await supabase.auth.signUp({
+        // User doesn't exist, try to sign up
+        const { error: signUpError } = await supabase.auth.signUp({
           email,
           password: 'temp-password-123', // Temporary password for OTP flow
           options: {
-            emailRedirectTo: window.location.origin + '/dashboard'
+            emailRedirectTo: `${window.location.origin}/dashboard`
           }
         })
 
@@ -61,14 +61,11 @@ function AuthPage() {
           toast.error(signUpError.message)
           return
         }
-
-        // Successfully signed up new user
         setIsNewUser(true)
-        toast.success('Welcome! OTP code sent to your email for verification.')
+        toast.success('Welcome! OTP code sent to your email.')
       } else {
-        // User exists, signing in
         setIsNewUser(false)
-        toast.success('Welcome back! OTP code sent to your email for verification.')
+        toast.success('Welcome back! OTP code sent to your email.')
       }
 
       setStep('otp')
@@ -89,7 +86,7 @@ function AuthPage() {
     setIsLoading(true)
     try {
       // Verify the OTP with Supabase
-      const { data, error } = await supabase.auth.verifyOtp({
+      const { error } = await supabase.auth.verifyOtp({
         email,
         token: otp,
         type: 'email'

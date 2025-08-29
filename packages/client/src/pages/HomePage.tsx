@@ -1,6 +1,6 @@
 import { Link } from 'react-router-dom'
 import { useAuth } from '../contexts/AuthContext'
-import { Calendar, Users, Clock, Shield, ArrowRight, CheckCircle, Star, MessageSquare, Mail } from 'lucide-react'
+import { Calendar, Users, Clock, Shield, ArrowRight, CheckCircle, MessageSquare, Mail } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import LanguageSwitcher from '../components/LanguageSwitcher'
 

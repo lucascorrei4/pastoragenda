@@ -4,13 +4,12 @@ import { useAuth } from '../contexts/AuthContext'
 import { useTranslation } from 'react-i18next'
 import { supabase } from '../lib/supabase'
 import { Calendar, Clock, Users, TrendingUp, MessageSquare } from 'lucide-react'
-import type { Profile, EventType, BookingWithDetails } from '../lib/supabase'
+import type { Profile, BookingWithDetails } from '../lib/supabase'
 
 function DashboardPage() {
   const { user } = useAuth()
   const { t } = useTranslation()
   const [profile, setProfile] = useState<Profile | null>(null)
-  const [eventTypes, setEventTypes] = useState<EventType[]>([])
   const [recentBookings, setRecentBookings] = useState<BookingWithDetails[]>([])
   const [stats, setStats] = useState({
     totalBookings: 0,
@@ -47,7 +46,7 @@ function DashboardPage() {
         .eq('user_id', user?.id)
 
       if (eventTypesData) {
-        setEventTypes(eventTypesData)
+        // setEventTypes(eventTypesData) // This line is removed
       }
 
       // Fetch recent bookings - first get event type IDs for this user

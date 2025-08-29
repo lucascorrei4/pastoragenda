@@ -3,9 +3,9 @@ import { useParams, useNavigate, useLocation } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { supabase } from '../lib/supabase'
 import { toast } from 'react-hot-toast'
-import { Calendar, Clock, ArrowLeft, CheckCircle, User, Mail, Phone, MessageSquare } from 'lucide-react'
-import { format, addMinutes } from 'date-fns'
-import type { EventType, Profile, CustomQuestion } from '../lib/supabase'
+import { Calendar, Clock, ArrowLeft, CheckCircle } from 'lucide-react'
+import { format } from 'date-fns'
+import type { EventType, Profile } from '../lib/supabase'
 import LanguageSwitcher from '../components/LanguageSwitcher'
 
 interface LocationState {

@@ -5,6 +5,7 @@ import { Toaster } from 'react-hot-toast'
 import './i18n'
 import ProtectedRoute from './components/ProtectedRoute'
 import Layout from './components/Layout'
+import { PWAInstallPrompt } from './components/PWAInstallPrompt'
 import HomePage from './pages/HomePage'
 import AuthPage from './pages/AuthPage'
 import DashboardPage from './pages/DashboardPage'
@@ -63,6 +64,7 @@ function App() {
           </Routes>
         </div>
         <Toaster position="top-right" />
+        <PWAInstallPrompt />
       </Router>
         </AuthProvider>
       </ThemeProvider>

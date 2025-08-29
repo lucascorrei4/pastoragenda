@@ -8,24 +8,71 @@ export default defineConfig({
     react(),
     VitePWA({
       registerType: 'autoUpdate',
-      includeAssets: ['favicon.ico'],
+      includeAssets: [
+        'favicon.ico',
+        'apple-touch-icon.png',
+        'masked-icon.svg'
+      ],
       manifest: {
-        name: 'PastorAgenda',
+        name: 'PastorAgenda - Schedule with Pastors',
         short_name: 'PastorAgenda',
-        description: 'Schedule appointments with pastors and religious leaders',
-        theme_color: '#3b82f6',
+        description: 'Schedule appointments with pastors and religious leaders through our easy-to-use booking platform',
+        theme_color: '#0ea5e9',
         background_color: '#ffffff',
         display: 'standalone',
+        orientation: 'portrait',
+        scope: '/',
+        start_url: '/',
+        categories: ['productivity', 'business', 'lifestyle'],
+        lang: 'en',
+        dir: 'ltr',
         icons: [
           {
-            src: 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTkyIiBoZWlnaHQ9IjE5MiIgdmlld0JveD0iMCAwIDE5MiAxOTIiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSIxOTIiIGhlaWdodD0iMTkyIiByeD0iMjQiIGZpbGw9IiMzYjgyZjYiLz4KPHN2ZyB4PSI0OCIgeT0iNDgiIHdpZHRoPSI5NiIgaGVpZ2h0PSI5NiIgdmlld0JveD0iMCAwIDI0IDI0IiBmaWxsPSJ3aGl0ZSI+CjxwYXRoIGQ9Ik04IDJIMTZMMTkgNkg1TDggMloiLz4KPHBhdGggZD0iTTQgOEgyMFYxOEMyMCAxOS4xMDQ2IDE5LjEwNDYgMjAgMTggMjBINkM0Ljg5NTQzIDIwIDQgMTkuMTA0NiA0IDE4VjhaIi8+CjxwYXRoIGQ9Ik0xMCAxMkgxNFYxNkgxMFYxMloiLz4KPHBhdGggZD0iTTEwIDE4SDE0VjIySDEwVjE4WiIvPgo8L3N2Zz4KPC9zdmc+',
+            src: '/pwa-192x192.png',
             sizes: '192x192',
-            type: 'image/svg+xml'
+            type: 'image/png',
+            purpose: 'any maskable'
+          },
+          {
+            src: '/pwa-512x512.png',
+            sizes: '512x512',
+            type: 'image/png',
+            purpose: 'any maskable'
+          },
+          {
+            src: '/apple-touch-icon.png',
+            sizes: '180x180',
+            type: 'image/png',
+            purpose: 'any'
+          },
+          {
+            src: '/masked-icon.svg',
+            sizes: 'any',
+            type: 'image/svg+xml',
+            purpose: 'maskable'
+          }
+        ],
+        screenshots: [
+          {
+            src: '/screenshot-wide.png',
+            sizes: '1280x720',
+            type: 'image/png',
+            form_factor: 'wide'
+          },
+          {
+            src: '/screenshot-narrow.png',
+            sizes: '750x1334',
+            type: 'image/png',
+            form_factor: 'narrow'
           }
         ]
       },
       workbox: {
-        globPatterns: ['**/*.{js,css,html,ico}']
+        globPatterns: ['**/*.{js,css,html,ico,png,svg,woff2}']
+      },
+      devOptions: {
+        enabled: true,
+        type: 'module'
       }
     })
   ],

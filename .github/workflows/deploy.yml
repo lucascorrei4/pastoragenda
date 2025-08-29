@@ -1,0 +1,206 @@
+name: Build and Deploy PastorAgenda to Production
+
+on:
+  push:
+    branches: [ "main" ] # Changed from "master" to "main" (common default)
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+    # 1. Get the code from the repository
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    # 2. Set up Node.js
+    - name: Use Node.js 22
+      uses: actions/setup-node@v4
+      with:
+        node-version: '22'
+        cache: 'npm'
+        cache-dependency-path: '**/package-lock.json'
+
+    # 3. Install dependencies and build both packages
+    - name: Install dependencies and build
+      run: |
+        npm install
+        npm run build:client
+        npm run build:supabase
+
+    # 4. Create environment file for client build
+    - name: Create environment file for client
+      run: |
+        cd packages/client
+        echo "VITE_SUPABASE_URL=${{ secrets.VITE_SUPABASE_URL }}" >> .env
+        echo "VITE_SUPABASE_ANON_KEY=${{ secrets.VITE_SUPABASE_ANON_KEY }}" >> .env
+        echo "VITE_APP_URL=${{ secrets.VITE_APP_URL }}" >> .env
+        
+        echo "--- Verifying contents of the created .env file: ---"
+        cat .env
+        echo "---------------------------------------------"
+
+    # 5. Rebuild client with environment variables
+    - name: Rebuild client with environment
+      run: |
+        cd packages/client
+        npm run build
+
+    # 6. Create the deployment package
+    - name: Create Deployment Package
+      run: |
+        mkdir -p deploy-package
+        mkdir -p deploy-package/client
+        mkdir -p deploy-package/supabase
+        
+        # Copy client build (Vite builds to dist/)
+        cp -R packages/client/dist ./deploy-package/client/
+        cp packages/client/package.json ./deploy-package/client/
+        
+        # Copy supabase functions
+        cp -R packages/supabase/supabase ./deploy-package/supabase/
+        cp packages/supabase/package.json ./deploy-package/supabase/
+        
+        # Copy root package files
+        cp package.json ./deploy-package/
+        cp package-lock.json ./deploy-package/
+        
+        # Create deployment script
+        cat > ./deploy-package/deploy.sh << 'EOF'
+        #!/bin/bash
+        set -e
+        
+        echo "Starting deployment..."
+        
+        # Install production dependencies
+        npm ci --omit=dev
+        
+        # Install client dependencies
+        cd client
+        npm ci --omit=dev
+        cd ..
+        
+        # Install supabase dependencies
+        cd supabase
+        npm ci --omit=dev
+        cd ..
+        
+        # Fix permissions
+        sudo chown -R www-data:www-data .
+        
+        # Deploy Supabase functions
+        cd supabase
+        supabase functions deploy --project-ref $SUPABASE_PROJECT_REF
+        cd ..
+        
+        echo "Deployment completed successfully!"
+        EOF
+        
+        chmod +x ./deploy-package/deploy.sh
+        
+        # Create nginx configuration
+        cat > ./deploy-package/nginx.conf << 'EOF'
+        server {
+            listen 80;
+            server_name your-domain.com; # Replace with your actual domain
+            
+            root /var/www/pastoragenda/client;
+            index index.html;
+            
+            # Handle client-side routing
+            location / {
+                try_files $uri $uri/ /index.html;
+            }
+            
+            # Cache static assets
+            location ~* \.(js|css|png|jpg|jpeg|gif|ico|svg|woff|woff2|ttf|eot)$ {
+                expires 1y;
+                add_header Cache-Control "public, immutable";
+            }
+            
+            # Security headers
+            add_header X-Frame-Options "SAMEORIGIN" always;
+            add_header X-Content-Type-Options "nosniff" always;
+            add_header X-XSS-Protection "1; mode=block" always;
+            add_header Referrer-Policy "strict-origin-when-cross-origin" always;
+        }
+        EOF
+        
+        # Create PM2 ecosystem file
+        cat > ./deploy-package/ecosystem.config.js << 'EOF'
+        module.exports = {
+          apps: [{
+            name: 'pastoragenda',
+            script: 'npm',
+            args: 'start',
+            cwd: '/var/www/pastoragenda',
+            env: {
+              NODE_ENV: 'production',
+              PORT: 3000
+            },
+            instances: 'max',
+            exec_mode: 'cluster',
+            autorestart: true,
+            watch: false,
+            max_memory_restart: '1G'
+          }]
+        };
+        EOF
+        
+        # Create tar package
+        tar -czf deploy-package.tar.gz -C deploy-package .
+
+    # 7. Upload the package to your server using SCP
+    - name: Upload Deployment Package
+      uses: appleboy/scp-action@v0.1.4
+      with:
+        host: ${{ secrets.SSH_HOST }}
+        username: ${{ secrets.SSH_USER }}
+        key: ${{ secrets.SSH_PRIVATE_KEY }}
+        port: ${{ secrets.SSH_PORT }}
+        source: "deploy-package.tar.gz"
+        target: "/tmp"
+
+    # 8. Extract package and deploy on the server
+    - name: Run Deployment Script
+      uses: appleboy/ssh-action@v1.0.3
+      with:
+        host: ${{ secrets.SSH_HOST }}
+        username: ${{ secrets.SSH_USER }}
+        key: ${{ secrets.SSH_PRIVATE_KEY }}
+        port: ${{ secrets.SSH_PORT }}
+        script: |
+          # Create deployment directory if it doesn't exist
+          sudo mkdir -p /var/www/pastoragenda
+          sudo chown $USER:$USER /var/www/pastoragenda
+          
+          cd /var/www/pastoragenda
+          
+          # Remove old deployment to ensure clean state
+          rm -rf ./*
+          
+          # Extract the new package
+          tar -xzf /tmp/deploy-package.tar.gz
+          
+          # Set environment variables for deployment
+          export SUPABASE_PROJECT_REF="${{ secrets.SUPABASE_PROJECT_REF }}"
+          export SUPABASE_ACCESS_TOKEN="${{ secrets.SUPABASE_ACCESS_TOKEN }}"
+          
+          # Run deployment script
+          chmod +x deploy.sh
+          ./deploy.sh
+          
+          # Copy nginx configuration
+          sudo cp nginx.conf /etc/nginx/sites-available/pastoragenda
+          sudo ln -sf /etc/nginx/sites-available/pastoragenda /etc/nginx/sites-enabled/
+          
+          # Test nginx configuration
+          sudo nginx -t
+          
+          # Reload nginx
+          sudo systemctl reload nginx
+          
+          # Clean up
+          rm -f /tmp/deploy-package.tar.gz
+          
+          echo "Deployment completed successfully!"

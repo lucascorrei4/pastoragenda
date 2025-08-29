@@ -4,7 +4,7 @@ import { useTranslation } from 'react-i18next'
 import { supabase } from '../lib/supabase'
 import { Calendar, Clock, ArrowLeft, Check } from 'lucide-react'
 import { format, addDays, startOfWeek, addWeeks, isSameDay, parseISO } from 'date-fns'
-import type { EventType, Profile, AvailabilityRules, TimeSlot } from '../lib/supabase'
+import type { EventType, Profile, AvailabilityRules } from '../lib/supabase'
 import LanguageSwitcher from '../components/LanguageSwitcher'
 
 interface AvailableTimeSlot {

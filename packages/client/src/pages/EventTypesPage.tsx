@@ -4,7 +4,7 @@ import { useTranslation } from 'react-i18next'
 import { supabase } from '../lib/supabase'
 import { toast } from 'react-hot-toast'
 import { Calendar, Plus, Edit, Trash2, Clock, Settings } from 'lucide-react'
-import type { EventType, AvailabilityRules, TimeSlot, CustomQuestion } from '../lib/supabase'
+import type { EventType, AvailabilityRules, CustomQuestion } from '../lib/supabase'
 
 interface EventTypeFormData {
   title: string
