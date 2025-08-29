@@ -1,43 +1,40 @@
-# Use Node.js 22 LTS for better performance and compatibility
+# Use a stable Node.js LTS version
 FROM node:22-alpine
 
-# Set the working directory in the container
+# --- Build-time Secrets ---
+# This section is CRUCIAL. It tells Docker to accept the build arguments from Easypanel.
+ARG VITE_SUPABASE_URL
+ARG VITE_SUPABASE_ANON_KEY
+ARG VITE_APP_URL
+
+# Set the working directory
 WORKDIR /app
 
-# Install system dependencies
-RUN apk add --no-cache python3 make g++
-
-# Copy root package files first
+# Copy package configurations
 COPY package*.json ./
-
-# Copy workspace configuration
 COPY packages/ ./packages/
 
-# Install root dependencies
-RUN npm ci --omit=dev
+# Install all monorepo dependencies correctly in one step
+RUN npm install --omit=dev
 
-# Install client dependencies
-WORKDIR /app/packages/client
-RUN npm ci --omit=dev
+# Copy the rest of your application source code
+COPY . .
 
-# Build the client application
-RUN npm run build
+# --- Make Secrets Available to the Build Script ---
+# This makes the secrets available as environment variables for the build command
+ENV VITE_SUPABASE_URL=$VITE_SUPABASE_URL
+ENV VITE_SUPABASE_ANON_KEY=$VITE_SUPABASE_ANON_KEY
+ENV VITE_APP_URL=$VITE_APP_URL
 
-# Go back to root directory
-WORKDIR /app
+# Build the specific client workspace
+RUN npm run build --workspace=@pastoragenda/client
 
-# Install PM2 globally
-RUN npm install -g pm2
+# Install PM2 and serve globally for the final stage
+RUN npm install pm2 serve -g
 
-# Create PM2 ecosystem file
-RUN echo 'module.exports = { apps: [{ name: "pastoragenda", script: "npx", args: "serve -s packages/client/dist -l 4000", cwd: "/app", env: { NODE_ENV: "production", PORT: 4000 } }] };' > ecosystem.config.js
-
-# Expose the port the app will run on
+# Expose port 4000
 EXPOSE 4000
 
-# Health check to ensure the app is running
-HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
-  CMD wget --no-verbose --tries=1 --spider http://localhost:4000/ || exit 1
-
-# Start the application with PM2
-CMD ["pm2-runtime", "start", "ecosystem.config.js"]
+# Start the application using PM2 on port 4000
+# NOTE: Check if your build output folder is 'dist'. If it's 'build', change the path below.
+CMD ["pm2-runtime", "npx", "serve", "-s", "packages/client/dist", "-l", "4000"]
