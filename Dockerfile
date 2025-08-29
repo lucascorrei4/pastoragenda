@@ -46,4 +46,4 @@ EXPOSE 4000
 
 # Start the application using PM2, serving the files from the 'public' folder
 # Change this line:
-CMD ["pm2-runtime", "npx", "serve", "-s", "public", "-l", "tcp://0.0.0.0:4000"]
+CMD ["serve", "-s", "public", "-l", "tcp://0.0.0.0:4000"]
