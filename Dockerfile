@@ -1,28 +1,43 @@
-# Use an official Node.js runtime as the base image
-FROM node:18-alpine
+# Use Node.js 22 LTS for better performance and compatibility
+FROM node:22-alpine
 
 # Set the working directory in the container
 WORKDIR /app
 
-# Copy package.json and package-lock.json
+# Install system dependencies
+RUN apk add --no-cache python3 make g++
+
+# Copy root package files first
 COPY package*.json ./
 
-# Install project dependencies
-RUN npm install
+# Copy workspace configuration
+COPY packages/ ./packages/
 
-# Install PM2 globally within the container
-RUN npm install pm2 -g
+# Install root dependencies
+RUN npm ci --omit=dev
 
-# Copy the rest of your application's source code
-COPY . .
+# Install client dependencies
+WORKDIR /app/packages/client
+RUN npm ci --omit=dev
 
-# Build your React application for production
-# IMPORTANT: Verify your build output is 'client'. If it's 'build', change the path in the CMD line below.
+# Build the client application
 RUN npm run build
 
-# Expose the port the app will run on
-EXPOSE 3000
+# Go back to root directory
+WORKDIR /app
 
-# The command to start the app using PM2
-# This tells PM2 to run the 'serve' command on the 'client' folder, listening on port 3000
-CMD ["pm2-runtime", "npx", "serve", "-s", "client", "-l", "3000"]
+# Install PM2 globally
+RUN npm install -g pm2
+
+# Create PM2 ecosystem file
+RUN echo 'module.exports = { apps: [{ name: "pastoragenda", script: "npx", args: "serve -s packages/client/dist -l 4000", cwd: "/app", env: { NODE_ENV: "production", PORT: 4000 } }] };' > ecosystem.config.js
+
+# Expose the port the app will run on
+EXPOSE 4000
+
+# Health check to ensure the app is running
+HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
+  CMD wget --no-verbose --tries=1 --spider http://localhost:4000/ || exit 1
+
+# Start the application with PM2
+CMD ["pm2-runtime", "start", "ecosystem.config.js"]
