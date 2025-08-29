@@ -1,14 +1,13 @@
 import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../contexts/AuthContext'
-import { useTranslation } from 'react-i18next'
 import { supabase } from '../lib/supabase'
-import { Mail, KeyRound, ArrowLeft, CheckCircle } from 'lucide-react'
+import { authUtils } from '../lib/auth'
+import { Mail, KeyRound, ArrowLeft, CheckCircle, RefreshCw } from 'lucide-react'
 import { toast } from 'react-hot-toast'
 
 function AuthPage() {
-  const { user } = useAuth()
-  const { t } = useTranslation()
+  const { user, loading } = useAuth()
   const navigate = useNavigate()
   const [step, setStep] = useState<'email' | 'otp'>('email')
   const [email, setEmail] = useState('')
@@ -18,10 +17,31 @@ function AuthPage() {
   const [isNewUser, setIsNewUser] = useState(false)
 
   useEffect(() => {
-    if (user) {
-      navigate('/dashboard')
+    // Check if user is already authenticated
+    const checkAuthStatus = async () => {
+      if (loading) return // Wait for AuthContext to finish loading
+      
+      if (user) {
+        // User is authenticated, redirect to dashboard
+        navigate('/dashboard', { replace: true })
+        return
+      }
+
+      // Fallback: Check localStorage for auth token
+      try {
+        const { data: { session }, error } = await supabase.auth.getSession()
+        if (session && session.user && !error) {
+          // Valid session found, redirect to dashboard
+          navigate('/dashboard', { replace: true })
+          return
+        }
+      } catch (error) {
+        console.log('Session check failed:', error)
+      }
     }
-  }, [user, navigate])
+
+    checkAuthStatus()
+  }, [user, loading, navigate])
 
   useEffect(() => {
     let timer: NodeJS.Timeout
@@ -126,6 +146,26 @@ function AuthPage() {
     setIsNewUser(false)
   }
 
+  const handleClearSession = async () => {
+    try {
+      await authUtils.clearAuthData()
+      toast.success('Session cleared successfully. Please refresh the page.')
+      // Force page refresh to ensure clean state
+      window.location.reload()
+    } catch (error) {
+      toast.error('Failed to clear session')
+    }
+  }
+
+  // Show loading while checking auth status
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800">
+        <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-primary-600"></div>
+      </div>
+    )
+  }
+
   return (
     <div className="min-h-screen flex flex-col justify-center py-12 sm:px-6 lg:px-8 bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800">
       <div className="sm:mx-auto sm:w-full sm:max-w-md">
@@ -150,6 +190,19 @@ function AuthPage() {
 
       <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
         <div className="bg-white dark:bg-gray-800 py-8 px-4 shadow-xl sm:rounded-xl sm:px-10 border border-gray-200 dark:border-gray-700">
+          {/* Debug Button - Only show in development */}
+          {process.env.NODE_ENV === 'development' && (
+            <div className="mb-4 text-center">
+              <button
+                onClick={handleClearSession}
+                className="text-xs text-gray-500 dark:text-gray-400 hover:text-red-500 dark:hover:text-red-400 flex items-center mx-auto"
+              >
+                <RefreshCw className="w-3 h-3 mr-1" />
+                Clear Session (Debug)
+              </button>
+            </div>
+          )}
+
           {/* Back Button - Show when on OTP step */}
           {step === 'otp' && (
             <button
@@ -182,35 +235,33 @@ function AuthPage() {
                       required
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
-                      className="block w-full pl-10 pr-3 py-3 border border-gray-300 dark:border-gray-600 rounded-lg shadow-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400"
+                      className="appearance-none relative block w-full px-3 py-3 pl-10 border border-gray-300 dark:border-gray-600 placeholder-gray-500 dark:placeholder-gray-400 text-gray-900 dark:text-white rounded-lg focus:outline-none focus:ring-primary-500 focus:border-primary-500 focus:z-10 sm:text-sm bg-white dark:bg-gray-700"
                       placeholder="Enter your email address"
                     />
                   </div>
                 </div>
 
-                {/* Send OTP Button */}
-                <button
-                  onClick={handleSendOTP}
-                  disabled={isLoading || !email}
-                  className="w-full flex justify-center py-3 px-4 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white bg-primary-600 hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 disabled:opacity-50 disabled:cursor-not-allowed transition-colors duration-200"
-                >
-                  {isLoading ? (
-                    <div className="flex items-center">
-                      <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
-                      Sending OTP...
-                    </div>
-                  ) : (
-                    <>
-                      <KeyRound className="w-4 h-4 mr-2" />
-                      Continue with Email
-                    </>
-                  )}
-                </button>
-
-                {/* Info Text */}
-                <p className="text-xs text-gray-500 dark:text-gray-400 text-center">
-                  We'll automatically create an account if you're new, or sign you in if you already have one.
-                </p>
+                {/* Submit Button */}
+                <div>
+                  <button
+                    type="button"
+                    onClick={handleSendOTP}
+                    disabled={isLoading}
+                    className="group relative w-full flex justify-center py-3 px-4 border border-transparent text-sm font-medium rounded-lg text-white bg-primary-600 hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 disabled:opacity-50 disabled:cursor-not-allowed transition-colors duration-200"
+                  >
+                    {isLoading ? (
+                      <div className="flex items-center">
+                        <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                        Sending...
+                      </div>
+                    ) : (
+                      <div className="flex items-center">
+                        <KeyRound className="w-4 h-4 mr-2" />
+                        Continue with Email
+                      </div>
+                    )}
+                  </button>
+                </div>
               </div>
             ) : (
               <div className="space-y-6">
@@ -221,7 +272,7 @@ function AuthPage() {
                   </label>
                   <div className="relative">
                     <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                      <KeyRound className="h-5 w-5 text-gray-400" />
+                      <CheckCircle className="h-5 w-5 text-gray-400" />
                     </div>
                     <input
                       id="otp"
@@ -230,64 +281,65 @@ function AuthPage() {
                       autoComplete="one-time-code"
                       required
                       value={otp}
-                      onChange={(e) => setOtp(e.target.value.replace(/\D/g, '').slice(0, 6))}
-                      className="block w-full pl-10 pr-3 py-3 border border-gray-300 dark:border-gray-600 rounded-lg shadow-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 text-center text-lg tracking-widest font-mono"
-                      placeholder="000000"
+                      onChange={(e) => setOtp(e.target.value)}
                       maxLength={6}
+                      className="appearance-none relative block w-full px-3 py-3 pl-10 border border-gray-300 dark:border-gray-600 placeholder-gray-500 dark:placeholder-gray-400 text-gray-900 dark:text-white rounded-lg focus:outline-none focus:ring-primary-500 focus:border-primary-500 focus:z-10 sm:text-sm bg-white dark:bg-gray-700 text-center text-lg font-mono tracking-widest"
+                      placeholder="000000"
                     />
                   </div>
                   <p className="mt-2 text-sm text-gray-600 dark:text-gray-400">
-                    We've sent a 6-digit OTP code to <span className="font-medium text-gray-900 dark:text-white">{email}</span>
+                    We've sent a 6-digit OTP code to {email}
                   </p>
                 </div>
 
-                {/* Verify OTP Button */}
-                <button
-                  onClick={handleVerifyOTP}
-                  disabled={isLoading || otp.length !== 6}
-                  className="w-full flex justify-center py-3 px-4 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white bg-primary-600 hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 disabled:opacity-50 disabled:cursor-not-allowed transition-colors duration-200"
-                >
-                  {isLoading ? (
-                    <div className="flex items-center">
-                      <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
-                      Verifying...
-                    </div>
-                  ) : (
-                    <>
-                      <CheckCircle className="w-4 h-4 mr-2" />
-                      Verify & Continue
-                    </>
-                  )}
-                </button>
+                {/* Submit Button */}
+                <div>
+                  <button
+                    type="button"
+                    onClick={handleVerifyOTP}
+                    disabled={isLoading || otp.length < 6}
+                    className="group relative w-full flex justify-center py-3 px-4 border border-transparent text-sm font-medium rounded-lg text-white bg-primary-600 hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 disabled:opacity-50 disabled:cursor-not-allowed transition-colors duration-200"
+                  >
+                    {isLoading ? (
+                      <div className="flex items-center">
+                        <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                        Verifying...
+                      </div>
+                    ) : (
+                      'Verify OTP'
+                    )}
+                  </button>
+                </div>
 
                 {/* Resend OTP */}
                 <div className="text-center">
                   <button
+                    type="button"
                     onClick={handleResendOTP}
                     disabled={countdown > 0}
-                    className="text-sm text-primary-600 hover:text-primary-500 disabled:text-gray-400 disabled:cursor-not-allowed transition-colors duration-200"
+                    className="text-sm text-primary-600 dark:text-primary-400 hover:text-primary-500 dark:hover:text-primary-300 disabled:opacity-50 disabled:cursor-not-allowed transition-colors duration-200"
                   >
-                    {countdown > 0 ? `Resend in ${countdown}s` : 'Resend OTP Code'}
+                    {countdown > 0 ? `Resend OTP Code (${countdown}s)` : 'Resend OTP Code'}
                   </button>
                 </div>
               </div>
             )}
           </div>
-        </div>
-      </div>
 
-      {/* Terms and Privacy */}
-      <div className="mt-8 text-center">
-        <p className="text-sm text-gray-600 dark:text-gray-400">
-          {t('auth.terms')}{' '}
-          <a href="#" className="font-medium text-primary-600 hover:text-primary-500 transition-colors duration-200">
-            {t('auth.termsOfService')}
-          </a>{' '}
-          {t('common.and')}{' '}
-          <a href="#" className="font-medium text-primary-600 hover:text-primary-500 transition-colors duration-200">
-            {t('auth.privacyPolicy')}
-          </a>
-        </p>
+          {/* Terms and Privacy */}
+          <div className="mt-6 text-center">
+            <p className="text-xs text-gray-500 dark:text-gray-400">
+              By signing up, you agree to our{' '}
+              <a href="/terms" className="text-primary-600 dark:text-primary-400 hover:text-primary-500">
+                Terms of Service
+              </a>{' '}
+              and{' '}
+              <a href="/privacy" className="text-primary-600 dark:text-primary-400 hover:text-primary-500">
+                Privacy Policy
+              </a>
+            </p>
+          </div>
+        </div>
       </div>
     </div>
   )
