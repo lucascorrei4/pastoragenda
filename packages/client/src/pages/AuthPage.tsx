@@ -2,8 +2,7 @@ import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../contexts/AuthContext'
 import { supabase } from '../lib/supabase'
-import { authUtils } from '../lib/auth'
-import { Mail, KeyRound, ArrowLeft, CheckCircle, RefreshCw } from 'lucide-react'
+import { Mail, KeyRound, ArrowLeft, CheckCircle } from 'lucide-react'
 import { toast } from 'react-hot-toast'
 
 function AuthPage() {
@@ -13,7 +12,6 @@ function AuthPage() {
   const [email, setEmail] = useState('')
   const [otp, setOtp] = useState('')
   const [isLoading, setIsLoading] = useState(false)
-  const [countdown, setCountdown] = useState(0)
   const [isNewUser, setIsNewUser] = useState(false)
 
   useEffect(() => {
@@ -36,20 +34,17 @@ function AuthPage() {
           return
         }
       } catch (error) {
-        console.log('Session check failed:', error)
+        // Silent fail for production
       }
     }
 
     checkAuthStatus()
   }, [user, loading, navigate])
 
+  // Ensure we start with email step
   useEffect(() => {
-    let timer: NodeJS.Timeout
-    if (countdown > 0) {
-      timer = setTimeout(() => setCountdown(countdown - 1), 1000)
-    }
-    return () => clearTimeout(timer)
-  }, [countdown])
+    setStep('email')
+  }, [])
 
   const handleSendOTP = async () => {
     if (!email || !email.includes('@')) {
@@ -58,9 +53,10 @@ function AuthPage() {
     }
 
     setIsLoading(true)
+    
     try {
       // First try to sign in (check if user exists)
-      const { error: signInError } = await supabase.auth.signInWithOtp({
+      const { data, error: signInError } = await supabase.auth.signInWithOtp({
         email,
         options: {
           emailRedirectTo: `${window.location.origin}/dashboard`
@@ -69,7 +65,7 @@ function AuthPage() {
 
       if (signInError) {
         // User doesn't exist, try to sign up
-        const { error: signUpError } = await supabase.auth.signUp({
+        const { data: signUpData, error: signUpError } = await supabase.auth.signUp({
           email,
           password: 'temp-password-123', // Temporary password for OTP flow
           options: {
@@ -78,20 +74,25 @@ function AuthPage() {
         })
 
         if (signUpError) {
-          toast.error(signUpError.message)
+          toast.error('Unable to send OTP. Please try again.')
           return
         }
-        setIsNewUser(true)
-        toast.success('Welcome! OTP code sent to your email.')
+        
+        if (signUpData.user && !signUpData.user.email_confirmed_at) {
+          setIsNewUser(true)
+          toast.success('Welcome! OTP code sent to your email.')
+        } else {
+          toast.error('Unable to send OTP. Please try again.')
+          return
+        }
       } else {
         setIsNewUser(false)
         toast.success('Welcome back! OTP code sent to your email.')
       }
 
       setStep('otp')
-      setCountdown(60) // 60 second countdown
     } catch (error) {
-      toast.error('Failed to send OTP code. Please try again.')
+      toast.error('Unable to send OTP. Please try again.')
     } finally {
       setIsLoading(false)
     }
@@ -113,7 +114,7 @@ function AuthPage() {
       })
 
       if (error) {
-        toast.error(error.message)
+        toast.error('Invalid OTP code. Please try again.')
         return
       }
 
@@ -127,14 +128,13 @@ function AuthPage() {
       // The user will be automatically redirected by the AuthContext useEffect
       // which detects the user state change and navigates to /dashboard
     } catch (error) {
-      toast.error('Failed to verify OTP code. Please try again.')
+      toast.error('Unable to verify OTP. Please try again.')
     } finally {
       setIsLoading(false)
     }
   }
 
   const handleResendOTP = () => {
-    if (countdown > 0) return
     handleSendOTP()
   }
 
@@ -142,19 +142,7 @@ function AuthPage() {
     setStep('email')
     setEmail('')
     setOtp('')
-    setCountdown(0)
     setIsNewUser(false)
-  }
-
-  const handleClearSession = async () => {
-    try {
-      await authUtils.clearAuthData()
-      toast.success('Session cleared successfully. Please refresh the page.')
-      // Force page refresh to ensure clean state
-      window.location.reload()
-    } catch (error) {
-      toast.error('Failed to clear session')
-    }
   }
 
   // Show loading while checking auth status
@@ -190,19 +178,6 @@ function AuthPage() {
 
       <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
         <div className="bg-white dark:bg-gray-800 py-8 px-4 shadow-xl sm:rounded-xl sm:px-10 border border-gray-200 dark:border-gray-700">
-          {/* Debug Button - Only show in development */}
-          {process.env.NODE_ENV === 'development' && (
-            <div className="mb-4 text-center">
-              <button
-                onClick={handleClearSession}
-                className="text-xs text-gray-500 dark:text-gray-400 hover:text-red-500 dark:hover:text-red-400 flex items-center mx-auto"
-              >
-                <RefreshCw className="w-3 h-3 mr-1" />
-                Clear Session (Debug)
-              </button>
-            </div>
-          )}
-
           {/* Back Button - Show when on OTP step */}
           {step === 'otp' && (
             <button
@@ -263,7 +238,7 @@ function AuthPage() {
                   </button>
                 </div>
               </div>
-            ) : (
+            ) : step === 'otp' ? (
               <div className="space-y-6">
                 {/* OTP Input */}
                 <div>
@@ -316,12 +291,25 @@ function AuthPage() {
                   <button
                     type="button"
                     onClick={handleResendOTP}
-                    disabled={countdown > 0}
+                    disabled={isLoading}
                     className="text-sm text-primary-600 dark:text-primary-400 hover:text-primary-500 dark:hover:text-primary-300 disabled:opacity-50 disabled:cursor-not-allowed transition-colors duration-200"
                   >
-                    {countdown > 0 ? `Resend OTP Code (${countdown}s)` : 'Resend OTP Code'}
+                    Resend OTP Code
                   </button>
                 </div>
+              </div>
+            ) : (
+              // Fallback - should show email step
+              <div className="space-y-6">
+                <div className="text-center text-red-500">
+                  Error: Invalid step state. Please refresh the page.
+                </div>
+                <button
+                  onClick={() => setStep('email')}
+                  className="w-full py-3 px-4 bg-primary-600 text-white rounded-lg"
+                >
+                  Go to Email Step
+                </button>
               </div>
             )}
           </div>

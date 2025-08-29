@@ -3,6 +3,7 @@ import { useAuth } from '../contexts/AuthContext'
 import { Calendar, Users, Clock, Shield, ArrowRight, CheckCircle, MessageSquare, Mail } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import LanguageSwitcher from '../components/LanguageSwitcher'
+import packageJson from '../../package.json'
 
 function HomePage() {
   const { user } = useAuth()
@@ -41,24 +42,62 @@ function HomePage() {
 
       {/* Hero Section */}
       <section className="relative overflow-hidden bg-gradient-to-br from-gray-50 via-white to-primary-50 dark:from-gray-900 dark:via-gray-800 dark:to-primary-900/20">
-        <div className="absolute inset-0 bg-grid-pattern opacity-5"></div>
+        {/* Enhanced Wave Background */}
+        <div className="absolute inset-0 opacity-[0.08] dark:opacity-[0.12]">
+          <svg className="w-full h-full" viewBox="0 0 1200 800" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="none">
+            <defs>
+              <linearGradient id="waveGradient1" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" stopColor="#0ea5e9" stopOpacity="0.4" />
+                <stop offset="50%" stopColor="#06b6d4" stopOpacity="0.3" />
+                <stop offset="100%" stopColor="#0891b2" stopOpacity="0.4" />
+              </linearGradient>
+              <linearGradient id="waveGradient2" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" stopColor="#0891b2" stopOpacity="0.3" />
+                <stop offset="50%" stopColor="#0ea5e9" stopOpacity="0.2" />
+                <stop offset="100%" stopColor="#06b6d4" stopOpacity="0.3" />
+              </linearGradient>
+            </defs>
+            {/* First wave - more organic curve */}
+            <path
+              d="M0,600 C200,500 400,650 600,600 S800,500 1000,600 S1200,700 1200,600 L1200,800 L0,800 Z"
+              fill="url(#waveGradient1)"
+              className="animate-pulse"
+              style={{ animationDuration: '15s', animationTimingFunction: 'ease-in-out' }}
+            />
+            {/* Second wave - overlapping for depth */}
+            <path
+              d="M0,650 C300,550 600,700 900,650 S1200,600 1200,650 L1200,800 L0,800 Z"
+              fill="url(#waveGradient2)"
+              className="animate-pulse"
+              style={{ animationDuration: '20s', animationTimingFunction: 'ease-in-out', animationDelay: '3s' }}
+            />
+            {/* Third subtle wave for extra depth */}
+            <path
+              d="M0,700 C250,650 500,750 750,700 S1000,650 1200,700 L1200,800 L0,800 Z"
+              fill="url(#waveGradient1)"
+              className="animate-pulse"
+              style={{ animationDuration: '25s', animationTimingFunction: 'ease-in-out', animationDelay: '6s' }}
+            />
+          </svg>
+        </div>
+
         <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-20 pb-32">
           <div className="text-center max-w-4xl mx-auto">
             <div className="inline-flex items-center px-4 py-2 rounded-full bg-teal-100 dark:bg-teal-900/30 text-teal-800 dark:text-teal-200 text-sm font-medium mb-8">
               {t('home.hero.badge')}
             </div>
-            
+
             <h1 className="text-5xl md:text-6xl lg:text-7xl font-bold tracking-tight text-gray-900 dark:text-white mb-6">
               <span className="block">{t('home.hero.title')}</span>
               <span className="block bg-gradient-to-r from-blue-600 via-blue-500 to-purple-600 dark:from-blue-400 dark:via-blue-300 dark:to-purple-400 bg-clip-text text-transparent">
                 {t('home.hero.subtitle')}
               </span>
             </h1>
-            
+
             <p className="text-xl md:text-2xl text-gray-600 dark:text-gray-300 mb-10 leading-relaxed max-w-3xl mx-auto">
               {t('home.hero.description')}
             </p>
-            
+
             <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
               <Link
                 to="/auth"
@@ -67,7 +106,7 @@ function HomePage() {
                 {t('home.hero.cta')} +
                 <ArrowRight className="ml-2 w-5 h-5 group-hover:translate-x-1 transition-transform duration-300" />
               </Link>
-              
+
               <button
                 onClick={() => document.getElementById('features')?.scrollIntoView({ behavior: 'smooth' })}
                 className="inline-flex items-center px-8 py-4 border-2 border-white dark:border-gray-300 text-white dark:text-gray-300 font-semibold rounded-xl text-lg hover:border-teal-500 hover:text-teal-400 transition-colors duration-200"
@@ -77,11 +116,6 @@ function HomePage() {
             </div>
           </div>
         </div>
-        
-        {/* Floating Elements */}
-        <div className="absolute top-20 left-10 w-20 h-20 bg-teal-200 dark:bg-teal-800 rounded-full opacity-20 animate-pulse"></div>
-        <div className="absolute top-40 right-20 w-16 h-16 bg-teal-300 dark:bg-teal-700 rounded-full opacity-20 animate-pulse delay-1000"></div>
-        <div className="absolute bottom-20 left-1/4 w-12 h-12 bg-teal-400 dark:bg-teal-600 rounded-full opacity-20 animate-pulse delay-2000"></div>
       </section>
 
       {/* Features Section */}
@@ -213,7 +247,7 @@ function HomePage() {
               {t('home.pricing.description')}
             </p>
           </div>
-          
+
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             {/* Free Plan */}
             <div className="bg-white dark:bg-gray-700 rounded-2xl p-8 shadow-lg border border-gray-200 dark:border-gray-600">
@@ -354,7 +388,7 @@ function HomePage() {
               {t('home.support.description')}
             </p>
           </div>
-          
+
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             <div className="text-center p-8">
               <div className="w-16 h-16 bg-primary-100 dark:bg-primary-900/30 rounded-full flex items-center justify-center mx-auto mb-6">
@@ -370,7 +404,7 @@ function HomePage() {
                 {t('home.support.chat.availability')}
               </p>
             </div>
-            
+
             <div className="text-center p-8">
               <div className="w-16 h-16 bg-primary-100 dark:bg-primary-900/30 rounded-full flex items-center justify-center mx-auto mb-6">
                 <Mail className="w-8 h-8 text-primary-600 dark:text-primary-400" />
@@ -385,7 +419,7 @@ function HomePage() {
                 {t('home.support.email.response')}
               </p>
             </div>
-            
+
             <div className="text-center p-8">
               <div className="w-16 h-16 bg-primary-100 dark:bg-primary-900/30 rounded-full flex items-center justify-center mx-auto mb-6">
                 <Users className="w-8 h-8 text-primary-600 dark:text-primary-400" />
@@ -414,7 +448,7 @@ function HomePage() {
                 {t('home.footer.description')}
               </p>
             </div>
-            
+
             <div>
               <h3 className="text-white font-semibold mb-4">{t('home.footer.product.title')}</h3>
               <ul className="space-y-2 text-sm text-gray-400">
@@ -423,7 +457,7 @@ function HomePage() {
                 <li><a href="#" className="hover:text-white transition-colors">{t('home.footer.product.updates')}</a></li>
               </ul>
             </div>
-            
+
             <div>
               <h3 className="text-white font-semibold mb-4">{t('home.footer.support.title')}</h3>
               <ul className="space-y-2 text-sm text-gray-400">
@@ -432,7 +466,7 @@ function HomePage() {
                 <li><a href="#" className="hover:text-white transition-colors">{t('home.footer.support.community')}</a></li>
               </ul>
             </div>
-            
+
             <div>
               <h3 className="text-white font-semibold mb-4">{t('home.footer.company.title')}</h3>
               <ul className="space-y-2 text-sm text-gray-400">
@@ -442,11 +476,11 @@ function HomePage() {
               </ul>
             </div>
           </div>
-          
+
           <div className="border-t border-gray-800 mt-12 pt-8">
             <div className="flex flex-col sm:flex-row justify-between items-center">
               <p className="text-gray-400 mb-4 sm:mb-0">
-                {t('home.footer.copyright')}
+                {t('home.footer.copyright')} v. {packageJson.version}
               </p>
               <LanguageSwitcher dropdownPosition="above" />
             </div>
@@ -458,4 +492,3 @@ function HomePage() {
 }
 
 export default HomePage
-         
