@@ -1,7 +1,7 @@
 {
-  "name": "@pastortalk/supabase",
+  "name": "@pastoragenda/supabase",
   "version": "1.0.0",
-  "description": "Supabase backend for PastorTalk",
+  "description": "Supabase backend for PastorAgenda",
   "main": "index.js",
   "scripts": {
     "dev": "supabase start",

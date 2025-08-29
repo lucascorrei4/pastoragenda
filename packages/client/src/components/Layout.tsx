@@ -49,7 +49,7 @@ function Layout({ children }: LayoutProps) {
         <div className="fixed inset-y-0 left-0 flex w-64 flex-col bg-white dark:bg-gray-800">
           <div className="flex h-16 items-center justify-between px-4">
             <div className="flex items-center">
-              <img src="/logo.png" alt="PastorTalk" className="h-16 w-auto" />
+              <img src="/logo.png" alt="PastorAgenda" className="h-16 w-auto" />
             </div>
             <div className="flex items-center gap-2">
               <button
@@ -105,7 +105,7 @@ function Layout({ children }: LayoutProps) {
         <div className="flex flex-col flex-grow bg-white dark:bg-gray-800 border-r border-gray-200 dark:border-gray-700">
           <div className="flex h-16 items-center justify-between px-4">
             <div className="flex items-center">
-              <img src="/logo.png" alt="PastorTalk" className="h-16 w-auto" />
+              <img src="/logo.png" alt="PastorAgenda" className="h-16 w-auto" />
             </div>
             <button
               onClick={toggleTheme}
@@ -158,7 +158,7 @@ function Layout({ children }: LayoutProps) {
             <Menu className="h-6 w-6" />
           </button>
           <div className="flex items-center">
-            <img src="/logo.png" alt="PastorTalk" className="h-16 w-auto" />
+            <img src="/logo.png" alt="PastorAgenda" className="h-16 w-auto" />
           </div>
         </div>
 

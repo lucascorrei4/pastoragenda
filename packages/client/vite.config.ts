@@ -10,8 +10,8 @@ export default defineConfig({
       registerType: 'autoUpdate',
       includeAssets: ['favicon.ico'],
       manifest: {
-        name: 'PastorTalk',
-        short_name: 'PastorTalk',
+        name: 'PastorAgenda',
+        short_name: 'PastorAgenda',
         description: 'Schedule appointments with pastors and religious leaders',
         theme_color: '#3b82f6',
         background_color: '#ffffff',

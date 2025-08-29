@@ -153,9 +153,9 @@ async function sendConfirmationEmail({
       
       <p>Please arrive on time for your appointment. If you need to cancel or reschedule, please contact ${pastorName} as soon as possible.</p>
       
-      <p>You can view your pastor's profile at: <a href="https://pastortalk.com/${pastorAlias}">pastortalk.com/${pastorAlias}</a></p>
+      <p>You can view your pastor's profile at: <a href="https://pastoragenda.com/${pastorAlias}">pastoragenda.com/${pastorAlias}</a></p>
       
-      <p>Thank you for using PastorTalk!</p>
+      <p>Thank you for using PastorAgenda!</p>
       
       <hr style="margin: 30px 0; border: none; border-top: 1px solid #e2e8f0;">
       <p style="color: #64748b; font-size: 14px;">
@@ -207,9 +207,9 @@ async function sendPastorNotification({
         <p><strong>Booker Email:</strong> ${bookerEmail}</p>
       </div>
       
-      <p>You can manage your bookings in your PastorTalk dashboard.</p>
+      <p>You can manage your bookings in your PastorAgenda dashboard.</p>
       
-      <p>Thank you for using PastorTalk!</p>
+      <p>Thank you for using PastorAgenda!</p>
       
       <hr style="margin: 30px 0; border: none; border-top: 1px solid #e2e8f0;">
       <p style="color: #64748b; font-size: 14px;">

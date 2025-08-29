@@ -1,5 +1,5 @@
 {
-  "name": "pastortalk",
+  "name": "pastoragenda",
   "version": "1.0.0",
   "description": "A Calendly-like application for pastors and religious leaders to manage appointments",
   "private": true,

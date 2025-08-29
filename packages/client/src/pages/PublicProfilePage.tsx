@@ -120,7 +120,7 @@ function PublicProfilePage() {
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
           <div className="flex items-center justify-between">
             <Link to="/" className="flex items-center">
-              <img src="/logo.png" alt="PastorTalk" className="h-16 w-auto" />
+              <img src="/logo.png" alt="PastorAgenda" className="h-16 w-auto" />
             </Link>
             <div className="flex items-center space-x-4">
               <LanguageSwitcher />
@@ -234,7 +234,7 @@ function PublicProfilePage() {
       <footer className="bg-gray-800 mt-16">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           <div className="text-center">
-            <img src="/logo.png" alt="PastorTalk" className="h-16 w-auto mx-auto mb-2" />
+            <img src="/logo.png" alt="PastorAgenda" className="h-16 w-auto mx-auto mb-2" />
             <p className="text-gray-400">
               {t('home.footer.description')}
             </p>

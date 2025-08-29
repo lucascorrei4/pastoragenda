@@ -33,7 +33,7 @@
     "saving": "Salvando...",
     "and": "e",
     "min": "min",
-    "domain": "pastortalk.com",
+    "domain": "pastoragenda.com",
     "share": "Compartilhar",
     "goHome": "Ir para o Início",
     "today": "Hoje"
@@ -149,15 +149,16 @@
   },
   "home": {
     "hero": {
-      "title": "Conecte-se com Seu Pastor",
-      "subtitle": "Agende encontros significativos com orientação e apoio espiritual",
-      "description": "O PastorTalk facilita para líderes religiosos gerenciarem suas agendas e para as pessoas reservarem consultas significativas. Simplifique seu ministério com nossa plataforma intuitiva de agendamento.",
+      "badge": "Treinado por 1000+ Pastores",
+      "title": "Conecte-se com",
+      "subtitle": "Seu Pastor",
+      "description": "Agende compromissos e sessões de orientação espiritual com seu pastor através de nossa plataforma de agendamento fácil de usar.",
       "cta": "Começar"
     },
     "features": {
-      "title": "Por que escolher o PastorTalk?",
+      "title": "Por que escolher o PastorAgenda?",
       "subtitle": "Tudo o que você precisa para gerenciar seu ministério",
-      "description": "O PastorTalk fornece uma solução abrangente para líderes religiosos gerenciarem compromissos, compartilharem sua disponibilidade e se conectarem com sua comunidade.",
+      "description": "O PastorAgenda fornece uma solução abrangente para líderes religiosos gerenciarem compromissos, compartilharem sua disponibilidade e se conectarem com sua comunidade.",
       "feature1": {
         "title": "Agendamento Fácil",
         "description": "Crie tipos de evento personalizados com durações específicas e regras de disponibilidade. Deixe as pessoas agendarem compromissos que se encaixem na sua agenda."
@@ -182,15 +183,100 @@
       "button": "Agendar um Compromisso"
     },
     "learnMore": "Saiba Mais",
+    "stats": {
+      "pastors": "10.000+",
+      "pastorsLabel": "Pastores Ativos",
+      "appointments": "50.000+",
+      "appointmentsLabel": "Agendamentos Realizados",
+      "satisfaction": "98%",
+      "satisfactionLabel": "Taxa de Satisfação"
+    },
+    "pricing": {
+      "title": "Preços Simples e Transparentes",
+      "description": "Escolha o plano que melhor se adapta às necessidades do seu ministério. Comece grátis e atualize conforme cresce.",
+      "month": "mês",
+      "free": {
+        "title": "Grátis",
+        "description": "Perfeito para começar com necessidades básicas de agendamento",
+        "button": "Começar Grátis",
+        "features": {
+          "feature1": "5 Tipos de Eventos",
+          "feature2": "Agendamento Básico",
+          "feature3": "Notificações por Email"
+        }
+      },
+      "pro": {
+        "title": "Pro",
+        "badge": "Mais Popular",
+        "description": "Ideal para ministérios em crescimento com necessidades avançadas",
+        "button": "Iniciar Plano Pro",
+        "features": {
+          "feature1": "Tipos de Eventos Ilimitados",
+          "feature2": "Agendamento Avançado",
+          "feature3": "Perguntas Personalizadas",
+          "feature4": "Suporte Prioritário"
+        }
+      },
+      "enterprise": {
+        "title": "Empresarial",
+        "description": "Para grandes organizações e ministérios multi-localização",
+        "price": "Personalizado",
+        "period": "Entre em Contato",
+        "button": "Contatar Vendas",
+        "features": {
+          "feature1": "Suporte Multi-Localização",
+          "feature2": "Analytics Avançado",
+          "feature3": "Suporte Dedicado",
+          "feature4": "Integrações Personalizadas"
+        }
+      }
+    },
+    "support": {
+      "title": "Estamos Aqui para Ajudar",
+      "description": "Obtenha o suporte que você precisa para aproveitar ao máximo o PastorAgenda",
+      "chat": {
+        "title": "Chat ao Vivo",
+        "description": "Obtenha ajuda instantânea de nossa equipe de suporte",
+        "availability": "Disponível 24/7"
+      },
+      "email": {
+        "title": "Suporte por Email",
+        "description": "Envie-nos uma mensagem detalhada",
+        "response": "Resposta em até 2 horas"
+      },
+      "community": {
+        "title": "Fórum da Comunidade",
+        "description": "Conecte-se com outros pastores e compartilhe dicas",
+        "access": "Acesso gratuito para todos os usuários"
+      }
+    },
     "footer": {
       "description": "Simplificando o agendamento ministerial para líderes religiosos e suas comunidades.",
-      "copyright": "© 2024 PastorTalk. Todos os direitos reservados."
+      "product": {
+        "title": "Produto",
+        "features": "Recursos",
+        "pricing": "Preços",
+        "updates": "Atualizações"
+      },
+      "support": {
+        "title": "Suporte",
+        "help": "Central de Ajuda",
+        "contact": "Entre em Contato",
+        "community": "Comunidade"
+      },
+      "company": {
+        "title": "Empresa",
+        "about": "Sobre Nós",
+        "blog": "Blog",
+        "careers": "Carreiras"
+      },
+      "copyright": "© 2024 PastorAgenda. Todos os direitos reservados."
     }
   },
   "auth": {
     "signIn": {
       "title": "Entre na sua conta",
-      "subtitle": "Bem-vindo de volta ao PastorTalk",
+      "subtitle": "Bem-vindo de volta ao PastorAgenda",
       "email": "Endereço de email",
       "password": "Senha",
       "forgotPassword": "Esqueceu sua senha?",
@@ -200,7 +286,7 @@
     },
     "signUp": {
       "title": "Crie sua conta",
-      "subtitle": "Junte-se ao PastorTalk hoje",
+      "subtitle": "Junte-se ao PastorAgenda hoje",
       "fullName": "Nome completo",
       "email": "Endereço de email",
       "password": "Senha",
@@ -383,12 +469,12 @@
     "qrDescription": "Escanear para compartilhar",
     "mobileQrTitle": "Compartilhar este perfil",
     "mobileQrDescription": "Escanear para compartilhar com outros",
-    "footer": "Desenvolvido por PastorTalk",
+    "footer": "Desenvolvido por PastorAgenda",
     "notFound": "Pastor Não Encontrado",
     "notFoundDesc": "O pastor que você está procurando não foi encontrado.",
     "loadError": "Falha ao carregar perfil",
     "shareTitle": "Agende um compromisso com {{name}}",
-    "shareText": "Agende uma reunião com {{name}} no PastorTalk",
+    "shareText": "Agende uma reunião com {{name}} no PastorAgenda",
     "linkCopied": "Link do perfil copiado para a área de transferência!"
   },
   "errors": {

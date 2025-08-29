@@ -33,7 +33,7 @@
     "saving": "Saving...",
     "and": "and",
     "min": "min",
-    "domain": "pastortalk.com",
+    "domain": "pastoragenda.com",
     "share": "Share",
     "goHome": "Go Home",
     "today": "Today"
@@ -150,17 +150,17 @@
   },
   "home": {
     "hero": {
-      "badge": "Trusted by 10,000+ Pastors",
-      "title": "Connect with Your Pastor",
-      "subtitle": "Schedule meaningful appointments with spiritual guidance and support",
-      "description": "PastorTalk makes it easy for religious leaders to manage their schedules and for people to book meaningful appointments. Simplify your ministry with our intuitive scheduling platform.",
+      "badge": "Trained by 1000+ Pastors",
+      "title": "Connect with",
+      "subtitle": "Your Pastor",
+      "description": "Schedule appointments and spiritual guidance sessions with your pastor through our easy-to-use booking platform.",
       "cta": "Get Started"
     },
     "features": {
-      "badge": "Why Choose PastorTalk?",
-      "title": "Why Choose PastorTalk?",
+      "badge": "Why Choose PastorAgenda?",
+      "title": "Why Choose PastorAgenda?",
       "subtitle": "Everything you need to manage your ministry",
-      "description": "PastorTalk provides a comprehensive solution for religious leaders to manage appointments, share their availability, and connect with their community.",
+      "description": "PastorAgenda provides a comprehensive solution for religious leaders to manage appointments, share their availability, and connect with their community.",
       "feature1": {
         "title": "Easy Scheduling",
         "description": "Create custom event types with specific durations and availability rules. Let people book appointments that fit your schedule."
@@ -185,15 +185,100 @@
       "button": "Book an Appointment"
     },
     "learnMore": "Learn More",
+    "stats": {
+      "pastors": "10,000+",
+      "pastorsLabel": "Active Pastors",
+      "appointments": "50,000+",
+      "appointmentsLabel": "Appointments Booked",
+      "satisfaction": "98%",
+      "satisfactionLabel": "Satisfaction Rate"
+    },
+    "pricing": {
+      "title": "Simple, Transparent Pricing",
+      "description": "Choose the plan that best fits your ministry needs. Start free and upgrade as you grow.",
+      "month": "month",
+      "free": {
+        "title": "Free",
+        "description": "Perfect for getting started with basic scheduling needs",
+        "button": "Get Started Free",
+        "features": {
+          "feature1": "5 Event Types",
+          "feature2": "Basic Scheduling",
+          "feature3": "Email Notifications"
+        }
+      },
+      "pro": {
+        "title": "Pro",
+        "badge": "Most Popular",
+        "description": "Ideal for growing ministries with advanced needs",
+        "button": "Start Pro Plan",
+        "features": {
+          "feature1": "Unlimited Event Types",
+          "feature2": "Advanced Scheduling",
+          "feature3": "Custom Questions",
+          "feature4": "Priority Support"
+        }
+      },
+      "enterprise": {
+        "title": "Enterprise",
+        "description": "For large organizations and multi-location ministries",
+        "price": "Custom",
+        "period": "Contact Us",
+        "button": "Contact Sales",
+        "features": {
+          "feature1": "Multi-Location Support",
+          "feature2": "Advanced Analytics",
+          "feature3": "Dedicated Support",
+          "feature4": "Custom Integrations"
+        }
+      }
+    },
+    "support": {
+      "title": "We're Here to Help",
+      "description": "Get the support you need to make the most of PastorAgenda",
+      "chat": {
+        "title": "Live Chat",
+        "description": "Get instant help from our support team",
+        "availability": "Available 24/7"
+      },
+      "email": {
+        "title": "Email Support",
+        "description": "Send us a detailed message",
+        "response": "Response within 2 hours"
+      },
+      "community": {
+        "title": "Community Forum",
+        "description": "Connect with other pastors and share tips",
+        "access": "Free access for all users"
+      }
+    },
     "footer": {
       "description": "Simplifying ministry scheduling for religious leaders and their communities.",
-      "copyright": "© 2024 PastorTalk. All rights reserved."
+      "product": {
+        "title": "Product",
+        "features": "Features",
+        "pricing": "Pricing",
+        "updates": "Updates"
+      },
+      "support": {
+        "title": "Support",
+        "help": "Help Center",
+        "contact": "Contact Us",
+        "community": "Community"
+      },
+      "company": {
+        "title": "Company",
+        "about": "About Us",
+        "blog": "Blog",
+        "careers": "Careers"
+      },
+      "copyright": "© 2024 PastorAgenda. All rights reserved."
     }
   },
   "auth": {
     "signIn": {
       "title": "Sign in to your account",
-      "subtitle": "Welcome back to PastorTalk",
+      "subtitle": "Welcome back to PastorAgenda",
       "email": "Email address",
       "password": "Password",
       "forgotPassword": "Forgot your password?",
@@ -203,7 +288,7 @@
     },
     "signUp": {
       "title": "Create your account",
-      "subtitle": "Join PastorTalk today",
+      "subtitle": "Join PastorAgenda today",
       "fullName": "Full name",
       "email": "Email address",
       "password": "Password",
@@ -386,12 +471,12 @@
     "qrDescription": "Scan to share",
     "mobileQrTitle": "Share this profile",
     "mobileQrDescription": "Scan to share with others",
-    "footer": "Powered by PastorTalk",
+    "footer": "Powered by PastorAgenda",
     "notFound": "Pastor Not Found",
     "notFoundDesc": "The pastor you are looking for could not be found.",
     "loadError": "Failed to load profile",
     "shareTitle": "Book an appointment with {{name}}",
-    "shareText": "Schedule a meeting with {{name}} on PastorTalk",
+    "shareText": "Schedule a meeting with {{name}} on PastorAgenda",
     "linkCopied": "Profile link copied to clipboard!"
   },
   "errors": {
@@ -423,3 +508,8 @@
     "tuesday": "Tuesday",
     "wednesday": "Wednesday",
     "thursday": "Thursday",
+    "friday": "Friday",
+    "saturday": "Saturday",
+    "sunday": "Sunday"
+  }
+}

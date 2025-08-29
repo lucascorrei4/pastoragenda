@@ -1,8 +1,8 @@
-# PastorTalk Setup Summary
+# PastorAgenda Setup Summary
 
 ## 🎉 What We've Built
 
-Congratulations! We've successfully created a complete full-stack web application called **PastorTalk** - a Calendly-like scheduling platform specifically designed for pastors and religious leaders.
+Congratulations! We've successfully created a complete full-stack web application called **PastorAgenda** - a Calendly-like scheduling platform specifically designed for pastors and religious leaders.
 
 ## 🏗️ Complete Application Structure
 
@@ -53,7 +53,7 @@ npm run dev
 ## 🔑 Key Features Implemented
 
 ### For Pastors
-- **Unique Profile URLs**: `pastortalk.com/prjohn`
+- **Unique Profile URLs**: `pastoragenda.com/prjohn`
 - **Flexible Scheduling**: Set weekly availability with multiple time slots
 - **Event Types**: Create different appointment types (counseling, prayer, etc.)
 - **Booking Management**: View and manage all appointments
@@ -147,7 +147,7 @@ npm run type-check       # Type check all packages
 
 ## 🎯 Ready to Launch!
 
-Your PastorTalk application is now complete and ready for:
+Your PastorAgenda application is now complete and ready for:
 - ✅ **Development testing**
 - ✅ **User feedback collection**
 - ✅ **Production deployment**

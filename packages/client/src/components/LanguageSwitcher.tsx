@@ -1,9 +1,14 @@
-import React from 'react'
+import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { Globe } from 'lucide-react'
+import { ChevronDown } from 'lucide-react'
 
-const LanguageSwitcher: React.FC = () => {
+interface LanguageSwitcherProps {
+  dropdownPosition?: 'above' | 'below'
+}
+
+function LanguageSwitcher({ dropdownPosition = 'below' }: LanguageSwitcherProps) {
   const { i18n } = useTranslation()
+  const [isOpen, setIsOpen] = useState(false)
 
   const languages = [
     { code: 'en-US', name: 'English', flag: '🇺🇸' },
@@ -15,39 +20,59 @@ const LanguageSwitcher: React.FC = () => {
 
   const handleLanguageChange = (languageCode: string) => {
     i18n.changeLanguage(languageCode)
+    setIsOpen(false)
+  }
+
+  const getDropdownClasses = () => {
+    const baseClasses = 'absolute right-0 z-50 mt-2 w-48 rounded-md bg-white dark:bg-gray-800 shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none'
+    
+    if (dropdownPosition === 'above') {
+      return `${baseClasses} bottom-full mb-2`
+    } else {
+      return `${baseClasses} top-full mt-2`
+    }
   }
 
   return (
-    <div className="relative group">
-      <button className="flex items-center space-x-2 px-3 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 hover:text-primary-600 dark:hover:text-primary-400 transition-colors">
-        <Globe className="w-4 h-4" />
-        <span className="hidden sm:inline">{currentLanguage.flag}</span>
-        <span className="hidden md:inline">{currentLanguage.name}</span>
+    <div className="relative">
+      <button
+        onClick={() => setIsOpen(!isOpen)}
+        className="inline-flex items-center px-3 py-2 text-sm font-medium text-gray-700 dark:text-gray-200 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-md hover:bg-gray-50 dark:hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 transition-colors duration-200"
+      >
+        <span className="mr-2">{currentLanguage.flag}</span>
+        <span className="hidden sm:inline">{currentLanguage.name}</span>
+        <ChevronDown className={`ml-1 h-4 w-4 transition-transform duration-200 ${isOpen ? 'rotate-180' : ''}`} />
       </button>
-      
-      <div className="absolute right-0 bottom-full mb-2 w-48 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-md shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50">
-        <div className="py-1">
-          {languages.map((language) => (
-            <button
-              key={language.code}
-              onClick={() => handleLanguageChange(language.code)}
-              className={`w-full text-left px-4 py-2 text-sm hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors ${
-                i18n.language === language.code
-                  ? 'bg-primary-50 dark:bg-primary-900/20 text-primary-700 dark:text-primary-300'
-                  : 'text-gray-700 dark:text-gray-300'
-              }`}
-            >
-              <div className="flex items-center space-x-3">
-                <span className="text-lg">{language.flag}</span>
-                <span>{language.name}</span>
-                {i18n.language === language.code && (
-                  <div className="ml-auto w-2 h-2 bg-primary-600 rounded-full"></div>
-                )}
-              </div>
-            </button>
-          ))}
+
+      {isOpen && (
+        <div className={getDropdownClasses()}>
+          <div className="py-1" role="menu" aria-orientation="vertical" aria-labelledby="language-menu">
+            {languages.map((language) => (
+              <button
+                key={language.code}
+                onClick={() => handleLanguageChange(language.code)}
+                className={`${
+                  language.code === currentLanguage.code
+                    ? 'bg-primary-100 dark:bg-primary-900 text-primary-900 dark:text-primary-100'
+                    : 'text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700'
+                } block w-full text-left px-4 py-2 text-sm transition-colors duration-200`}
+                role="menuitem"
+              >
+                <span className="mr-2">{language.flag}</span>
+                {language.name}
+              </button>
+            ))}
+          </div>
         </div>
-      </div>
+      )}
+
+      {/* Backdrop to close dropdown when clicking outside */}
+      {isOpen && (
+        <div
+          className="fixed inset-0 z-40"
+          onClick={() => setIsOpen(false)}
+        />
+      )}
     </div>
   )
 }
