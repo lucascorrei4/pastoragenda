@@ -1,40 +1,48 @@
-# Use a stable Node.js LTS version
-FROM node:22-alpine
+# --- STAGE 1: The Builder ---
+# This stage installs everything needed to build your application
+FROM node:22-alpine AS builder
 
-# --- Build-time Secrets ---
-# This section is CRUCIAL. It tells Docker to accept the build arguments from Easypanel.
+WORKDIR /app
+
+# Define ARGs for build-time secrets
 ARG VITE_SUPABASE_URL
 ARG VITE_SUPABASE_ANON_KEY
 ARG VITE_APP_URL
-
-# Set the working directory
-WORKDIR /app
 
 # Copy package configurations
 COPY package*.json ./
 COPY packages/ ./packages/
 
-# Install all monorepo dependencies correctly in one step
-RUN npm install --omit=dev
+# Install ALL dependencies, including devDependencies needed for the build
+RUN npm install
 
-# Copy the rest of your application source code
+# Copy the rest of the source code
 COPY . .
 
-# --- Make Secrets Available to the Build Script ---
-# This makes the secrets available as environment variables for the build command
+# Make secrets available to the build script
 ENV VITE_SUPABASE_URL=$VITE_SUPABASE_URL
 ENV VITE_SUPABASE_ANON_KEY=$VITE_SUPABASE_ANON_KEY
 ENV VITE_APP_URL=$VITE_APP_URL
 
-# Build the specific client workspace
+# Build the client workspace. This should now work!
 RUN npm run build --workspace=@pastoragenda/client
 
-# Install PM2 and serve globally for the final stage
+
+# --- STAGE 2: The Production Image ---
+# This stage creates the final, lightweight image with only what's needed to run the app
+FROM node:18-alpine
+
+WORKDIR /app
+
+# Install only the production server dependencies
 RUN npm install pm2 serve -g
+
+# Copy the built static files from the 'builder' stage into a 'public' folder
+# NOTE: Check if your build output folder is 'dist'. If it's 'build', change the source path below.
+COPY --from=builder /app/packages/client/dist ./public
 
 # Expose port 4000
 EXPOSE 4000
 
-# Start the application using PM2 on port 4000
-# NOTE: Check if your build output folder is 'dist'. If it's 'build', change the path below.
-CMD ["pm2-runtime", "npx", "serve", "-s", "packages/client/dist", "-l", "4000"]
+# Start the application using PM2, serving the files from the 'public' folder
+CMD ["pm2-runtime", "npx", "serve", "-s", "public", "-l", "4000"]
