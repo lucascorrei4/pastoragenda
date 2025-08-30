@@ -35,7 +35,7 @@ function PublicProfilePage() {
 
       if (profileError) {
         if (profileError.code === 'PGRST116') {
-          setError(t('publicProfile.notFound'))
+          setError(t('publicProfile.notFound') || 'Pastor not found')
         } else {
           throw profileError
         }
@@ -55,7 +55,7 @@ function PublicProfilePage() {
 
     } catch (error) {
       console.error('Error fetching profile data:', error)
-      setError(t('publicProfile.loadError'))
+      setError(t('publicProfile.loadError') || 'Failed to load profile')
     } finally {
       setLoading(false)
     }
@@ -67,8 +67,8 @@ function PublicProfilePage() {
     if (navigator.share) {
       try {
         await navigator.share({
-          title: t('publicProfile.shareTitle', { name: profile?.full_name }),
-          text: t('publicProfile.shareText', { name: profile?.full_name }),
+          title: t('publicProfile.shareTitle', { name: profile?.full_name }) || `Book with ${profile?.full_name}`,
+          text: t('publicProfile.shareText', { name: profile?.full_name }) || `Book an appointment with ${profile?.full_name} on PastorAgenda`,
           url: url
         })
       } catch (error) {
@@ -78,7 +78,7 @@ function PublicProfilePage() {
       // Fallback to copying to clipboard
       try {
         await navigator.clipboard.writeText(url)
-        alert(t('publicProfile.linkCopied'))
+        alert(t('publicProfile.linkCopied') || 'Profile link copied to clipboard!')
       } catch (error) {
         console.log('Error copying to clipboard:', error)
       }
@@ -98,15 +98,15 @@ function PublicProfilePage() {
       <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex items-center justify-center">
         <div className="text-center">
           <User className="h-16 w-16 text-gray-400 dark:text-gray-500 mx-auto mb-4" />
-          <h1 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">{t('publicProfile.notFound')}</h1>
+          <h1 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">{t('publicProfile.notFound') || 'Pastor Not Found'}</h1>
           <p className="text-gray-600 dark:text-gray-300 mb-6">
-            {error || t('publicProfile.notFoundDesc')}
+            {error || t('publicProfile.notFoundDesc') || 'The pastor you are looking for could not be found.'}
           </p>
           <Link
             to="/"
             className="btn-primary"
           >
-            {t('common.goHome')}
+            {t('common.goHome') || 'Go Home'}
           </Link>
         </div>
       </div>
@@ -129,7 +129,7 @@ function PublicProfilePage() {
                 className="btn-secondary flex items-center"
               >
                 <Share2 className="w-4 h-4 mr-2" />
-                {t('common.share')}
+                {t('common.share') || 'Share'}
               </button>
             </div>
           </div>
@@ -166,7 +166,7 @@ function PublicProfilePage() {
                     size={80}
                     className="mx-auto"
                   />
-                  <p className="text-xs text-primary-100 mt-2">{t('publicProfile.qrDescription')}</p>
+                  <p className="text-xs text-primary-100 mt-2">{t('publicProfile.qrDescription') || 'Scan to share'}</p>
                 </div>
               </div>
             </div>
@@ -175,7 +175,7 @@ function PublicProfilePage() {
           {/* Event Types */}
           <div className="p-6">
             <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-6">
-              {t('publicProfile.eventTypes')}
+              {t('publicProfile.eventTypes') || 'Available Appointments'}
             </h2>
 
             {eventTypes.length > 0 ? (
@@ -188,7 +188,7 @@ function PublicProfilePage() {
                       </h3>
                       <div className="flex items-center text-sm text-gray-500 dark:text-gray-400">
                         <Clock className="w-4 h-4 mr-1" />
-                        {eventType.duration} {t('common.min')}
+                        {eventType.duration} {t('common.min') || 'min'}
                       </div>
                     </div>
                     
@@ -201,7 +201,7 @@ function PublicProfilePage() {
                       className="btn-primary w-full text-center"
                     >
                       <Calendar className="w-4 h-4 mr-2 inline" />
-                      {t('publicProfile.bookAppointment')}
+                      {t('publicProfile.bookAppointment') || 'Book Appointment'}
                     </Link>
                   </div>
                 ))}
@@ -209,9 +209,9 @@ function PublicProfilePage() {
             ) : (
               <div className="text-center py-12">
                 <Calendar className="h-16 w-16 text-gray-400 dark:text-gray-500 mx-auto mb-4" />
-                <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2">{t('publicProfile.noEventTypes')}</h3>
+                <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2">{t('publicProfile.noEventTypes') || 'No Appointments Available'}</h3>
                 <p className="text-gray-500 dark:text-gray-400">
-                  {t('publicProfile.noEventTypesDesc', { name: profile.full_name })}
+                  {t('publicProfile.noEventTypesDesc', { name: profile.full_name }) || `${profile.full_name} hasn't set up any appointment types yet.`}
                 </p>
               </div>
             )}
@@ -220,13 +220,13 @@ function PublicProfilePage() {
 
         {/* Mobile QR Code */}
         <div className="md:hidden mt-6 bg-white dark:bg-gray-800 rounded-lg shadow p-6 text-center">
-          <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-4">{t('publicProfile.mobileQrTitle')}</h3>
+          <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-4">{t('publicProfile.mobileQrTitle') || 'Share This Profile'}</h3>
           <QRCodeSVG 
             value={window.location.href} 
             size={120}
             className="mx-auto"
           />
-          <p className="text-sm text-gray-500 dark:text-gray-400 mt-2">{t('publicProfile.mobileQrDescription')}</p>
+          <p className="text-sm text-gray-500 dark:text-gray-400 mt-2">{t('publicProfile.mobileQrDescription') || 'Scan to share this profile'}</p>
         </div>
       </div>
 
@@ -236,10 +236,10 @@ function PublicProfilePage() {
           <div className="text-center">
             <img src="/logo.png" alt="PastorAgenda" className="h-16 w-auto mx-auto mb-2" />
             <p className="text-gray-400">
-              {t('home.footer.description')}
+              {t('home.footer.description') || 'The modern way for pastors to manage their schedule and book appointments'}
             </p>
             <p className="text-gray-500 text-sm mt-4">
-              {t('home.footer.copyright')}
+              {t('home.footer.copyright') || '© 2024 PastorAgenda. All rights reserved.'}
             </p>
           </div>
         </div>
