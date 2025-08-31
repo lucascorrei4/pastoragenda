@@ -3,11 +3,43 @@ import { createClient } from '@supabase/supabase-js'
 const supabaseUrl = import.meta.env.VITE_SUPABASE_URL
 const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY
 
+console.log('Supabase client initialization:')
+console.log('- VITE_SUPABASE_URL:', supabaseUrl)
+console.log('- VITE_SUPABASE_ANON_KEY exists:', !!supabaseAnonKey)
+console.log('- VITE_SUPABASE_ANON_KEY length:', supabaseAnonKey?.length)
+
+// Create the Supabase client based on environment variables
+let supabase: any
+
 if (!supabaseUrl || !supabaseAnonKey) {
-  throw new Error('Missing Supabase environment variables')
+  console.error('Missing Supabase environment variables!')
+  console.error('Please create a .env file in the client directory with:')
+  console.error('VITE_SUPABASE_URL=your_supabase_project_url')
+  console.error('VITE_SUPABASE_ANON_KEY=your_supabase_anon_key')
+  
+  // Create a mock client that will fail gracefully
+  const mockClient = {
+    auth: {
+      getSession: async () => ({ data: { session: null }, error: new Error('Missing environment variables') }),
+      getUser: async () => ({ data: { user: null }, error: new Error('Missing environment variables') }),
+      signOut: async () => ({ error: new Error('Missing environment variables') }),
+      signInWithOtp: async () => ({ data: null, error: new Error('Missing environment variables') }),
+      signUp: async () => ({ data: null, error: new Error('Missing environment variables') }),
+      verifyOtp: async () => ({ data: null, error: new Error('Missing environment variables') }),
+      onAuthStateChange: () => ({ data: { subscription: { unsubscribe: () => {} } } })
+    }
+  } as any
+  
+  console.warn('Using mock Supabase client due to missing environment variables')
+  supabase = mockClient
+} else {
+  console.log('Creating Supabase client...')
+  supabase = createClient(supabaseUrl, supabaseAnonKey)
+  console.log('Supabase client created successfully:', supabase)
+  console.log('Supabase client methods:', Object.keys(supabase))
 }
 
-export const supabase = createClient(supabaseUrl, supabaseAnonKey)
+export { supabase }
 
 // Database types
 export interface Profile {

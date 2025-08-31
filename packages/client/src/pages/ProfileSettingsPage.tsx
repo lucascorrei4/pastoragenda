@@ -3,7 +3,8 @@ import { useAuth } from '../contexts/AuthContext'
 import { useTranslation } from 'react-i18next'
 import { supabase } from '../lib/supabase'
 import { toast } from 'react-hot-toast'
-import { User, Save, Upload } from 'lucide-react'
+import { User, Save, Upload, ExternalLink } from 'lucide-react'
+import { Link } from 'react-router-dom'
 import type { Profile } from '../lib/supabase'
 
 function ProfileSettingsPage() {
@@ -348,9 +349,15 @@ function ProfileSettingsPage() {
             </h3>
             <div className="bg-gray-50 dark:bg-gray-700 rounded-lg p-4">
               <p className="text-sm text-gray-600 dark:text-gray-300 mb-2">{t('profile.profileAvailableAt')}</p>
-              <p className="font-mono text-primary-600 dark:text-primary-400">
+              <Link
+                to={`/${profile.alias}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center font-mono text-primary-600 dark:text-primary-400 hover:text-primary-700 dark:hover:text-primary-300 transition-colors duration-200"
+              >
                 {window.location.origin}/{profile.alias}
-              </p>
+                <ExternalLink className="w-4 h-4 ml-2" />
+              </Link>
               <p className="text-xs text-gray-500 dark:text-gray-400 mt-2">
                 {t('profile.shareLinkDescription')}
               </p>

@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useCallback } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../contexts/AuthContext'
 import { supabase } from '../lib/supabase'
@@ -14,32 +14,55 @@ function AuthPage() {
   const [isLoading, setIsLoading] = useState(false)
   const [isNewUser, setIsNewUser] = useState(false)
 
-  useEffect(() => {
-    // Check if user is already authenticated
-    const checkAuthStatus = async () => {
-      if (loading) return // Wait for AuthContext to finish loading
-      
-      if (user) {
-        // User is authenticated, redirect to dashboard
-        navigate('/dashboard', { replace: true })
-        return
-      }
+  const checkAuthStatus = useCallback(async () => {
+    console.log('AuthPage: checkAuthStatus called', { user, loading })
+    
+    // Test if supabase client is properly initialized
+    if (!supabase || !supabase.auth) {
+      console.error('AuthPage: Supabase client is not properly initialized!')
+      return
+    }
+    
+    if (loading) {
+      console.log('AuthPage: Still loading, returning early')
+      return // Wait for AuthContext to finish loading
+    }
+    
+    if (user) {
+      console.log('AuthPage: User authenticated, redirecting to dashboard')
+      // User is authenticated, redirect to dashboard
+      navigate('/dashboard', { replace: true })
+      return
+    }
 
-      // Fallback: Check localStorage for auth token
+    // Only check session if we're not loading and don't have a user
+    // This prevents unnecessary API calls
+    if (!loading && !user) {
       try {
+        console.log('AuthPage: Checking Supabase session...')
         const { data: { session }, error } = await supabase.auth.getSession()
+        console.log('AuthPage: Session check result:', { session, error })
+        
         if (session && session.user && !error) {
+          console.log('AuthPage: Valid session found, redirecting to dashboard')
           // Valid session found, redirect to dashboard
           navigate('/dashboard', { replace: true })
           return
         }
       } catch (error) {
+        console.error('AuthPage: Session check failed:', error)
         // Silent fail for production
       }
     }
-
-    checkAuthStatus()
   }, [user, loading, navigate])
+
+  useEffect(() => {
+    // Only run checkAuthStatus when user or loading state changes
+    // This prevents infinite loops
+    if (!loading) {
+      checkAuthStatus()
+    }
+  }, [user, loading]) // Remove checkAuthStatus from dependencies to prevent infinite loops
 
   // Ensure we start with email step
   useEffect(() => {
@@ -50,6 +73,17 @@ function AuthPage() {
     if (!email || !email.includes('@')) {
       toast.error('Please enter a valid email address')
       return
+    }
+
+    // Check if we're rate limited
+    const lastAttempt = localStorage.getItem(`otp_attempt_${email}`)
+    if (lastAttempt) {
+      const timeSinceLastAttempt = Date.now() - parseInt(lastAttempt)
+      if (timeSinceLastAttempt < 60000) { // 1 minute cooldown
+        const remainingTime = Math.ceil((60000 - timeSinceLastAttempt) / 1000)
+        toast.error(`Please wait ${remainingTime} seconds before trying again`)
+        return
+      }
     }
 
     setIsLoading(true)
@@ -91,6 +125,8 @@ function AuthPage() {
       }
 
       setStep('otp')
+      // Track this attempt to prevent rate limiting
+      localStorage.setItem(`otp_attempt_${email}`, Date.now().toString())
     } catch (error) {
       toast.error('Unable to send OTP. Please try again.')
     } finally {
@@ -106,6 +142,17 @@ function AuthPage() {
 
     setIsLoading(true)
     try {
+      // Development mode: Allow testing with "000000" OTP
+      if (import.meta.env.DEV && otp === '000000') {
+        console.log('Development mode: Bypassing OTP verification with 000000')
+        toast.success('Development mode: OTP bypassed successfully!')
+        // Simulate successful authentication
+        setTimeout(() => {
+          navigate('/dashboard', { replace: true })
+        }, 1000)
+        return
+      }
+
       // Verify the OTP with Supabase
       const { error } = await supabase.auth.verifyOtp({
         email,

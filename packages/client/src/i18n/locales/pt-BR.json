@@ -69,12 +69,19 @@
       "viewAll": "Ver todos",
       "noBookings": "Nenhum agendamento ainda",
       "noBookingsDesc": "Crie tipos de evento para começar a receber agendamentos",
-      "customQandA": "P&R Personalizadas"
+      "customQandA": "Perguntas"
     },
     "profileCompletion": {
       "title": "Complete a configuração do seu perfil",
       "description": "Configure seu alias único e informações do perfil para que as pessoas possam encontrar e agendar compromissos com você.",
       "button": "Completar Perfil"
+    },
+    "publicProfile": {
+      "title": "Seu Perfil Público",
+      "view": "Ver Perfil",
+      "edit": "Editar Perfil",
+      "eventTypes": "tipos de evento",
+      "description": "É assim que sua comunidade vê seu perfil público. Compartilhe seu link de perfil para que as pessoas possam agendar compromissos com você."
     }
   },
   "eventTypes": {
@@ -371,7 +378,7 @@
       "bookerEmail": "Email do Agendador",
       "bookerPhone": "Telefone do Agendador",
       "description": "Descrição",
-      "customQandA": "Perguntas e Respostas Personalizadas",
+      "customQandA": "Perguntas",
       "bookedOn": "Agendado em",
       "count": "{{count}} agendamentos",
       "hour": "Hora",

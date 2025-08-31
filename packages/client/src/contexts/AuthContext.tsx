@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useEffect, useState } from 'react'
+import React, { createContext, useContext, useEffect, useState, useRef } from 'react'
 import { User, Session } from '@supabase/supabase-js'
 import { supabase } from '../lib/supabase'
 
@@ -15,13 +15,31 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(null)
   const [session, setSession] = useState<Session | null>(null)
   const [loading, setLoading] = useState(true)
+  const loadingRef = useRef(loading)
+
+  // Keep ref in sync with state
+  useEffect(() => {
+    loadingRef.current = loading
+  }, [loading])
 
   useEffect(() => {
     let mounted = true
 
+    // Check if Supabase client is properly initialized
+    if (!supabase || !supabase.auth) {
+      console.error('AuthContext: Supabase client is not properly initialized!')
+      if (mounted) {
+        setSession(null)
+        setUser(null)
+        setLoading(false)
+      }
+      return
+    }
+
     // Get initial session with better error handling
     const getInitialSession = async () => {
       try {
+        console.log('AuthContext: Getting initial session...')
         const { data: { session }, error } = await supabase.auth.getSession()
         
         if (error) {
@@ -31,12 +49,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             setSession(null)
             setUser(null)
             setLoading(false)
+            console.log('AuthContext: Loading set to false due to error')
           }
           return
         }
 
         // Validate session before setting it
         if (session && session.user && session.access_token) {
+          console.log('AuthContext: Session found, validating...')
           // Verify the session is still valid
           const { data: { user: currentUser }, error: userError } = await supabase.auth.getUser()
           
@@ -47,25 +67,28 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             if (mounted) {
               setSession(null)
               setUser(null)
+              setLoading(false)
+              console.log('AuthContext: Loading set to false after invalid session')
             }
           } else if (mounted) {
             // Session is valid, set it
             setSession(session)
             setUser(currentUser)
+            setLoading(false)
+            console.log('AuthContext: Loading set to false after valid session')
           }
         } else if (mounted) {
           // No session
+          console.log('AuthContext: No session found, setting loading to false')
           setSession(null)
           setUser(null)
+          setLoading(false)
         }
       } catch (error) {
         console.error('Unexpected error getting initial session:', error)
         if (mounted) {
           setSession(null)
           setUser(null)
-        }
-      } finally {
-        if (mounted) {
           setLoading(false)
         }
       }
@@ -76,7 +99,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     // Listen for auth changes with better validation
     const {
       data: { subscription },
-    } = supabase.auth.onAuthStateChange(async (event, session) => {
+    } = supabase.auth.onAuthStateChange(async (event: string, session: Session | null) => {
       if (!mounted) return
 
       console.log('Auth state change:', event, session?.user?.id)
@@ -84,36 +107,39 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       try {
         if (event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED') {
           if (session && session.user) {
-            // Validate the user session
-            const { data: { user: currentUser }, error } = await supabase.auth.getUser()
-            
-            if (error || !currentUser) {
-              console.error('Session validation failed during auth change:', error)
-              await supabase.auth.signOut()
-              setSession(null)
-              setUser(null)
-            } else {
-              setSession(session)
-              setUser(currentUser)
-            }
+            console.log('AuthContext: Setting user from auth state change:', session.user.id)
+            setSession(session)
+            setUser(session.user)
+            setLoading(false) // Ensure loading is set to false when user signs in
           }
         } else if (event === 'SIGNED_OUT') {
+          console.log('AuthContext: User signed out, clearing state')
           setSession(null)
           setUser(null)
+          setLoading(false)
         }
       } catch (error) {
         console.error('Error handling auth state change:', error)
         // On error, clear session to be safe
         setSession(null)
         setUser(null)
-      } finally {
         setLoading(false)
       }
     })
 
+    // CRITICAL FIX: Ensure loading is set to false after a reasonable timeout
+    // This prevents infinite loading when no auth events occur
+    const loadingTimeout = setTimeout(() => {
+      if (mounted && loadingRef.current) {
+        console.log('AuthContext: Setting loading to false after timeout')
+        setLoading(false)
+      }
+    }, 2000) // 2 second timeout
+
     return () => {
       mounted = false
       subscription.unsubscribe()
+      clearTimeout(loadingTimeout)
     }
   }, [])
 

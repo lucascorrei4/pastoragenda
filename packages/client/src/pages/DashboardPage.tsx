@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom'
 import { useAuth } from '../contexts/AuthContext'
 import { useTranslation } from 'react-i18next'
 import { supabase } from '../lib/supabase'
-import { Calendar, Clock, Users, TrendingUp, MessageSquare } from 'lucide-react'
+import { Calendar, Clock, Users, TrendingUp, MessageSquare, ExternalLink, Edit, Globe } from 'lucide-react'
 import type { Profile, BookingWithDetails } from '../lib/supabase'
 
 function DashboardPage() {
@@ -55,8 +55,8 @@ function DashboardPage() {
         .select('id')
         .eq('user_id', user?.id)
 
-      if (userEventTypes && userEventTypes.length > 0) {
-        const eventTypeIds = userEventTypes.map(et => et.id)
+              if (userEventTypes && userEventTypes.length > 0) {
+          const eventTypeIds = userEventTypes.map((et: { id: string }) => et.id)
         
         // Fetch recent bookings for user's event types
         const { data: bookingsData } = await supabase
@@ -201,6 +201,84 @@ function DashboardPage() {
         </div>
       </div>
 
+      {/* Public Profile Preview */}
+      {profile?.alias && (
+        <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-lg font-medium text-gray-900 dark:text-white flex items-center">
+              <Users className="h-5 w-5 text-primary-600 mr-2" />
+              {t('dashboard.publicProfile.title')}
+            </h2>
+            <div className="flex space-x-2">
+              <Link
+                to={`/${profile.alias}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center px-3 py-1.5 text-sm font-medium text-primary-600 dark:text-primary-400 bg-primary-50 dark:bg-primary-900/20 border border-primary-200 dark:border-primary-800 rounded-md hover:bg-primary-100 dark:hover:bg-primary-900/30 transition-colors"
+              >
+                <ExternalLink className="w-4 h-4 mr-1.5" />
+                {t('dashboard.publicProfile.view')}
+              </Link>
+              <Link
+                to="/dashboard/profile"
+                className="inline-flex items-center px-3 py-1.5 text-sm font-medium text-gray-700 dark:text-gray-300 bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-md hover:bg-gray-100 dark:hover:bg-gray-600 transition-colors"
+              >
+                <Edit className="w-4 h-4 mr-1.5" />
+                {t('dashboard.publicProfile.edit')}
+              </Link>
+            </div>
+          </div>
+          
+          <div className="bg-gradient-to-r from-primary-50 to-blue-50 dark:from-primary-900/10 dark:to-blue-900/10 border border-primary-200 dark:border-primary-800 rounded-lg p-4">
+            <div className="flex items-start space-x-4">
+              <div className="flex-shrink-0">
+                <div className="w-16 h-16 rounded-full bg-primary-100 dark:bg-primary-900/30 flex items-center justify-center overflow-hidden">
+                  {profile.avatar_url ? (
+                    <img
+                      src={profile.avatar_url}
+                      alt="Profile"
+                      className="w-full h-full object-cover"
+                    />
+                  ) : (
+                    <Users className="w-8 h-8 text-primary-600 dark:text-primary-400" />
+                  )}
+                </div>
+              </div>
+              
+              <div className="flex-1 min-w-0">
+                <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-1">
+                  {profile.full_name || t('common.pastor')}
+                </h3>
+                {profile.bio && (
+                  <p className="text-sm text-gray-600 dark:text-gray-300 mb-3 line-clamp-2">
+                    {profile.bio}
+                  </p>
+                )}
+                
+                <div className="flex items-center space-x-4 text-sm text-gray-500 dark:text-gray-400">
+                  <div className="flex items-center">
+                    <Globe className="w-4 h-4 mr-1.5" />
+                    <span className="font-mono text-primary-600 dark:text-primary-400">
+                      {window.location.origin}/{profile.alias}
+                    </span>
+                  </div>
+                  <div className="flex items-center">
+                    <Calendar className="w-4 h-4 mr-1.5" />
+                    <span>{stats.totalEventTypes} {t('dashboard.publicProfile.eventTypes')}</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+            
+            <div className="mt-4 pt-4 border-t border-primary-200 dark:border-primary-800">
+              <p className="text-xs text-gray-500 dark:text-gray-400">
+                {t('dashboard.publicProfile.description')}
+              </p>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Recent Bookings */}
       <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
         <div className="flex items-center justify-between mb-4">
@@ -224,8 +302,12 @@ function DashboardPage() {
                     <p className="text-sm text-gray-500 dark:text-gray-400">{booking.booker_phone}</p>
                   )}
                   <p className="text-sm text-gray-500 dark:text-gray-400">
-                    {new Date(booking.start_time).toLocaleDateString()} at{' '}
-                    {new Date(booking.start_time).toLocaleTimeString()}
+                    {new Date(booking.start_time).toLocaleDateString('en-US')} at{' '}
+                    {new Date(booking.start_time).toLocaleTimeString('en-US', {
+                      hour: 'numeric',
+                      minute: '2-digit',
+                      hour12: true
+                    })}
                   </p>
                    {booking.booker_description && (
                      <p className="text-sm text-gray-600 dark:text-gray-400 mt-2 italic">

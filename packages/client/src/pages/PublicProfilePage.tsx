@@ -16,48 +16,98 @@ function PublicProfilePage() {
   const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
+    let mounted = true
+    
     if (alias) {
+      console.log('PublicProfilePage: Starting to fetch profile for alias:', alias)
+      
+      // Test if supabase client is properly initialized
+      if (!supabase || !supabase.auth) {
+        console.error('PublicProfilePage: Supabase client is not properly initialized!')
+        if (mounted) {
+          setError('Configuration error: Supabase client not initialized.')
+          setLoading(false)
+        }
+        return
+      }
+      
       fetchProfileData()
     }
-  }, [alias])
+    
+    return () => {
+      mounted = false
+    }
+  }, [alias]) // Only depend on alias changes
 
   const fetchProfileData = async () => {
+    let mounted = true
+    
     try {
+      console.log('PublicProfilePage: fetchProfileData called')
       setLoading(true)
       setError(null)
 
       // Fetch profile by alias
+      console.log('PublicProfilePage: Fetching profile for alias:', alias)
       const { data: profileData, error: profileError } = await supabase
         .from('profiles')
         .select('*')
         .eq('alias', alias)
         .single()
 
+      console.log('PublicProfilePage: Profile fetch result:', { data: profileData, error: profileError })
+
+      if (!mounted) return
+
       if (profileError) {
+        console.error('PublicProfilePage: Profile fetch error:', profileError)
         if (profileError.code === 'PGRST116') {
-          setError(t('publicProfile.notFound') || 'Pastor not found')
+          setError(t('publicProfile.notFound'))
         } else {
-          throw profileError
+          setError(t('publicProfile.loadError'))
         }
+        setLoading(false) // Make sure to set loading to false on error
         return
       }
 
+      if (!profileData) {
+        console.log('PublicProfilePage: No profile data found')
+        setError(t('publicProfile.notFound'))
+        setLoading(false) // Make sure to set loading to false when no data
+        return
+      }
+
+      console.log('PublicProfilePage: Setting profile data:', profileData)
       setProfile(profileData)
 
       // Fetch event types for this pastor
+      console.log('PublicProfilePage: Fetching event types...')
       const { data: eventTypesData, error: eventTypesError } = await supabase
         .from('event_types')
         .select('*')
         .eq('user_id', profileData.id)
 
-      if (eventTypesError) throw eventTypesError
-      setEventTypes(eventTypesData || [])
+      if (!mounted) return
+
+      if (eventTypesError) {
+        console.error('PublicProfilePage: Event types fetch error:', eventTypesError)
+        // Don't fail the whole request if event types fail
+        setEventTypes([])
+      } else {
+        console.log('PublicProfilePage: Setting event types:', eventTypesData)
+        setEventTypes(eventTypesData || [])
+      }
 
     } catch (error) {
-      console.error('Error fetching profile data:', error)
-      setError(t('publicProfile.loadError') || 'Failed to load profile')
+      console.error('PublicProfilePage: Error fetching profile data:', error)
+      if (mounted) {
+        setError(t('publicProfile.loadError'))
+      }
     } finally {
-      setLoading(false)
+      if (mounted) {
+        console.log('PublicProfilePage: Setting loading to false')
+        setLoading(false)
+      }
     }
   }
 
@@ -67,8 +117,8 @@ function PublicProfilePage() {
     if (navigator.share) {
       try {
         await navigator.share({
-          title: t('publicProfile.shareTitle', { name: profile?.full_name }) || `Book with ${profile?.full_name}`,
-          text: t('publicProfile.shareText', { name: profile?.full_name }) || `Book an appointment with ${profile?.full_name} on PastorAgenda`,
+          title: t('publicProfile.shareTitle', { name: profile?.full_name }),
+          text: t('publicProfile.shareText', { name: profile?.full_name }),
           url: url
         })
       } catch (error) {
@@ -78,7 +128,7 @@ function PublicProfilePage() {
       // Fallback to copying to clipboard
       try {
         await navigator.clipboard.writeText(url)
-        alert(t('publicProfile.linkCopied') || 'Profile link copied to clipboard!')
+        alert(t('publicProfile.linkCopied'))
       } catch (error) {
         console.log('Error copying to clipboard:', error)
       }
@@ -88,7 +138,10 @@ function PublicProfilePage() {
   if (loading) {
     return (
       <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex items-center justify-center">
-        <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-primary-600"></div>
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-primary-600 mx-auto mb-4"></div>
+          <p className="text-gray-600 dark:text-gray-300"></p>
+        </div>
       </div>
     )
   }
@@ -98,15 +151,15 @@ function PublicProfilePage() {
       <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex items-center justify-center">
         <div className="text-center">
           <User className="h-16 w-16 text-gray-400 dark:text-gray-500 mx-auto mb-4" />
-          <h1 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">{t('publicProfile.notFound') || 'Pastor Not Found'}</h1>
+          <h1 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">{t('publicProfile.notFound')}</h1>
           <p className="text-gray-600 dark:text-gray-300 mb-6">
-            {error || t('publicProfile.notFoundDesc') || 'The pastor you are looking for could not be found.'}
+            {error || t('publicProfile.notFoundDesc')}
           </p>
           <Link
             to="/"
             className="btn-primary"
           >
-            {t('common.goHome') || 'Go Home'}
+            {t('common.goHome')}
           </Link>
         </div>
       </div>
@@ -129,7 +182,7 @@ function PublicProfilePage() {
                 className="btn-secondary flex items-center"
               >
                 <Share2 className="w-4 h-4 mr-2" />
-                {t('common.share') || 'Share'}
+                {t('common.share')}
               </button>
             </div>
           </div>
@@ -166,7 +219,7 @@ function PublicProfilePage() {
                     size={80}
                     className="mx-auto"
                   />
-                  <p className="text-xs text-primary-100 mt-2">{t('publicProfile.qrDescription') || 'Scan to share'}</p>
+                  <p className="text-xs text-primary-100 mt-2">{t('publicProfile.qrDescription')}</p>
                 </div>
               </div>
             </div>
@@ -175,7 +228,7 @@ function PublicProfilePage() {
           {/* Event Types */}
           <div className="p-6">
             <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-6">
-              {t('publicProfile.eventTypes') || 'Available Appointments'}
+              {t('publicProfile.eventTypes')}
             </h2>
 
             {eventTypes.length > 0 ? (
@@ -188,7 +241,7 @@ function PublicProfilePage() {
                       </h3>
                       <div className="flex items-center text-sm text-gray-500 dark:text-gray-400">
                         <Clock className="w-4 h-4 mr-1" />
-                        {eventType.duration} {t('common.min') || 'min'}
+                        {eventType.duration} {t('common.min')}
                       </div>
                     </div>
                     
@@ -201,7 +254,7 @@ function PublicProfilePage() {
                       className="btn-primary w-full text-center"
                     >
                       <Calendar className="w-4 h-4 mr-2 inline" />
-                      {t('publicProfile.bookAppointment') || 'Book Appointment'}
+                      {t('publicProfile.bookAppointment')}
                     </Link>
                   </div>
                 ))}
@@ -209,9 +262,9 @@ function PublicProfilePage() {
             ) : (
               <div className="text-center py-12">
                 <Calendar className="h-16 w-16 text-gray-400 dark:text-gray-500 mx-auto mb-4" />
-                <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2">{t('publicProfile.noEventTypes') || 'No Appointments Available'}</h3>
+                <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2">{t('publicProfile.noEventTypes')}</h3>
                 <p className="text-gray-500 dark:text-gray-400">
-                  {t('publicProfile.noEventTypesDesc', { name: profile.full_name }) || `${profile.full_name} hasn't set up any appointment types yet.`}
+                  {t('publicProfile.noEventTypesDesc', { name: profile.full_name })}
                 </p>
               </div>
             )}
@@ -220,13 +273,13 @@ function PublicProfilePage() {
 
         {/* Mobile QR Code */}
         <div className="md:hidden mt-6 bg-white dark:bg-gray-800 rounded-lg shadow p-6 text-center">
-          <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-4">{t('publicProfile.mobileQrTitle') || 'Share This Profile'}</h3>
+          <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-4">{t('publicProfile.mobileQrTitle')}</h3>
           <QRCodeSVG 
             value={window.location.href} 
             size={120}
             className="mx-auto"
           />
-          <p className="text-sm text-gray-500 dark:text-gray-400 mt-2">{t('publicProfile.mobileQrDescription') || 'Scan to share this profile'}</p>
+          <p className="text-sm text-gray-500 dark:text-gray-400 mt-2">{t('publicProfile.mobileQrDescription')}</p>
         </div>
       </div>
 
@@ -236,10 +289,10 @@ function PublicProfilePage() {
           <div className="text-center">
             <img src="/logo.png" alt="PastorAgenda" className="h-16 w-auto mx-auto mb-2" />
             <p className="text-gray-400">
-              {t('home.footer.description') || 'The modern way for pastors to manage their schedule and book appointments'}
+              {t('home.footer.description')}
             </p>
             <p className="text-gray-500 text-sm mt-4">
-              {t('home.footer.copyright') || '© 2024 PastorAgenda. All rights reserved.'}
+              {t('home.footer.copyright')}
             </p>
           </div>
         </div>

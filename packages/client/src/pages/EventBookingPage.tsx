@@ -142,8 +142,8 @@ function EventBookingPage() {
             // Add all slots (both available and booked)
             slots.push({
               date: slotDate,
-              time: format(slotDate, 'HH:mm'),
-              endTime: format(slotEndDate, 'HH:mm'),
+              time: format(slotDate, 'h:mm a'),
+              endTime: format(slotEndDate, 'h:mm a'),
               isBooked
             })
           }

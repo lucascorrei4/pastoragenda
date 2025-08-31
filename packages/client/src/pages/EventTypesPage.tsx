@@ -338,12 +338,22 @@ function EventTypesPage() {
                       return (
                         <div key={day} className="text-xs text-gray-500 dark:text-gray-400">
                           <span className="capitalize">{day}:</span>
-                          {daySlots.map((slot, index) => (
-                            <span key={index} className="ml-2">
-                              {slot.from}-{slot.to}
-                              {index < daySlots.length - 1 ? ', ' : ''}
-                            </span>
-                          ))}
+                          {daySlots.map((slot, index) => {
+                            const formatTimeToAMPM = (time: string) => {
+                              const [hour, minute] = time.split(':')
+                              const hourNum = parseInt(hour)
+                              const ampm = hourNum >= 12 ? 'PM' : 'AM'
+                              const displayHour = hourNum === 0 ? 12 : (hourNum > 12 ? hourNum - 12 : hourNum)
+                              return `${displayHour}:${minute} ${ampm}`
+                            }
+                            
+                            return (
+                              <span key={index} className="ml-2">
+                                {formatTimeToAMPM(slot.from)}-{formatTimeToAMPM(slot.to)}
+                                {index < daySlots.length - 1 ? ', ' : ''}
+                              </span>
+                            )
+                          })}
                         </div>
                       )
                     })}
@@ -477,19 +487,121 @@ function EventTypesPage() {
                         <div className="space-y-2">
                           {formData.availability_rules[day].map((slot, index) => (
                             <div key={index} className="flex items-center space-x-2">
-                              <input
-                                type="time"
-                                value={slot.from}
-                                onChange={(e) => updateTimeSlot(day, index, 'from', e.target.value)}
-                                className="flex-1 px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md text-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
-                              />
+                              <div className="flex-1 flex items-center space-x-2">
+                                <select
+                                  value={Math.floor(parseInt(slot.from.split(':')[0]) % 12) || 12}
+                                  onChange={(e) => {
+                                    const hour = parseInt(e.target.value)
+                                    const minute = slot.from.split(':')[1]
+                                    const ampm = parseInt(slot.from.split(':')[0]) >= 12 ? 'PM' : 'AM'
+                                    const newHour = ampm === 'PM' ? (hour === 12 ? 12 : hour + 12) : (hour === 12 ? 0 : hour)
+                                    const newTime = `${newHour.toString().padStart(2, '0')}:${minute}`
+                                    updateTimeSlot(day, index, 'from', newTime)
+                                  }}
+                                  className="px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md text-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+                                >
+                                  {Array.from({length: 12}, (_, i) => i + 1).map(hour => (
+                                    <option key={hour} value={hour} className="bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100">
+                                      {hour}
+                                    </option>
+                                  ))}
+                                </select>
+                                <span className="text-gray-500 dark:text-gray-400">:</span>
+                                <select
+                                  value={slot.from.split(':')[1]}
+                                  onChange={(e) => {
+                                    const hour = slot.from.split(':')[0]
+                                    const newTime = `${hour}:${e.target.value}`
+                                    updateTimeSlot(day, index, 'from', newTime)
+                                  }}
+                                  className="px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md text-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+                                >
+                                  {Array.from({length: 60}, (_, i) => i).map(minute => (
+                                    <option key={minute} value={minute.toString().padStart(2, '0')} className="bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100">
+                                      {minute.toString().padStart(2, '0')}
+                                    </option>
+                                  ))}
+                                </select>
+                                <select
+                                  value={parseInt(slot.from.split(':')[0]) >= 12 ? 'PM' : 'AM'}
+                                  onChange={(e) => {
+                                    const [hour, minute] = slot.from.split(':')
+                                    const currentHour = parseInt(hour)
+                                    let newHour
+                                    if (e.target.value === 'PM') {
+                                      newHour = currentHour >= 12 ? currentHour : currentHour + 12
+                                    } else {
+                                      newHour = currentHour >= 12 ? currentHour - 12 : currentHour
+                                    }
+                                    if (newHour === 0) newHour = 12
+                                    if (newHour === 24) newHour = 12
+                                    const newTime = `${newHour.toString().padStart(2, '0')}:${minute}`
+                                    updateTimeSlot(day, index, 'from', newTime)
+                                  }}
+                                  className="px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md text-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+                                >
+                                  <option value="AM" className="bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100">AM</option>
+                                  <option value="PM" className="bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100">PM</option>
+                                </select>
+                              </div>
                               <span className="text-gray-500 dark:text-gray-400">{t('common.to')}</span>
-                              <input
-                                type="time"
-                                value={slot.to}
-                                onChange={(e) => updateTimeSlot(day, index, 'to', e.target.value)}
-                                className="flex-1 px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md text-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
-                              />
+                              <div className="flex-1 flex items-center space-x-2">
+                                <select
+                                  value={Math.floor(parseInt(slot.to.split(':')[0]) % 12) || 12}
+                                  onChange={(e) => {
+                                    const hour = parseInt(e.target.value)
+                                    const minute = slot.to.split(':')[1]
+                                    const ampm = parseInt(slot.to.split(':')[0]) >= 12 ? 'PM' : 'AM'
+                                    const newHour = ampm === 'PM' ? (hour === 12 ? 12 : hour + 12) : (hour === 12 ? 0 : hour)
+                                    const newTime = `${newHour.toString().padStart(2, '0')}:${minute}`
+                                    updateTimeSlot(day, index, 'to', newTime)
+                                  }}
+                                  className="px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md text-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+                                >
+                                  {Array.from({length: 12}, (_, i) => i + 1).map(hour => (
+                                    <option key={hour} value={hour} className="bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100">
+                                      {hour}
+                                    </option>
+                                  ))}
+                                </select>
+                                <span className="text-gray-500 dark:text-gray-400">:</span>
+                                <select
+                                  value={slot.to.split(':')[1]}
+                                  onChange={(e) => {
+                                    const hour = slot.to.split(':')[0]
+                                    const newTime = `${hour}:${e.target.value}`
+                                    updateTimeSlot(day, index, 'to', newTime)
+                                  }}
+                                  className="px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md text-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+                                >
+                                  {Array.from({length: 60}, (_, i) => i).map(minute => (
+                                    <option key={minute} value={minute.toString().padStart(2, '0')} className="bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100">
+                                      {minute.toString().padStart(2, '0')}
+                                    </option>
+                                  ))}
+                                </select>
+                                <select
+                                  value={parseInt(slot.to.split(':')[0]) >= 12 ? 'PM' : 'AM'}
+                                  onChange={(e) => {
+                                    const [hour, minute] = slot.to.split(':')
+                                    const currentHour = parseInt(hour)
+                                    let newHour
+                                    if (e.target.value === 'PM') {
+                                      newHour = currentHour >= 12 ? currentHour : currentHour + 12
+                                    } else {
+                                      newHour = currentHour >= 12 ? currentHour - 12 : currentHour
+                                    }
+                                    if (newHour === 0) newHour = 12
+                                    if (newHour === 24) newHour = 12
+                                    const newTime = `${newHour.toString().padStart(2, '0')}:${minute}`
+                                    updateTimeSlot(day, index, 'to', newTime)
+                                  }}
+                                  className="px-3 py-2 border border-gray-300 dark:border-gray-700 text-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+                                >
+                                  <option value="AM" className="bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100">AM</option>
+                                  <option value="PM" className="bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100">PM</option>
+                                </select>
+                              </div>
                               {formData.availability_rules[day].length > 1 && (
                                 <button
                                   type="button"

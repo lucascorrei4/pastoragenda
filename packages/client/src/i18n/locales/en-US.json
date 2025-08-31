@@ -69,12 +69,19 @@
       "viewAll": "View all",
       "noBookings": "No bookings yet",
       "noBookingsDesc": "Create event types to start receiving bookings",
-      "customQandA": "Custom Q&A"
+      "customQandA": "Questions"
     },
     "profileCompletion": {
       "title": "Complete your profile setup",
       "description": "Set up your unique alias and profile information so people can find and book appointments with you.",
       "button": "Complete Profile"
+    },
+    "publicProfile": {
+      "title": "Your Public Profile",
+      "view": "View Profile",
+      "edit": "Edit Profile",
+      "eventTypes": "event types",
+      "description": "This is how your community sees your public profile. Share your profile link to let people book appointments with you."
     }
   },
   "eventTypes": {
@@ -373,7 +380,7 @@
       "bookerEmail": "Booker Email",
       "bookerPhone": "Booker Phone",
       "description": "Description",
-      "customQandA": "Custom Questions & Answers",
+      "customQandA": "Questions",
       "bookedOn": "Booked on",
       "count": "{{count}} bookings",
       "hour": "Hour",

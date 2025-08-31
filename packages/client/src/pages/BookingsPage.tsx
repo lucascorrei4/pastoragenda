@@ -23,7 +23,7 @@ function BookingsPage() {
   const fetchBookings = async () => {
     try {
       setLoading(true)
-      
+
       // First get event type IDs for this user
       const { data: userEventTypes } = await supabase
         .from('event_types')
@@ -32,7 +32,7 @@ function BookingsPage() {
 
       if (userEventTypes && userEventTypes.length > 0) {
         const eventTypeIds = userEventTypes.map(et => et.id)
-        
+
         // Fetch bookings for user's event types
         const { data, error } = await supabase
           .from('bookings')
@@ -73,7 +73,7 @@ function BookingsPage() {
         .eq('id', bookingId)
 
       if (error) throw error
-      
+
       toast.success(t('bookings.actions.cancelSuccess'))
       fetchBookings()
     } catch (error) {
@@ -86,14 +86,14 @@ function BookingsPage() {
 
   const getFilteredBookings = () => {
     const now = new Date()
-    
+
     switch (filter) {
       case 'upcoming':
-        return bookings.filter(booking => 
+        return bookings.filter(booking =>
           new Date(booking.start_time) > now && booking.status === 'confirmed'
         )
       case 'past':
-        return bookings.filter(booking => 
+        return bookings.filter(booking =>
           new Date(booking.start_time) < now && booking.status === 'confirmed'
         )
       case 'cancelled':
@@ -176,11 +176,10 @@ function BookingsPage() {
             <button
               key={tab.key}
               onClick={() => setFilter(tab.key as any)}
-              className={`py-2 px-1 border-b-2 font-medium text-sm ${
-                filter === tab.key
+              className={`py-2 px-1 border-b-2 font-medium text-sm ${filter === tab.key
                   ? 'border-primary-500 text-primary-600 dark:text-primary-400'
                   : 'border-transparent text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 hover:border-gray-300 dark:hover:border-gray-600'
-              }`}
+                }`}
             >
               {tab.label}
               <span className="ml-2 bg-gray-100 dark:bg-gray-700 text-gray-900 dark:text-gray-100 py-0.5 px-2.5 rounded-full text-xs">
@@ -209,7 +208,7 @@ function BookingsPage() {
                       {booking.event_types.title}
                     </h3>
                   </div>
-                  
+
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div className="space-y-2">
                       <div className="flex items-center text-sm text-gray-600 dark:text-gray-300">
@@ -224,7 +223,7 @@ function BookingsPage() {
                         </span>
                       </div>
                     </div>
-                    
+
                     <div className="space-y-2">
                       <div className="flex items-center text-sm text-gray-600 dark:text-gray-300">
                         <User className="w-4 h-4 mr-2" />
@@ -242,51 +241,51 @@ function BookingsPage() {
                       )}
                     </div>
                   </div>
-                  
-                   {/* Description */}
-                   {booking.booker_description && (
-                     <div className="mt-4 p-3 bg-gray-50 dark:bg-gray-700 rounded-lg">
-                       <div className="flex items-start space-x-2">
-                         <MessageSquare className="w-4 h-4 text-gray-500 dark:text-gray-400 mt-0.5 flex-shrink-0" />
-                         <div>
-                           <h4 className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">{t('bookings.details.description')}</h4>
-                           <p className="text-sm text-gray-600 dark:text-gray-300">{booking.booker_description}</p>
-                         </div>
-                       </div>
-                     </div>
-                   )}
 
-                   {/* Custom Answers */}
-                   {booking.custom_answers && Object.keys(booking.custom_answers).length > 0 && (
-                     <div className="mt-4 p-3 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg">
-                       <div className="flex items-start space-x-2">
-                         <MessageSquare className="w-4 h-4 text-blue-500 dark:text-blue-400 mt-0.5 flex-shrink-0" />
-                         <div className="flex-1">
-                           <h4 className="text-sm font-medium text-blue-700 dark:text-blue-300 mb-2">{t('bookings.details.customQandA')}</h4>
-                           <div className="space-y-2">
-                             {Object.entries(booking.custom_answers).map(([questionId, answer]) => {
-                               // Find the corresponding question from event type
-                               const question = booking.event_types.custom_questions?.find(q => q.id === questionId)
-                               return (
-                                 <div key={questionId} className="text-sm">
-                                   <span className="font-medium text-blue-700 dark:text-blue-300">{question?.question || 'Question'}: </span>
-                                   <span className="text-blue-600 dark:text-blue-200">
-                                     {Array.isArray(answer) ? answer.join(', ') : answer}
-                                   </span>
-                                 </div>
-                               )
-                             })}
-                           </div>
-                         </div>
-                       </div>
-                     </div>
-                   )}
-                  
+                  {/* Description */}
+                  {booking.booker_description && (
+                    <div className="mt-4 p-3 bg-gray-50 dark:bg-gray-700 rounded-lg">
+                      <div className="flex items-start space-x-2">
+                        <MessageSquare className="w-4 h-4 text-gray-500 dark:text-gray-400 mt-0.5 flex-shrink-0" />
+                        <div>
+                          <h4 className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">{t('bookings.details.description')}</h4>
+                          <p className="text-sm text-gray-600 dark:text-gray-300">{booking.booker_description}</p>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Custom Answers */}
+                  {booking.custom_answers && Object.keys(booking.custom_answers).length > 0 && (
+                    <div className="mt-4 p-3 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg">
+                      <div className="flex items-start space-x-2">
+                        <MessageSquare className="w-4 h-4 text-blue-500 dark:text-blue-400 mt-0.5 flex-shrink-0" />
+                        <div className="flex-1">
+                          <h4 className="text-sm font-medium text-blue-700 dark:text-blue-300 mb-2">{t('bookings.details.customQandA')}</h4>
+                          <div className="space-y-2">
+                            {Object.entries(booking.custom_answers).map(([questionId, answer]) => {
+                              // Find the corresponding question from event type
+                              const question = booking.event_types.custom_questions?.find(q => q.id === questionId)
+                              return (
+                                <div key={questionId} className="text-sm">
+                                  <span className="font-medium text-blue-700 dark:text-blue-300">{question?.question || 'Question'}: </span>
+                                  <span className="text-blue-600 dark:text-blue-200">
+                                    {Array.isArray(answer) ? answer.join(', ') : answer}
+                                  </span>
+                                </div>
+                              )
+                            })}
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+
                   <div className="mt-4 text-xs text-gray-500 dark:text-gray-400">
                     {t('bookings.details.bookedOn')} {formatDate(booking.created_at)}
                   </div>
                 </div>
-                
+
                 {booking.status === 'confirmed' && new Date(booking.start_time) > new Date() && (
                   <button
                     onClick={() => handleCancelBooking(booking.id)}

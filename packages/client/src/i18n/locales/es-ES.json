@@ -69,12 +69,19 @@
       "viewAll": "Ver todas",
       "noBookings": "Aún no hay reservas",
       "noBookingsDesc": "Crea tipos de evento para comenzar a recibir reservas",
-      "customQandA": "P&R Personalizadas"
+      "customQandA": "Preguntas"
     },
     "profileCompletion": {
       "title": "Completa la configuración de tu perfil",
       "description": "Configura tu alias único e información del perfil para que las personas puedan encontrar y reservar citas contigo.",
       "button": "Completar Perfil"
+    },
+    "publicProfile": {
+      "title": "Tu Perfil Público",
+      "view": "Ver Perfil",
+      "edit": "Editar Perfil",
+      "eventTypes": "tipos de evento",
+      "description": "Así es como tu comunidad ve tu perfil público. Comparte tu enlace de perfil para que las personas puedan reservar citas contigo."
     }
   },
   "eventTypes": {
@@ -371,7 +378,7 @@
       "bookerEmail": "Email del Reservador",
       "bookerPhone": "Teléfono del Reservador",
       "description": "Descripción",
-      "customQandA": "Preguntas y Respuestas Personalizadas",
+      "customQandA": "Preguntas",
       "bookedOn": "Reservado el",
       "count": "{{count}} reservas",
       "hour": "Hora",
