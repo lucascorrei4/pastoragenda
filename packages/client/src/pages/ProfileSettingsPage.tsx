@@ -349,15 +349,15 @@ function ProfileSettingsPage() {
             </h3>
             <div className="bg-gray-50 dark:bg-gray-700 rounded-lg p-4">
               <p className="text-sm text-gray-600 dark:text-gray-300 mb-2">{t('profile.profileAvailableAt')}</p>
-              <Link
-                to={`/${profile.alias}`}
+              <a
+                href={`/${profile.alias}`}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="inline-flex items-center font-mono text-primary-600 dark:text-primary-400 hover:text-primary-700 dark:hover:text-primary-300 transition-colors duration-200"
               >
                 {window.location.origin}/{profile.alias}
                 <ExternalLink className="w-4 h-4 ml-2" />
-              </Link>
+              </a>
               <p className="text-xs text-gray-500 dark:text-gray-400 mt-2">
                 {t('profile.shareLinkDescription')}
               </p>

@@ -210,15 +210,15 @@ function DashboardPage() {
               {t('dashboard.publicProfile.title')}
             </h2>
             <div className="flex space-x-2">
-              <Link
-                to={`/${profile.alias}`}
+              <a
+                href={`/${profile.alias}`}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="inline-flex items-center px-3 py-1.5 text-sm font-medium text-primary-600 dark:text-primary-400 bg-primary-50 dark:bg-primary-900/20 border border-primary-200 dark:border-primary-800 rounded-md hover:bg-primary-100 dark:hover:bg-primary-900/30 transition-colors"
               >
                 <ExternalLink className="w-4 h-4 mr-1.5" />
                 {t('dashboard.publicProfile.view')}
-              </Link>
+              </a>
               <Link
                 to="/dashboard/profile"
                 className="inline-flex items-center px-3 py-1.5 text-sm font-medium text-gray-700 dark:text-gray-300 bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-md hover:bg-gray-100 dark:hover:bg-gray-600 transition-colors"

@@ -192,7 +192,7 @@ function EventBookingPage() {
 
   const getWeekDates = () => {
     const start = startOfWeek(currentWeek, { weekStartsOn: 1 })
-    const dates = []
+    const dates: Date[] = []
     
     for (let i = 0; i < 7; i++) {
       dates.push(addDays(start, i))

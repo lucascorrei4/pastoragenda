@@ -41,10 +41,10 @@ export const authUtils = {
       await supabase.auth.signOut()
       
       // Clear localStorage
-      const keysToRemove = []
+      const keysToRemove: string[] = []
       for (let i = 0; i < localStorage.length; i++) {
         const key = localStorage.key(i)
-        if (key && key.includes('supabase') || key && key.includes('sb-')) {
+        if (key && (key.includes('supabase') || key.includes('sb-'))) {
           keysToRemove.push(key)
         }
       }
