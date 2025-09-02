@@ -1,10 +1,10 @@
 import { SMTPClient } from "https://deno.land/x/denomailer@1.6.0/mod.ts"
 
 const SMTP_CONFIG = {
-  hostname: "smtp-relay.brevo.com",
-  port: 587,
-  username: "81dae5002@smtp-brevo.com",
-  password: "xsmtpsib-2d526e2bfe7f08961d263d9934b54bfe321178f6736469a4d7300784c945040d-qrfkwbYyP7VXgndK",
+  hostname: Deno.env.get("BREVO_SMTP_HOST") || "smtp-relay.brevo.com",
+  port: parseInt(Deno.env.get("BREVO_SMTP_PORT") || "587"),
+  username: Deno.env.get("BREVO_SMTP_USERNAME") || "",
+  password: Deno.env.get("BREVO_SMTP_PASSWORD") || "",
   tls: true,
 }
 
