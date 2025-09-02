@@ -1,12 +1,8 @@
 import { createClient } from '@supabase/supabase-js'
+import { customAuth } from './custom-auth'
 
 const supabaseUrl = import.meta.env.VITE_SUPABASE_URL
 const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY
-
-console.log('Supabase client initialization:')
-console.log('- VITE_SUPABASE_URL:', supabaseUrl)
-console.log('- VITE_SUPABASE_ANON_KEY exists:', !!supabaseAnonKey)
-console.log('- VITE_SUPABASE_ANON_KEY length:', supabaseAnonKey?.length)
 
 // Create the Supabase client based on environment variables
 let supabase: any
@@ -19,24 +15,51 @@ if (!supabaseUrl || !supabaseAnonKey) {
   
   // Create a mock client that will fail gracefully
   const mockClient = {
-    auth: {
-      getSession: async () => ({ data: { session: null }, error: new Error('Missing environment variables') }),
-      getUser: async () => ({ data: { user: null }, error: new Error('Missing environment variables') }),
-      signOut: async () => ({ error: new Error('Missing environment variables') }),
-      signInWithOtp: async () => ({ data: null, error: new Error('Missing environment variables') }),
-      signUp: async () => ({ data: null, error: new Error('Missing environment variables') }),
-      verifyOtp: async () => ({ data: null, error: new Error('Missing environment variables') }),
-      onAuthStateChange: () => ({ data: { subscription: { unsubscribe: () => {} } } })
-    }
+    from: () => ({
+      select: () => ({ eq: () => ({ single: () => Promise.resolve({ data: null, error: new Error('Missing environment variables') }) }) }),
+      insert: () => ({ select: () => Promise.resolve({ data: null, error: new Error('Missing environment variables') }) }),
+      update: () => ({ eq: () => ({ select: () => Promise.resolve({ data: null, error: new Error('Missing environment variables') }) }) }),
+      delete: () => ({ eq: () => Promise.resolve({ data: null, error: new Error('Missing environment variables') }) })
+    }),
+    rpc: () => Promise.resolve({ data: null, error: new Error('Missing environment variables') })
   } as any
   
   console.warn('Using mock Supabase client due to missing environment variables')
   supabase = mockClient
 } else {
-  console.log('Creating Supabase client...')
   supabase = createClient(supabaseUrl, supabaseAnonKey)
-  console.log('Supabase client created successfully:', supabase)
-  console.log('Supabase client methods:', Object.keys(supabase))
+}
+
+// Enhanced Supabase client with custom authentication
+export const supabaseWithAuth = {
+  ...supabase,
+  
+  // Override the from method to include authentication headers
+  from: (table: string) => {
+    const originalFrom = supabase.from(table)
+    
+    // Get current auth token
+    const token = customAuth.getToken()
+    
+    if (token) {
+      // Add authorization header to requests
+      const headers = {
+        'Authorization': `Bearer ${token}`,
+        'apikey': supabaseAnonKey || ''
+      }
+      
+      // Create a new client instance with auth headers
+      const authClient = createClient(supabaseUrl, supabaseAnonKey, {
+        global: {
+          headers
+        }
+      })
+      
+      return authClient.from(table)
+    }
+    
+    return originalFrom
+  }
 }
 
 export { supabase }
@@ -48,7 +71,11 @@ export interface Profile {
   alias: string
   bio: string | null
   avatar_url: string | null
+  email: string
+  email_verified: boolean
+  last_login_at: string | null
   created_at: string
+  updated_at: string
 }
 
 export interface EventType {

@@ -76,6 +76,13 @@ double_confirm_changes = true
 # If enabled, users need to confirm their email address before signing in.
 enable_confirmations = false
 
+# Disable email rate limiting for development
+# [auth.email.template.confirmation]
+# subject = "Confirm your signup"
+# content_path = "./supabase/templates/confirmation.html"
+
+# Rate limiting configuration moved to main auth.email section above
+
 # Uncomment to customize email template
 # [auth.email.template.invite]
 # subject = "You have been invited"
@@ -220,9 +227,11 @@ client_id = ""
 secret = ""
 
 # Use pre-defined map of claims that are added to JWT tokens
-# [auth.jwt]
-# admin_claim_name = "role"
-# default_group_name = "authenticated"
+[auth.jwt]
+admin_claim_name = "role"
+default_group_name = "authenticated"
+# Custom JWT secret for our authentication system
+secret = "env(JWT_SECRET)"
 
 # Configure one of the supported SMS providers: `twilio`, `messagebird`, `textlocal`, `vonage`.
 # [sms]

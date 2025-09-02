@@ -68,7 +68,7 @@ function ProfileSettingsPage() {
         .insert([
           {
             id: user?.id,
-            full_name: user?.user_metadata?.full_name || '',
+            full_name: user?.full_name || '',
             alias: '',
             bio: '',
             avatar_url: ''

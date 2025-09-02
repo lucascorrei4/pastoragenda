@@ -27,7 +27,7 @@
     "info": "Información",
     "pastor": "Pastor",
     "to": "a",
-    "eventType": "Tipo de Evento",
+    "eventType": "Agenda",
     "minutes": "minutos",
     "text": "Texto",
     "saving": "Guardando...",
@@ -42,7 +42,7 @@
     "home": "Inicio",
     "dashboard": "Panel",
     "profile": "Perfil",
-    "eventTypes": "Tipos de Evento",
+    "eventTypes": "Agendas",
     "bookings": "Reservas",
     "settings": "Configuración",
     "signIn": "Iniciar Sesión",
@@ -55,11 +55,11 @@
     "stats": {
       "totalBookings": "Total de Reservas",
       "thisMonth": "Este Mes",
-      "eventTypes": "Tipos de Evento"
+      "eventTypes": "Agendas"
     },
     "quickActions": {
       "title": "Acciones Rápidas",
-      "createEventType": "Crear Tipo de Evento",
+      "createEventType": "Crear Agenda",
       "createEventTypeDesc": "Configura nuevos tipos de cita",
       "updateProfile": "Actualizar Perfil",
       "updateProfileDesc": "Edita tu información pública"
@@ -68,7 +68,7 @@
       "title": "Reservas Recientes",
       "viewAll": "Ver todas",
       "noBookings": "Aún no hay reservas",
-      "noBookingsDesc": "Crea tipos de evento para comenzar a recibir reservas",
+      "noBookingsDesc": "Crea agendas para comenzar a recibir reservas",
       "customQandA": "Preguntas"
     },
     "profileCompletion": {
@@ -80,20 +80,20 @@
       "title": "Tu Perfil Público",
       "view": "Ver Perfil",
       "edit": "Editar Perfil",
-      "eventTypes": "tipos de evento",
+      "eventTypes": "agendas",
       "description": "Así es como tu comunidad ve tu perfil público. Comparte tu enlace de perfil para que las personas puedan reservar citas contigo."
     }
   },
   "eventTypes": {
-    "title": "Tipos de Evento",
-    "createButton": "Crear Tipo de Evento",
-    "editButton": "Editar Tipo de Evento",
-    "noEventTypes": "Aún no hay tipos de evento",
-    "noEventTypesDesc": "Crea tu primer tipo de evento para comenzar a recibir reservas",
+    "title": "Agendas",
+    "createButton": "Crear Agenda",
+    "editButton": "Editar Agenda",
+    "noEventTypes": "Aún no hay agendas",
+    "noEventTypesDesc": "Crea tu primer tipo de agenda para comenzar a recibir reservas",
     "form": {
-      "title": "Crear Tipo de Evento",
-      "editTitle": "Editar Tipo de Evento",
-      "eventTitle": "Título del Evento",
+      "title": "Crear Agenda",
+      "editTitle": "Editar Agenda",
+      "eventTitle": "Título del Agenda",
       "eventTitlePlaceholder": "ej., Sesión de Consejería de 30 Minutos",
       "duration": "Duración (minutos)",
       "description": "Descripción",
@@ -125,27 +125,27 @@
       "save": "Guardar",
       "cancel": "Cancelar",
       "delete": "Eliminar",
-      "confirmDelete": "¿Estás seguro de que quieres eliminar este tipo de evento?",
-      "deleteSuccess": "Tipo de evento eliminado exitosamente",
-      "deleteError": "Error al eliminar tipo de evento",
-      "saveSuccess": "Tipo de evento guardado exitosamente",
-      "saveError": "Error al guardar tipo de evento",
-      "loadError": "Error al cargar tipos de evento",
+      "confirmDelete": "¿Estás seguro de que quieres eliminar este tipo de agenda?",
+      "deleteSuccess": "Tipo de agenda eliminado exitosamente",
+      "deleteError": "Error al eliminar tipo de agenda",
+      "saveSuccess": "Tipo de agenda guardado exitosamente",
+      "saveError": "Error al guardar tipo de agenda",
+      "loadError": "Error al cargar agendas",
       "saving": "Guardando...",
-      "create": "Crear Tipo de Evento",
-      "update": "Actualizar Tipo de Evento",
+      "create": "Crear Agenda",
+      "update": "Actualizar Agenda",
       "validation": {
         "titleRequired": "El título es requerido",
         "durationRange": "La duración debe estar entre 15 minutos y 8 horas",
         "availabilityRequired": "Por favor, establece disponibilidad para al menos un día"
       },
       "messages": {
-        "updateSuccess": "Tipo de evento actualizado exitosamente",
-        "createSuccess": "Tipo de evento creado exitosamente",
-        "deleteSuccess": "Tipo de evento eliminado exitosamente",
-        "saveError": "Error al guardar tipo de evento",
-        "deleteError": "Error al eliminar tipo de evento",
-        "confirmDelete": "¿Estás seguro de que quieres eliminar este tipo de evento? Esto también cancelará todas las reservas futuras."
+        "updateSuccess": "Tipo de agenda actualizado exitosamente",
+        "createSuccess": "Tipo de agenda creado exitosamente",
+        "deleteSuccess": "Tipo de agenda eliminado exitosamente",
+        "saveError": "Error al guardar tipo de agenda",
+        "deleteError": "Error al eliminar tipo de agenda",
+        "confirmDelete": "¿Estás seguro de que quieres eliminar este tipo de agenda? Esto también cancelará todas las reservas futuras."
       }
     },
     "card": {
@@ -168,7 +168,7 @@
       "description": "PastorAgenda proporciona una solución integral para que los líderes religiosos gestionen citas, compartan su disponibilidad y se conecten con su comunidad.",
       "feature1": {
         "title": "Programación Fácil",
-        "description": "Crea tipos de evento personalizados con duraciones específicas y reglas de disponibilidad. Permite que las personas reserven citas que se ajusten a tu horario."
+        "description": "Crea agendas personalizados con duraciones específicas y reglas de disponibilidad. Permite que las personas reserven citas que se ajusten a tu horario."
       },
       "feature2": {
         "title": "Conexión con la Comunidad",
@@ -207,7 +207,7 @@
         "description": "Perfecto para comenzar con necesidades básicas de programación",
         "button": "Comenzar Gratis",
         "features": {
-          "feature1": "5 Tipos de Eventos",
+          "feature1": "5 Tipos de Agendas",
           "feature2": "Programación Básica",
           "feature3": "Notificaciones por Email"
         }
@@ -218,7 +218,7 @@
         "description": "Ideal para ministerios en crecimiento con necesidades avanzadas",
         "button": "Iniciar Plan Pro",
         "features": {
-          "feature1": "Tipos de Eventos Ilimitados",
+          "feature1": "Tipos de Agendas Ilimitados",
           "feature2": "Programación Avanzada",
           "feature3": "Preguntas Personalizadas",
           "feature4": "Soporte Prioritario"
@@ -364,13 +364,13 @@
       "cancelled": "No hay reservas canceladas"
     },
     "noBookingsDesc": {
-      "all": "Crea tipos de evento para comenzar a recibir reservas de tu comunidad.",
+      "all": "Crea agendas para comenzar a recibir reservas de tu comunidad.",
       "upcoming": "Todas tus citas próximas aparecerán aquí.",
       "past": "Tus citas completadas aparecerán aquí.",
       "cancelled": "Las citas canceladas aparecerán aquí."
     },
     "details": {
-      "eventType": "Tipo de Evento",
+      "eventType": "Agenda",
       "date": "Fecha",
       "time": "Hora",
       "duration": "Duración",
@@ -402,7 +402,7 @@
     "with": "con {{name}}",
     "noAvailableSlots": "No hay horarios disponibles para esta fecha",
     "continue": "Continuar",
-    "loadError": "Error al cargar información del evento",
+    "loadError": "Error al cargar información del agenda",
     "calendar": {
       "legend": "Leyenda del Calendario",
       "available": "Disponible",
@@ -420,7 +420,7 @@
     "with": "con {{name}}",
     "appointmentSummary": "Resumen de la Cita",
     "summarySubtitle": "Por favor revisa los detalles de tu cita abajo",
-    "eventInfo": "Información del Evento",
+    "eventInfo": "Información del Agenda",
     "yourInformation": "Tu Información",
     "fullName": "Nombre Completo",
     "fullNamePlaceholder": "Ingresa tu nombre completo",
@@ -451,7 +451,7 @@
     "subtitle": "Tu cita con {{name}} ha sido reservada exitosamente.",
     "appointmentDetails": "Detalles de la Cita",
     "pastor": "Pastor",
-    "event": "Evento",
+    "event": "Agenda",
     "date": "Fecha",
     "time": "Hora",
     "phone": "Teléfono",

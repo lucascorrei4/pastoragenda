@@ -19,9 +19,6 @@ function PublicProfilePage() {
     let mounted = true
     
     if (alias) {
-      console.log('PublicProfilePage: Starting to fetch profile for alias:', alias)
-      
-      // Test if supabase client is properly initialized
       if (!supabase || !supabase.auth) {
         console.error('PublicProfilePage: Supabase client is not properly initialized!')
         if (mounted) {
@@ -43,19 +40,15 @@ function PublicProfilePage() {
     let mounted = true
     
     try {
-      console.log('PublicProfilePage: fetchProfileData called')
       setLoading(true)
       setError(null)
 
       // Fetch profile by alias
-      console.log('PublicProfilePage: Fetching profile for alias:', alias)
       const { data: profileData, error: profileError } = await supabase
         .from('profiles')
         .select('*')
         .eq('alias', alias)
         .single()
-
-      console.log('PublicProfilePage: Profile fetch result:', { data: profileData, error: profileError })
 
       if (!mounted) return
 
@@ -71,17 +64,14 @@ function PublicProfilePage() {
       }
 
       if (!profileData) {
-        console.log('PublicProfilePage: No profile data found')
         setError(t('publicProfile.notFound'))
         setLoading(false) // Make sure to set loading to false when no data
         return
       }
 
-      console.log('PublicProfilePage: Setting profile data:', profileData)
       setProfile(profileData)
 
-      // Fetch event types for this pastor
-      console.log('PublicProfilePage: Fetching event types...')
+      // Fetch agendas for this pastor
       const { data: eventTypesData, error: eventTypesError } = await supabase
         .from('event_types')
         .select('*')
@@ -91,10 +81,9 @@ function PublicProfilePage() {
 
       if (eventTypesError) {
         console.error('PublicProfilePage: Event types fetch error:', eventTypesError)
-        // Don't fail the whole request if event types fail
+        // Don't fail the whole request if agendas fail
         setEventTypes([])
       } else {
-        console.log('PublicProfilePage: Setting event types:', eventTypesData)
         setEventTypes(eventTypesData || [])
       }
 
@@ -105,7 +94,6 @@ function PublicProfilePage() {
       }
     } finally {
       if (mounted) {
-        console.log('PublicProfilePage: Setting loading to false')
         setLoading(false)
       }
     }
@@ -122,7 +110,7 @@ function PublicProfilePage() {
           url: url
         })
       } catch (error) {
-        console.log('Error sharing:', error)
+        console.error('Error sharing:', error)
       }
     } else {
       // Fallback to copying to clipboard
@@ -130,7 +118,7 @@ function PublicProfilePage() {
         await navigator.clipboard.writeText(url)
         alert(t('publicProfile.linkCopied'))
       } catch (error) {
-        console.log('Error copying to clipboard:', error)
+        console.error('Error copying to clipboard:', error)
       }
     }
   }
@@ -225,7 +213,7 @@ function PublicProfilePage() {
             </div>
           </div>
 
-          {/* Event Types */}
+          {/* Agendas */}
           <div className="p-6">
             <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-6">
               {t('publicProfile.eventTypes')}

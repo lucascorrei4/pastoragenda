@@ -27,7 +27,7 @@
     "info": "Information",
     "pastor": "Pastor",
     "to": "to",
-    "eventType": "Event Type",
+    "eventType": "Agenda",
     "minutes": "minutes",
     "text": "Text",
     "saving": "Saving...",
@@ -42,7 +42,7 @@
     "home": "Home",
     "dashboard": "Dashboard",
     "profile": "Profile",
-    "eventTypes": "Event Types",
+    "eventTypes": "Agendas",
     "bookings": "Bookings",
     "settings": "Settings",
     "signIn": "Sign In",
@@ -55,11 +55,11 @@
     "stats": {
       "totalBookings": "Total Bookings",
       "thisMonth": "This Month",
-      "eventTypes": "Event Types"
+      "eventTypes": "Agendas"
     },
     "quickActions": {
       "title": "Quick Actions",
-      "createEventType": "Create Event Type",
+      "createEventType": "Create Agenda",
       "createEventTypeDesc": "Set up new appointment types",
       "updateProfile": "Update Profile",
       "updateProfileDesc": "Edit your public information"
@@ -68,7 +68,7 @@
       "title": "Recent Bookings",
       "viewAll": "View all",
       "noBookings": "No bookings yet",
-      "noBookingsDesc": "Create event types to start receiving bookings",
+      "noBookingsDesc": "Create agendas to start receiving bookings",
       "customQandA": "Questions"
     },
     "profileCompletion": {
@@ -80,19 +80,19 @@
       "title": "Your Public Profile",
       "view": "View Profile",
       "edit": "Edit Profile",
-      "eventTypes": "event types",
+      "eventTypes": "agendas",
       "description": "This is how your community sees your public profile. Share your profile link to let people book appointments with you."
     }
   },
   "eventTypes": {
-    "title": "Event Types",
-    "createButton": "Create Event Type",
-    "editButton": "Edit Event Type",
-    "noEventTypes": "No event types yet",
+    "title": "Agendas",
+    "createButton": "Create Agenda",
+    "editButton": "Edit Agenda",
+    "noEventTypes": "No agendas yet",
     "noEventTypesDesc": "Create your first event type to start receiving bookings",
     "form": {
-      "title": "Create Event Type",
-      "editTitle": "Edit Event Type",
+      "title": "Create Agenda",
+      "editTitle": "Edit Agenda",
       "eventTitle": "Event Title",
       "eventTitlePlaceholder": "e.g., 30-Minute Counseling Session",
       "title": "Title",
@@ -131,10 +131,10 @@
       "deleteError": "Failed to delete event type",
       "saveSuccess": "Event type saved successfully",
       "saveError": "Failed to save event type",
-      "loadError": "Failed to load event types",
+      "loadError": "Failed to load agendas",
       "saving": "Saving...",
-      "create": "Create Event Type",
-      "update": "Update Event Type",
+      "create": "Create Agenda",
+      "update": "Update Agenda",
       "validation": {
         "titleRequired": "Title is required",
         "durationRange": "Duration must be between 15 minutes and 8 hours",
@@ -170,7 +170,7 @@
       "description": "PastorAgenda provides a comprehensive solution for religious leaders to manage appointments, share their availability, and connect with their community.",
       "feature1": {
         "title": "Easy Scheduling",
-        "description": "Create custom event types with specific durations and availability rules. Let people book appointments that fit your schedule."
+        "description": "Create custom agendas with specific durations and availability rules. Let people book appointments that fit your schedule."
       },
       "feature2": {
         "title": "Flexible Options",
@@ -209,7 +209,7 @@
         "description": "Perfect for getting started with basic scheduling needs",
         "button": "Get Started Free",
         "features": {
-          "feature1": "5 Event Types",
+          "feature1": "5 Agendas",
           "feature2": "Basic Scheduling",
           "feature3": "Email Notifications"
         }
@@ -220,7 +220,7 @@
         "description": "Ideal for growing ministries with advanced needs",
         "button": "Start Pro Plan",
         "features": {
-          "feature1": "Unlimited Event Types",
+          "feature1": "Unlimited Agendas",
           "feature2": "Advanced Scheduling",
           "feature3": "Custom Questions",
           "feature4": "Priority Support"
@@ -366,13 +366,13 @@
       "cancelled": "No cancelled bookings"
     },
     "noBookingsDesc": {
-      "all": "Create event types to start receiving bookings from your community.",
+      "all": "Create agendas to start receiving bookings from your community.",
       "upcoming": "All your upcoming appointments will appear here.",
       "past": "Your completed appointments will appear here.",
       "cancelled": "Cancelled appointments will appear here."
     },
     "details": {
-      "eventType": "Event Type",
+      "eventType": "Agenda",
       "date": "Date",
       "time": "Time",
       "duration": "Duration",

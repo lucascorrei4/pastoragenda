@@ -63,17 +63,17 @@ CREATE POLICY "Users can insert own profile" ON public.profiles
 CREATE POLICY "Public can view profiles by alias" ON public.profiles
     FOR SELECT USING (true);
 
--- Event Types RLS Policies
--- Users can manage their own event types
-CREATE POLICY "Users can manage own event types" ON public.event_types
+-- Agendas RLS Policies
+-- Users can manage their own agendas
+CREATE POLICY "Users can manage own agendas" ON public.event_types
     FOR ALL USING (auth.uid() = user_id);
 
--- Public can read event types (for booking pages)
-CREATE POLICY "Public can view event types" ON public.event_types
+-- Public can read agendas (for booking pages)
+CREATE POLICY "Public can view agendas" ON public.event_types
     FOR SELECT USING (true);
 
 -- Bookings RLS Policies
--- Users can view bookings for their event types
+-- Users can view bookings for their agendas
 CREATE POLICY "Users can view bookings for their events" ON public.bookings
     FOR SELECT USING (
         EXISTS (
@@ -83,7 +83,7 @@ CREATE POLICY "Users can view bookings for their events" ON public.bookings
         )
     );
 
--- Users can update bookings for their event types
+-- Users can update bookings for their agendas
 CREATE POLICY "Users can update bookings for their events" ON public.bookings
     FOR UPDATE USING (
         EXISTS (

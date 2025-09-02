@@ -12,8 +12,8 @@ function LanguageSwitcher({ dropdownPosition = 'below' }: LanguageSwitcherProps)
 
   const languages = [
     { code: 'en-US', name: 'English', flag: '🇺🇸' },
-    { code: 'pt-BR', name: 'Português', flag: '🇧🇷' },
-    { code: 'es-ES', name: 'Español', flag: '🇪🇸' }
+    { code: 'pt-BR', name: 'Portuguese', flag: '🇧🇷' },
+    { code: 'es-ES', name: 'Spanish', flag: '🇪🇸' }
   ]
 
   const currentLanguage = languages.find(lang => lang.code === i18n.language) || languages[0]

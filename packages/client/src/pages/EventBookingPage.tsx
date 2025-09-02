@@ -272,7 +272,7 @@ function EventBookingPage() {
 
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg overflow-hidden">
-          {/* Event Type Info */}
+          {/* Agenda Info */}
           <div className="bg-gradient-to-r from-primary-600 to-primary-700 px-6 py-6 text-white">
             <h2 className="text-2xl font-bold">{eventType.title}</h2>
             <div className="flex items-center space-x-4 mt-2">

@@ -39,7 +39,7 @@ function DashboardPage() {
         setProfile(profileData)
       }
 
-      // Fetch event types
+      // Fetch agendas
       const { data: eventTypesData } = await supabase
         .from('event_types')
         .select('*')
@@ -58,7 +58,7 @@ function DashboardPage() {
               if (userEventTypes && userEventTypes.length > 0) {
           const eventTypeIds = userEventTypes.map((et: { id: string }) => et.id)
         
-        // Fetch recent bookings for user's event types
+        // Fetch recent bookings for user's agendas
         const { data: bookingsData } = await supabase
           .from('bookings')
           .select(`
@@ -99,7 +99,7 @@ function DashboardPage() {
           totalEventTypes: eventTypesData?.length || 0
         })
       } else {
-        // No event types, set stats to 0
+        // No agendas, set stats to 0
         setStats({
           totalBookings: 0,
           thisMonthBookings: 0,
@@ -258,9 +258,14 @@ function DashboardPage() {
                 <div className="flex items-center space-x-4 text-sm text-gray-500 dark:text-gray-400">
                   <div className="flex items-center">
                     <Globe className="w-4 h-4 mr-1.5" />
-                    <span className="font-mono text-primary-600 dark:text-primary-400">
+                    <a 
+                      href={`${window.location.origin}/${profile.alias}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="font-mono text-primary-600 dark:text-primary-400 hover:text-primary-700 dark:hover:text-primary-300 underline transition-colors"
+                    >
                       {window.location.origin}/{profile.alias}
-                    </span>
+                    </a>
                   </div>
                   <div className="flex items-center">
                     <Calendar className="w-4 h-4 mr-1.5" />
@@ -386,6 +391,7 @@ function DashboardPage() {
           </div>
         </div>
       )}
+
     </div>
   )
 }

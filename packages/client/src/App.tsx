@@ -1,10 +1,30 @@
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom'
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom'
 import { AuthProvider } from './contexts/AuthContext'
 import { ThemeProvider } from './contexts/ThemeContext'
 import { Toaster } from 'react-hot-toast'
 import './i18n'
 import ProtectedRoute from './components/ProtectedRoute'
+import { useAuth } from './contexts/AuthContext'
 import Layout from './components/Layout'
+
+// Component to redirect authenticated users away from auth page
+function AuthPageWrapper() {
+  const { user, loading } = useAuth()
+  
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-primary-600"></div>
+      </div>
+    )
+  }
+  
+  if (user) {
+    return <Navigate to="/dashboard" replace />
+  }
+  
+  return <AuthPage />
+}
 import { PWAInstallPrompt } from './components/PWAInstallPrompt'
 import HomePage from './pages/HomePage'
 import AuthPage from './pages/AuthPage'
@@ -26,7 +46,7 @@ function App() {
           <Routes>
             {/* Public routes */}
             <Route path="/" element={<HomePage />} />
-            <Route path="/auth" element={<AuthPage />} />
+            <Route path="/auth" element={<AuthPageWrapper />} />
             <Route path="/:alias" element={<PublicProfilePage />} />
             <Route path="/:alias/:eventTypeId" element={<EventBookingPage />} />
             <Route path="/:alias/:eventTypeId/confirmation" element={<BookingConfirmationPage />} />

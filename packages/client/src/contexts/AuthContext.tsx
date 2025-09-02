@@ -1,21 +1,20 @@
 import React, { createContext, useContext, useEffect, useState, useRef } from 'react'
-import { User, Session } from '@supabase/supabase-js'
-import { supabase } from '../lib/supabase'
+import { customAuth, User } from '../lib/custom-auth'
 
 interface AuthContextType {
   user: User | null
-  session: Session | null
   loading: boolean
   signOut: () => Promise<void>
+  refreshUser: () => void
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined)
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(null)
-  const [session, setSession] = useState<Session | null>(null)
   const [loading, setLoading] = useState(true)
   const loadingRef = useRef(loading)
+  const validationInProgress = useRef(false)
 
   // Keep ref in sync with state
   useEffect(() => {
@@ -25,166 +24,176 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     let mounted = true
 
-    // Check if Supabase client is properly initialized
-    if (!supabase || !supabase.auth) {
-      console.error('AuthContext: Supabase client is not properly initialized!')
-      if (mounted) {
-        setSession(null)
-        setUser(null)
-        setLoading(false)
+    // Check if user is already authenticated
+    const checkAuthStatus = async () => {
+      // Prevent multiple simultaneous validation calls
+      if (validationInProgress.current) {
+        return
       }
-      return
-    }
 
-    // Get initial session with better error handling
-    const getInitialSession = async () => {
       try {
-        console.log('AuthContext: Getting initial session...')
-        const { data: { session }, error } = await supabase.auth.getSession()
-        
-        if (error) {
-          console.error('Error getting initial session:', error)
-          // Clear any invalid session data
-          if (mounted) {
-            setSession(null)
-            setUser(null)
-            setLoading(false)
-            console.log('AuthContext: Loading set to false due to error')
-          }
-          return
-        }
+        validationInProgress.current = true
 
-        // Validate session before setting it
-        if (session && session.user && session.access_token) {
-          console.log('AuthContext: Session found, validating...')
-          // Verify the session is still valid
-          const { data: { user: currentUser }, error: userError } = await supabase.auth.getUser()
+        // Check if we have a stored token and user
+        const currentUser = customAuth.getCurrentUser()
+        const token = customAuth.getToken()
+
+        if (currentUser && token) {
+          // Only validate token if we don't have recent validation
+          const lastValidation = localStorage.getItem('last_token_validation')
+          const now = Date.now()
+          const validationAge = lastValidation ? now - parseInt(lastValidation) : Infinity
           
-          if (userError || !currentUser) {
-            console.error('Session validation failed:', userError)
-            // Clear invalid session
-            await supabase.auth.signOut()
-            if (mounted) {
-              setSession(null)
-              setUser(null)
-              setLoading(false)
-              console.log('AuthContext: Loading set to false after invalid session')
+          // Only validate if token is older than 5 minutes
+          if (validationAge > 5 * 60 * 1000) {
+            console.log('Validating token...')
+            const validationResult = await customAuth.validateToken()
+            
+            if (validationResult.success && validationResult.user) {
+              localStorage.setItem('last_token_validation', now.toString())
+              if (mounted) {
+                // Only update if user data has actually changed
+                if (!user || JSON.stringify(user) !== JSON.stringify(validationResult.user)) {
+                  setUser(validationResult.user)
+                }
+                setLoading(false)
+              }
+              return
+            } else {
+              // Token is invalid, clear auth data
+              customAuth.signOut()
             }
-          } else if (mounted) {
-            // Session is valid, set it
-            setSession(session)
-            setUser(currentUser)
-            setLoading(false)
-            console.log('AuthContext: Loading set to false after valid session')
+          } else {
+            // Use cached user data
+            console.log('Using cached user data')
+            if (mounted) {
+              // Only update if user data has actually changed
+              if (!user || JSON.stringify(user) !== JSON.stringify(currentUser)) {
+                setUser(currentUser)
+              }
+              setLoading(false)
+            }
+            return
           }
-        } else if (mounted) {
-          // No session
-          console.log('AuthContext: No session found, setting loading to false')
-          setSession(null)
+        }
+
+        // Check for development mode bypass
+        if (import.meta.env.DEV) {
+          const devBypass = localStorage.getItem('dev_auth_bypass')
+          const devEmail = localStorage.getItem('dev_user_email')
+          
+          if (devBypass === 'true' && devEmail) {
+            const devResult = await customAuth.devBypass(devEmail)
+            if (devResult.success && devResult.user) {
+              if (mounted) {
+                // Only update if user data has actually changed
+                if (!user || JSON.stringify(user) !== JSON.stringify(devResult.user)) {
+                  setUser(devResult.user)
+                }
+                setLoading(false)
+              }
+              return
+            }
+          }
+        }
+
+        // No valid authentication found
+        if (mounted) {
           setUser(null)
           setLoading(false)
         }
       } catch (error) {
-        console.error('Unexpected error getting initial session:', error)
+        console.error('Error checking auth status:', error)
         if (mounted) {
-          setSession(null)
           setUser(null)
           setLoading(false)
+        }
+      } finally {
+        validationInProgress.current = false
+      }
+    }
+
+    checkAuthStatus()
+
+    // Listen for storage changes to detect when user logs in from another tab/component
+    const handleStorageChange = (e: StorageEvent) => {
+      if (e.key === 'user_data' && e.newValue) {
+        try {
+          const newUser = JSON.parse(e.newValue)
+          if (mounted && (!user || JSON.stringify(user) !== JSON.stringify(newUser))) {
+            console.log('User data changed in localStorage, updating context')
+            setUser(newUser)
+          }
+        } catch (error) {
+          console.error('Error parsing user data from storage event:', error)
+        }
+      } else if (e.key === 'user_data' && !e.newValue) {
+        // User data was removed (logout)
+        if (mounted) {
+          setUser(null)
         }
       }
     }
 
-    getInitialSession()
+    window.addEventListener('storage', handleStorageChange)
 
-    // Listen for auth changes with better validation
-    const {
-      data: { subscription },
-    } = supabase.auth.onAuthStateChange(async (event: string, session: Session | null) => {
-      if (!mounted) return
-
-      console.log('Auth state change:', event, session?.user?.id)
-
-      try {
-        if (event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED') {
-          if (session && session.user) {
-            console.log('AuthContext: Setting user from auth state change:', session.user.id)
-            setSession(session)
-            setUser(session.user)
-            setLoading(false) // Ensure loading is set to false when user signs in
-          }
-        } else if (event === 'SIGNED_OUT') {
-          console.log('AuthContext: User signed out, clearing state')
-          setSession(null)
-          setUser(null)
-          setLoading(false)
-        }
-      } catch (error) {
-        console.error('Error handling auth state change:', error)
-        // On error, clear session to be safe
-        setSession(null)
-        setUser(null)
-        setLoading(false)
+    // Also check for changes periodically (fallback for same-tab changes)
+    const intervalId = setInterval(() => {
+      const currentUser = customAuth.getCurrentUser()
+      if (mounted && currentUser && (!user || JSON.stringify(user) !== JSON.stringify(currentUser))) {
+        console.log('User data changed, updating context')
+        setUser(currentUser)
       }
-    })
+    }, 1000) // Check every second
 
-    // CRITICAL FIX: Ensure loading is set to false after a reasonable timeout
-    // This prevents infinite loading when no auth events occur
+    // Ensure loading is set to false after a reasonable timeout
     const loadingTimeout = setTimeout(() => {
       if (mounted && loadingRef.current) {
-        console.log('AuthContext: Setting loading to false after timeout')
         setLoading(false)
       }
-    }, 2000) // 2 second timeout
+    }, 3000) // 3 second timeout
 
     return () => {
       mounted = false
-      subscription.unsubscribe()
       clearTimeout(loadingTimeout)
+      clearInterval(intervalId)
+      window.removeEventListener('storage', handleStorageChange)
     }
   }, [])
 
-  // Cleanup effect to prevent session contamination
-  useEffect(() => {
-    return () => {
-      // Clear any stale session data when component unmounts
-      setUser(null)
-      setSession(null)
-    }
-  }, [])
+
 
   const signOut = async () => {
     try {
       // Clear local state immediately for better UX
       setUser(null)
-      setSession(null)
       
-      // Sign out from Supabase
-      const { error } = await supabase.auth.signOut()
+      // Clear validation cache
+      localStorage.removeItem('last_token_validation')
       
-      if (error) {
-        console.error('Error during sign out:', error)
-        // Even if there's an error, we want to clear local state
-        // so the user can't access protected routes
-      }
-      
-      // Additional cleanup - clear any stored tokens or user data
-      // This ensures complete session cleanup
-      localStorage.removeItem('supabase.auth.token')
-      sessionStorage.clear()
+      // Sign out from custom auth service
+      await customAuth.signOut()
       
     } catch (error) {
       console.error('Unexpected error during sign out:', error)
       // Ensure local state is cleared even on unexpected errors
       setUser(null)
-      setSession(null)
+    }
+  }
+
+  const refreshUser = () => {
+    const currentUser = customAuth.getCurrentUser()
+    if (currentUser && (!user || JSON.stringify(user) !== JSON.stringify(currentUser))) {
+      console.log('Refreshing user state from customAuth')
+      setUser(currentUser)
     }
   }
 
   const value = {
     user,
-    session,
     loading,
     signOut,
+    refreshUser,
   }
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>

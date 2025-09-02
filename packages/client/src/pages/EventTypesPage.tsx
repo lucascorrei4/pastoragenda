@@ -60,7 +60,7 @@ function EventTypesPage() {
       if (error) throw error
       setEventTypes(data || [])
     } catch (error) {
-      console.error('Error fetching event types:', error)
+      console.error('Error fetching agendas:', error)
       toast.error(t('eventTypes.form.loadError'))
     } finally {
       setLoading(false)
@@ -290,7 +290,7 @@ function EventTypesPage() {
         </button>
       </div>
 
-      {/* Event Types List */}
+      {/* Agendas List */}
       {eventTypes.length > 0 ? (
         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
           {eventTypes.map((eventType) => (

@@ -1,73 +1,26 @@
-import { useEffect, useState, useCallback } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useEffect, useState } from 'react'
 import { useAuth } from '../contexts/AuthContext'
-import { supabase } from '../lib/supabase'
+import { customAuth } from '../lib/custom-auth'
 import { Mail, KeyRound, ArrowLeft, CheckCircle } from 'lucide-react'
 import { toast } from 'react-hot-toast'
 
 function AuthPage() {
-  const { user, loading } = useAuth()
-  const navigate = useNavigate()
+  const { user, loading, refreshUser } = useAuth()
   const [step, setStep] = useState<'email' | 'otp'>('email')
   const [email, setEmail] = useState('')
   const [otp, setOtp] = useState('')
   const [isLoading, setIsLoading] = useState(false)
   const [isNewUser, setIsNewUser] = useState(false)
 
-  const checkAuthStatus = useCallback(async () => {
-    console.log('AuthPage: checkAuthStatus called', { user, loading })
-    
-    // Test if supabase client is properly initialized
-    if (!supabase || !supabase.auth) {
-      console.error('AuthPage: Supabase client is not properly initialized!')
-      return
-    }
-    
-    if (loading) {
-      console.log('AuthPage: Still loading, returning early')
-      return // Wait for AuthContext to finish loading
-    }
-    
-    if (user) {
-      console.log('AuthPage: User authenticated, redirecting to dashboard')
-      // User is authenticated, redirect to dashboard
-      navigate('/dashboard', { replace: true })
-      return
-    }
-
-    // Only check session if we're not loading and don't have a user
-    // This prevents unnecessary API calls
-    if (!loading && !user) {
-      try {
-        console.log('AuthPage: Checking Supabase session...')
-        const { data: { session }, error } = await supabase.auth.getSession()
-        console.log('AuthPage: Session check result:', { session, error })
-        
-        if (session && session.user && !error) {
-          console.log('AuthPage: Valid session found, redirecting to dashboard')
-          // Valid session found, redirect to dashboard
-          navigate('/dashboard', { replace: true })
-          return
-        }
-      } catch (error) {
-        console.error('AuthPage: Session check failed:', error)
-        // Silent fail for production
-      }
-    }
-  }, [user, loading, navigate])
-
-  useEffect(() => {
-    // Only run checkAuthStatus when user or loading state changes
-    // This prevents infinite loops
-    if (!loading) {
-      checkAuthStatus()
-    }
-  }, [user, loading]) // Remove checkAuthStatus from dependencies to prevent infinite loops
+  // Don't redirect here - let the routing handle it naturally
+  // The ProtectedRoute component will handle redirecting authenticated users
 
   // Ensure we start with email step
   useEffect(() => {
     setStep('email')
   }, [])
+
+
 
   const handleSendOTP = async () => {
     if (!email || !email.includes('@')) {
@@ -75,7 +28,22 @@ function AuthPage() {
       return
     }
 
-    // Check if we're rate limited
+    // Check if user is already authenticated before sending OTP
+    if (user) {
+      console.log('User is already authenticated')
+      return
+    }
+
+    // Check for existing authentication with matching email
+    const currentUser = customAuth.getCurrentUser()
+    if (currentUser && currentUser.email === email) {
+      console.log('Valid session found for email')
+      return
+    }
+
+    // Rate limiting disabled for testing purposes
+    // Uncomment the following block to re-enable rate limiting:
+    /*
     const lastAttempt = localStorage.getItem(`otp_attempt_${email}`)
     if (lastAttempt) {
       const timeSinceLastAttempt = Date.now() - parseInt(lastAttempt)
@@ -85,49 +53,23 @@ function AuthPage() {
         return
       }
     }
+    */
 
     setIsLoading(true)
     
     try {
-      // First try to sign in (check if user exists)
-      const { data, error: signInError } = await supabase.auth.signInWithOtp({
-        email,
-        options: {
-          emailRedirectTo: `${window.location.origin}/dashboard`
-        }
-      })
+      // Send OTP using custom auth service
+      const result = await customAuth.sendOTP(email)
 
-      if (signInError) {
-        // User doesn't exist, try to sign up
-        const { data: signUpData, error: signUpError } = await supabase.auth.signUp({
-          email,
-          password: 'temp-password-123', // Temporary password for OTP flow
-          options: {
-            emailRedirectTo: `${window.location.origin}/dashboard`
-          }
-        })
-
-        if (signUpError) {
-          toast.error('Unable to send OTP. Please try again.')
-          return
-        }
-        
-        if (signUpData.user && !signUpData.user.email_confirmed_at) {
-          setIsNewUser(true)
-          toast.success('Welcome! OTP code sent to your email.')
-        } else {
-          toast.error('Unable to send OTP. Please try again.')
-          return
-        }
+      if (result.success) {
+        setIsNewUser(false) // We'll determine this after OTP verification
+        toast.success('OTP code sent to your email.')
+        setStep('otp')
       } else {
-        setIsNewUser(false)
-        toast.success('Welcome back! OTP code sent to your email.')
+        toast.error(result.error || 'Unable to send OTP. Please try again.')
       }
-
-      setStep('otp')
-      // Track this attempt to prevent rate limiting
-      localStorage.setItem(`otp_attempt_${email}`, Date.now().toString())
     } catch (error) {
+      console.error('Error sending OTP:', error)
       toast.error('Unable to send OTP. Please try again.')
     } finally {
       setIsLoading(false)
@@ -144,37 +86,46 @@ function AuthPage() {
     try {
       // Development mode: Allow testing with "000000" OTP
       if (import.meta.env.DEV && otp === '000000') {
-        console.log('Development mode: Bypassing OTP verification with 000000')
         toast.success('Development mode: OTP bypassed successfully!')
-        // Simulate successful authentication
-        setTimeout(() => {
-          navigate('/dashboard', { replace: true })
-        }, 1000)
+        
+        // Use development bypass
+        const devResult = await customAuth.devBypass(email)
+        
+        if (devResult.success) {
+          if (devResult.isNewUser) {
+            toast.success('Account created and verified successfully!')
+          } else {
+            toast.success('Signed in successfully!')
+          }
+          
+          // Refresh the user state in AuthContext to trigger redirect
+          refreshUser()
+        } else {
+          toast.error(devResult.error || 'Development bypass failed')
+        }
         return
       }
 
-      // Verify the OTP with Supabase
-      const { error } = await supabase.auth.verifyOtp({
-        email,
-        token: otp,
-        type: 'email'
-      })
+      // Verify the OTP with custom auth service
+      const result = await customAuth.verifyOTP(email, otp)
 
-      if (error) {
-        toast.error('Invalid OTP code. Please try again.')
-        return
-      }
+      if (result.success && result.user) {
+        setIsNewUser(result.isNewUser || false)
+        
+        // Success! User is now authenticated
+        if (result.isNewUser) {
+          toast.success('Account created and verified successfully!')
+        } else {
+          toast.success('Signed in successfully!')
+        }
 
-      // Success! User is now authenticated
-      if (isNewUser) {
-        toast.success('Account created and verified successfully!')
+        // Refresh the user state in AuthContext to trigger redirect
+        refreshUser()
       } else {
-        toast.success('Signed in successfully!')
+        toast.error(result.error || 'Invalid OTP code. Please try again.')
       }
-
-      // The user will be automatically redirected by the AuthContext useEffect
-      // which detects the user state change and navigates to /dashboard
     } catch (error) {
+      console.error('Error verifying OTP:', error)
       toast.error('Unable to verify OTP. Please try again.')
     } finally {
       setIsLoading(false)
@@ -190,13 +141,36 @@ function AuthPage() {
     setEmail('')
     setOtp('')
     setIsNewUser(false)
+    // Clear any existing rate limiting data for testing
+    Object.keys(localStorage).forEach(key => {
+      if (key.startsWith('otp_attempt_')) {
+        localStorage.removeItem(key)
+      }
+    })
+    // Clear development mode flags
+    localStorage.removeItem('dev_auth_bypass')
+    localStorage.removeItem('dev_user_email')
   }
+
+
 
   // Show loading while checking auth status
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800">
         <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-primary-600"></div>
+      </div>
+    )
+  }
+
+  // If user is authenticated, redirect to dashboard immediately
+  if (user) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-primary-600 mx-auto mb-4"></div>
+          <p className="text-gray-600 dark:text-gray-400">Redirecting to dashboard...</p>
+        </div>
       </div>
     )
   }
@@ -221,6 +195,8 @@ function AuthPage() {
             : `We've sent a 6-digit code to ${email}`
           }
         </p>
+
+
       </div>
 
       <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
@@ -257,6 +233,11 @@ function AuthPage() {
                       required
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
+                      onKeyDown={(e) => {
+                        if (e.key === 'Enter' && !isLoading && !user) {
+                          handleSendOTP()
+                        }
+                      }}
                       className="appearance-none relative block w-full px-3 py-3 pl-10 border border-gray-300 dark:border-gray-600 placeholder-gray-500 dark:placeholder-gray-400 text-gray-900 dark:text-white rounded-lg focus:outline-none focus:ring-primary-500 focus:border-primary-500 focus:z-10 sm:text-sm bg-white dark:bg-gray-700"
                       placeholder="Enter your email address"
                     />
@@ -268,7 +249,7 @@ function AuthPage() {
                   <button
                     type="button"
                     onClick={handleSendOTP}
-                    disabled={isLoading}
+                    disabled={isLoading || !!user}
                     className="group relative w-full flex justify-center py-3 px-4 border border-transparent text-sm font-medium rounded-lg text-white bg-primary-600 hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 disabled:opacity-50 disabled:cursor-not-allowed transition-colors duration-200"
                   >
                     {isLoading ? (

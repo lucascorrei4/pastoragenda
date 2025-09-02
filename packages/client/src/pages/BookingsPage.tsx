@@ -33,7 +33,7 @@ function BookingsPage() {
       if (userEventTypes && userEventTypes.length > 0) {
         const eventTypeIds = userEventTypes.map(et => et.id)
 
-        // Fetch bookings for user's event types
+        // Fetch bookings for user's agendas
         const { data, error } = await supabase
           .from('bookings')
           .select(`

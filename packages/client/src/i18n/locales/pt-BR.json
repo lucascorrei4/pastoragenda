@@ -27,7 +27,7 @@
     "info": "Informação",
     "pastor": "Pastor",
     "to": "até",
-    "eventType": "Tipo de Evento",
+    "eventType": "Agenda",
     "minutes": "minutos",
     "text": "Texto",
     "saving": "Salvando...",
@@ -42,7 +42,7 @@
     "home": "Início",
     "dashboard": "Painel",
     "profile": "Perfil",
-    "eventTypes": "Tipos de Evento",
+    "eventTypes": "Agendas",
     "bookings": "Agendamentos",
     "settings": "Configurações",
     "signIn": "Entrar",
@@ -55,11 +55,11 @@
     "stats": {
       "totalBookings": "Total de Agendamentos",
       "thisMonth": "Este Mês",
-      "eventTypes": "Tipos de Evento"
+      "eventTypes": "Agendas"
     },
     "quickActions": {
       "title": "Ações Rápidas",
-      "createEventType": "Criar Tipo de Evento",
+      "createEventType": "Criar Agenda",
       "createEventTypeDesc": "Configure novos tipos de compromisso",
       "updateProfile": "Atualizar Perfil",
       "updateProfileDesc": "Edite suas informações públicas"
@@ -68,7 +68,7 @@
       "title": "Agendamentos Recentes",
       "viewAll": "Ver todos",
       "noBookings": "Nenhum agendamento ainda",
-      "noBookingsDesc": "Crie tipos de evento para começar a receber agendamentos",
+      "noBookingsDesc": "Crie agendas para começar a receber agendamentos",
       "customQandA": "Perguntas"
     },
     "profileCompletion": {
@@ -80,20 +80,20 @@
       "title": "Seu Perfil Público",
       "view": "Ver Perfil",
       "edit": "Editar Perfil",
-      "eventTypes": "tipos de evento",
+      "eventTypes": "agendas",
       "description": "É assim que sua comunidade vê seu perfil público. Compartilhe seu link de perfil para que as pessoas possam agendar compromissos com você."
     }
   },
   "eventTypes": {
-    "title": "Tipos de Evento",
-    "createButton": "Criar Tipo de Evento",
-    "editButton": "Editar Tipo de Evento",
-    "noEventTypes": "Nenhum tipo de evento ainda",
-    "noEventTypesDesc": "Crie seu primeiro tipo de evento para começar a receber agendamentos",
+    "title": "Agendas",
+    "createButton": "Criar Agenda",
+    "editButton": "Editar Agenda",
+    "noEventTypes": "Nenhum tipo de agenda ainda",
+    "noEventTypesDesc": "Crie seu primeiro tipo de agenda para começar a receber agendamentos",
     "form": {
-      "title": "Criar Tipo de Evento",
-      "editTitle": "Editar Tipo de Evento",
-      "eventTitle": "Título do Evento",
+      "title": "Criar Agenda",
+      "editTitle": "Editar Agenda",
+      "eventTitle": "Título do Agenda",
       "eventTitlePlaceholder": "ex., Sessão de Aconselhamento de 30 Minutos",
       "duration": "Duração (minutos)",
       "description": "Descrição",
@@ -125,27 +125,27 @@
       "save": "Salvar",
       "cancel": "Cancelar",
       "delete": "Excluir",
-      "confirmDelete": "Tem certeza de que deseja excluir este tipo de evento?",
-      "deleteSuccess": "Tipo de evento excluído com sucesso",
-      "deleteError": "Falha ao excluir tipo de evento",
-      "saveSuccess": "Tipo de evento salvo com sucesso",
-      "saveError": "Falha ao salvar tipo de evento",
-      "loadError": "Falha ao carregar tipos de evento",
+      "confirmDelete": "Tem certeza de que deseja excluir este tipo de agenda?",
+      "deleteSuccess": "Tipo de agenda excluído com sucesso",
+      "deleteError": "Falha ao excluir tipo de agenda",
+      "saveSuccess": "Tipo de agenda salvo com sucesso",
+      "saveError": "Falha ao salvar tipo de agenda",
+      "loadError": "Falha ao carregar agendas",
       "saving": "Salvando...",
-      "create": "Criar Tipo de Evento",
-      "update": "Atualizar Tipo de Evento",
+      "create": "Criar Agenda",
+      "update": "Atualizar Agenda",
       "validation": {
         "titleRequired": "Título é obrigatório",
         "durationRange": "Duração deve estar entre 15 minutos e 8 horas",
         "availabilityRequired": "Por favor, defina disponibilidade para pelo menos um dia"
       },
       "messages": {
-        "updateSuccess": "Tipo de evento atualizado com sucesso",
-        "createSuccess": "Tipo de evento criado com sucesso",
-        "deleteSuccess": "Tipo de evento excluído com sucesso",
-        "saveError": "Falha ao salvar tipo de evento",
-        "deleteError": "Falha ao excluir tipo de evento",
-        "confirmDelete": "Tem certeza de que deseja excluir este tipo de evento? Isso também cancelará todos os agendamentos futuros."
+        "updateSuccess": "Tipo de agenda atualizado com sucesso",
+        "createSuccess": "Tipo de agenda criado com sucesso",
+        "deleteSuccess": "Tipo de agenda excluído com sucesso",
+        "saveError": "Falha ao salvar tipo de agenda",
+        "deleteError": "Falha ao excluir tipo de agenda",
+        "confirmDelete": "Tem certeza de que deseja excluir este tipo de agenda? Isso também cancelará todos os agendamentos futuros."
       }
     },
     "card": {
@@ -156,7 +156,7 @@
   },
   "home": {
     "hero": {
-      "badge": "Treinado por 1000+ Pastores",
+      "badge": "Usado por 1000+ Pastores",
       "title": "Conecte-se com",
       "subtitle": "Seu Pastor",
       "description": "Agende compromissos e sessões de orientação espiritual com seu pastor através de nossa plataforma de agendamento fácil de usar.",
@@ -168,7 +168,7 @@
       "description": "O PastorAgenda fornece uma solução abrangente para líderes religiosos gerenciarem compromissos, compartilharem sua disponibilidade e se conectarem com sua comunidade.",
       "feature1": {
         "title": "Agendamento Fácil",
-        "description": "Crie tipos de evento personalizados com durações específicas e regras de disponibilidade. Deixe as pessoas agendarem compromissos que se encaixem na sua agenda."
+        "description": "Crie agendas personalizados com durações específicas e regras de disponibilidade. Deixe as pessoas agendarem compromissos que se encaixem na sua agenda."
       },
       "feature2": {
         "title": "Conexão com a Comunidade",
@@ -207,7 +207,7 @@
         "description": "Perfeito para começar com necessidades básicas de agendamento",
         "button": "Começar Grátis",
         "features": {
-          "feature1": "5 Tipos de Eventos",
+          "feature1": "5 Tipos de Agendas",
           "feature2": "Agendamento Básico",
           "feature3": "Notificações por Email"
         }
@@ -218,7 +218,7 @@
         "description": "Ideal para ministérios em crescimento com necessidades avançadas",
         "button": "Iniciar Plano Pro",
         "features": {
-          "feature1": "Tipos de Eventos Ilimitados",
+          "feature1": "Tipos de Agendas Ilimitados",
           "feature2": "Agendamento Avançado",
           "feature3": "Perguntas Personalizadas",
           "feature4": "Suporte Prioritário"
@@ -364,13 +364,13 @@
       "cancelled": "Nenhum agendamento cancelado"
     },
     "noBookingsDesc": {
-      "all": "Crie tipos de evento para começar a receber agendamentos da sua comunidade.",
+      "all": "Crie agendas para começar a receber agendamentos da sua comunidade.",
       "upcoming": "Todos os seus compromissos próximos aparecerão aqui.",
       "past": "Seus compromissos concluídos aparecerão aqui.",
       "cancelled": "Compromissos cancelados aparecerão aqui."
     },
     "details": {
-      "eventType": "Tipo de Evento",
+      "eventType": "Agenda",
       "date": "Data",
       "time": "Horário",
       "duration": "Duração",
@@ -402,7 +402,7 @@
     "with": "com {{name}}",
     "noAvailableSlots": "Nenhum horário disponível para esta data",
     "continue": "Continuar",
-    "loadError": "Falha ao carregar informações do evento",
+    "loadError": "Falha ao carregar informações do agenda",
     "calendar": {
       "legend": "Legenda do Calendário",
       "available": "Disponível",
@@ -420,7 +420,7 @@
     "with": "com {{name}}",
     "appointmentSummary": "Resumo do Compromisso",
     "summarySubtitle": "Revise os detalhes do seu compromisso abaixo",
-    "eventInfo": "Informações do Evento",
+    "eventInfo": "Informações do Agenda",
     "yourInformation": "Suas Informações",
     "fullName": "Nome Completo",
     "fullNamePlaceholder": "Digite seu nome completo",
@@ -451,7 +451,7 @@
     "subtitle": "Seu compromisso com {{name}} foi agendado com sucesso.",
     "appointmentDetails": "Detalhes do Compromisso",
     "pastor": "Pastor",
-    "event": "Evento",
+    "event": "Agenda",
     "date": "Data",
     "time": "Horário",
     "phone": "Telefone",
