@@ -115,7 +115,10 @@
         "45min": "45 minutos",
         "1hour": "1 hora",
         "1.5hours": "1.5 horas",
-        "2hours": "2 horas"
+        "2hours": "2 horas",
+        "3hours": "3 horas",
+        "5hours": "5 horas",
+        "8hours": "8 horas"
       },
       "options": "Opciones (una por línea)",
       "optionsPlaceholder": "Opción 1\nOpción 2\nOpción 3",
@@ -311,7 +314,18 @@
     },
     "terms": "Al registrarte, aceptas nuestros",
     "termsOfService": "Términos de Servicio",
-    "privacyPolicy": "Política de Privacidad"
+    "privacyPolicy": "Política de Privacidad",
+    "invalidEmail": "Por favor ingresa una dirección de correo electrónico válida",
+    "waitBeforeRetry": "Por favor espera {{seconds}} segundos antes de intentar de nuevo",
+    "otpSent": "Código OTP enviado a tu correo electrónico.",
+    "otpSendError": "No se pudo enviar el OTP. Por favor intenta de nuevo.",
+    "otpRequired": "Por favor ingresa el código OTP de 6 dígitos",
+    "devBypassSuccess": "Modo desarrollo: ¡OTP omitido exitosamente!",
+    "accountCreated": "¡Cuenta creada y verificada exitosamente!",
+    "signInSuccess": "¡Inicio de sesión exitoso!",
+    "devBypassError": "Error en el bypass de desarrollo",
+    "invalidOtp": "Código OTP inválido. Por favor intenta de nuevo.",
+    "otpVerifyError": "No se pudo verificar el OTP. Por favor intenta de nuevo."
   },
   "profile": {
     "title": "Configuración del Perfil",
@@ -335,6 +349,13 @@
     "errorSaving": "Error al guardar cambios. Inténtalo de nuevo.",
     "loadError": "Error al cargar perfil",
     "createError": "Error al crear perfil",
+    "avatarUploadSuccess": "Avatar subido exitosamente",
+    "avatarUploadError": "Error al subir avatar",
+    "fullNameRequired": "El nombre completo es requerido",
+    "aliasRequired": "El alias es requerido",
+    "aliasTaken": "Este alias ya está en uso. Por favor elige otro.",
+    "updateSuccess": "Perfil actualizado exitosamente",
+    "updateError": "Error al actualizar perfil",
     "publicProfile": "Tu Perfil Público",
     "profileAvailableAt": "Tu perfil estará disponible en:",
     "shareLinkDescription": "Comparte este enlace con tu comunidad para que puedan reservar citas contigo."
@@ -451,7 +472,8 @@
     "confirmButton": "Confirmar Cita",
     "bookingAppointment": "Reservando Cita...",
     "backToTimeSelection": "← Volver a selección de hora",
-    "bookingSuccess": "¡Cita reservada exitosamente!"
+    "bookingSuccess": "¡Cita reservada exitosamente!",
+    "bookingError": "Error al reservar cita. Por favor intenta de nuevo."
   },
   "bookingSuccess": {
     "title": "¡Cita Confirmada!",

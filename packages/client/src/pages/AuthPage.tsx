@@ -3,9 +3,11 @@ import { useAuth } from '../contexts/AuthContext'
 import { customAuth } from '../lib/custom-auth'
 import { Mail, KeyRound, ArrowLeft, CheckCircle } from 'lucide-react'
 import { toast } from 'react-hot-toast'
+import { useTranslation } from 'react-i18next'
 
 function AuthPage() {
   const { user, loading, refreshUser } = useAuth()
+  const { t } = useTranslation()
   const [step, setStep] = useState<'email' | 'otp'>('email')
   const [email, setEmail] = useState('')
   const [otp, setOtp] = useState('')
@@ -24,7 +26,7 @@ function AuthPage() {
 
   const handleSendOTP = async () => {
     if (!email || !email.includes('@')) {
-      toast.error('Please enter a valid email address')
+      toast.error(t('auth.invalidEmail'))
       return
     }
 
@@ -49,7 +51,7 @@ function AuthPage() {
       const timeSinceLastAttempt = Date.now() - parseInt(lastAttempt)
       if (timeSinceLastAttempt < 60000) { // 1 minute cooldown
         const remainingTime = Math.ceil((60000 - timeSinceLastAttempt) / 1000)
-        toast.error(`Please wait ${remainingTime} seconds before trying again`)
+        toast.error(t('auth.waitBeforeRetry', { seconds: remainingTime }))
         return
       }
     }
@@ -63,14 +65,14 @@ function AuthPage() {
 
       if (result.success) {
         setIsNewUser(false) // We'll determine this after OTP verification
-        toast.success('OTP code sent to your email.')
+        toast.success(t('auth.otpSent'))
         setStep('otp')
       } else {
-        toast.error(result.error || 'Unable to send OTP. Please try again.')
+        toast.error(result.error || t('auth.otpSendError'))
       }
     } catch (error) {
       console.error('Error sending OTP:', error)
-      toast.error('Unable to send OTP. Please try again.')
+      toast.error(t('auth.otpSendError'))
     } finally {
       setIsLoading(false)
     }
@@ -78,7 +80,7 @@ function AuthPage() {
 
   const handleVerifyOTP = async () => {
     if (!otp || otp.length < 6) {
-      toast.error('Please enter the 6-digit OTP code')
+      toast.error(t('auth.otpRequired'))
       return
     }
 
@@ -86,22 +88,22 @@ function AuthPage() {
     try {
       // Development mode: Allow testing with "000000" OTP
       if (import.meta.env.DEV && otp === '000000') {
-        toast.success('Development mode: OTP bypassed successfully!')
+        toast.success(t('auth.devBypassSuccess'))
         
         // Use development bypass
         const devResult = await customAuth.devBypass(email)
         
         if (devResult.success) {
           if (devResult.isNewUser) {
-            toast.success('Account created and verified successfully!')
+            toast.success(t('auth.accountCreated'))
           } else {
-            toast.success('Signed in successfully!')
+            toast.success(t('auth.signInSuccess'))
           }
           
           // Refresh the user state in AuthContext to trigger redirect
           refreshUser()
         } else {
-          toast.error(devResult.error || 'Development bypass failed')
+          toast.error(devResult.error || t('auth.devBypassError'))
         }
         return
       }
@@ -114,19 +116,19 @@ function AuthPage() {
         
         // Success! User is now authenticated
         if (result.isNewUser) {
-          toast.success('Account created and verified successfully!')
+          toast.success(t('auth.accountCreated'))
         } else {
-          toast.success('Signed in successfully!')
+          toast.success(t('auth.signInSuccess'))
         }
 
         // Refresh the user state in AuthContext to trigger redirect
         refreshUser()
       } else {
-        toast.error(result.error || 'Invalid OTP code. Please try again.')
+        toast.error(result.error || t('auth.invalidOtp'))
       }
     } catch (error) {
       console.error('Error verifying OTP:', error)
-      toast.error('Unable to verify OTP. Please try again.')
+      toast.error(t('auth.otpVerifyError'))
     } finally {
       setIsLoading(false)
     }

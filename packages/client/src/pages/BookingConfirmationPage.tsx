@@ -117,7 +117,7 @@ function BookingConfirmationPage() {
 
     } catch (error) {
       console.error('Error creating booking:', error)
-      toast.error('Failed to book appointment. Please try again.')
+      toast.error(t('bookingConfirmation.bookingError'))
     } finally {
       setLoading(false)
     }

@@ -127,10 +127,10 @@ function ProfileSettingsPage() {
         avatar_url: publicUrl
       }))
 
-      toast.success('Avatar uploaded successfully')
+      toast.success(t('profile.avatarUploadSuccess'))
     } catch (error) {
       console.error('Error uploading avatar:', error)
-      toast.error('Failed to upload avatar')
+      toast.error(t('profile.avatarUploadError'))
     } finally {
       setUploading(false)
     }
@@ -157,19 +157,19 @@ function ProfileSettingsPage() {
     e.preventDefault()
 
     if (!formData.full_name.trim()) {
-      toast.error('Full name is required')
+      toast.error(t('profile.fullNameRequired'))
       return
     }
 
     if (!formData.alias.trim()) {
-      toast.error('Alias is required')
+      toast.error(t('profile.aliasRequired'))
       return
     }
 
     // Check alias availability
     const isAvailable = await checkAliasAvailability(formData.alias)
     if (!isAvailable) {
-      toast.error('This alias is already taken. Please choose another one.')
+      toast.error(t('profile.aliasTaken'))
       return
     }
 
@@ -188,13 +188,13 @@ function ProfileSettingsPage() {
 
       if (error) throw error
 
-      toast.success('Profile updated successfully')
+      toast.success(t('profile.updateSuccess'))
 
       // Refresh profile data
       await fetchProfile()
     } catch (error) {
       console.error('Error updating profile:', error)
-      toast.error('Failed to update profile')
+      toast.error(t('profile.updateError'))
     } finally {
       setSaving(false)
     }

@@ -262,9 +262,24 @@ function EventTypesPage() {
   const updateQuestion = (index: number, field: keyof CustomQuestion, value: any) => {
     setFormData(prev => ({
       ...prev,
-      custom_questions: prev.custom_questions.map((q, i) => 
-        i === index ? { ...q, [field]: value } : q
-      )
+      custom_questions: prev.custom_questions.map((q, i) => {
+        if (i === index) {
+          const updatedQuestion = { ...q, [field]: value }
+          
+          // If changing to radio or checkbox type and no options exist, initialize with one empty option
+          if (field === 'type' && (value === 'radio' || value === 'checkbox') && (!updatedQuestion.options || updatedQuestion.options.length === 0)) {
+            updatedQuestion.options = ['']
+          }
+          
+          // If changing away from radio/checkbox, clear options
+          if (field === 'type' && value === 'text') {
+            updatedQuestion.options = []
+          }
+          
+          return updatedQuestion
+        }
+        return q
+      })
     }))
   }
 
@@ -433,6 +448,9 @@ function EventTypesPage() {
                   <option value={60} className="bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100">{t('eventTypes.form.durationOptions.1hour')}</option>
                   <option value={90} className="bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100">{t('eventTypes.form.durationOptions.1.5hours')}</option>
                   <option value={120} className="bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100">{t('eventTypes.form.durationOptions.2hours')}</option>
+                  <option value={180} className="bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100">{t('eventTypes.form.durationOptions.3hours')}</option>
+                  <option value={300} className="bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100">{t('eventTypes.form.durationOptions.5hours')}</option>
+                  <option value={480} className="bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100">{t('eventTypes.form.durationOptions.8hours')}</option>
                 </select>
               </div>
 
@@ -673,17 +691,48 @@ function EventTypesPage() {
                         </div>
                         
                         {(question.type === 'radio' || question.type === 'checkbox') && (
-                          <div className="space-y-2">
+                          <div className="space-y-3">
                             <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
                               {t('eventTypes.form.options')}
                             </label>
-                            <textarea
-                              value={question.options?.join('\n') || ''}
-                              onChange={(e) => updateQuestion(index, 'options', e.target.value.split('\n').filter(opt => opt.trim()))}
-                              rows={3}
-                              placeholder="Option 1&#10;Option 2&#10;Option 3"
-                              className="input-field"
-                            />
+                            <div className="space-y-2">
+                              {question.options?.map((option, optionIndex) => (
+                                <div key={optionIndex} className="flex items-center space-x-2">
+                                  <input
+                                    type="text"
+                                    value={option}
+                                    onChange={(e) => {
+                                      const newOptions = [...(question.options || [])]
+                                      newOptions[optionIndex] = e.target.value
+                                      updateQuestion(index, 'options', newOptions)
+                                    }}
+                                    className="input-field flex-1"
+                                    placeholder={`Option ${optionIndex + 1}`}
+                                  />
+                                  <button
+                                    type="button"
+                                    onClick={() => {
+                                      const newOptions = question.options?.filter((_, i) => i !== optionIndex) || []
+                                      updateQuestion(index, 'options', newOptions)
+                                    }}
+                                    className="text-red-600 hover:text-red-800 dark:text-red-400 dark:hover:text-red-300 p-1"
+                                    disabled={question.options?.length === 1}
+                                  >
+                                    ×
+                                  </button>
+                                </div>
+                              ))}
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  const newOptions = [...(question.options || []), '']
+                                  updateQuestion(index, 'options', newOptions)
+                                }}
+                                className="text-sm text-primary-600 hover:text-primary-500 dark:text-primary-400 dark:hover:text-primary-300"
+                              >
+                                + Add Option
+                              </button>
+                            </div>
                           </div>
                         )}
                       </div>

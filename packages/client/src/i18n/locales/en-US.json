@@ -116,7 +116,10 @@
         "45min": "45 minutes",
         "1hour": "1 hour",
         "1.5hours": "1.5 hours",
-        "2hours": "2 hours"
+        "2hours": "2 hours",
+        "3hours": "3 hours",
+        "5hours": "5 hours",
+        "8hours": "8 hours"
       },
       "options": "Options (one per line)",
       "optionsPlaceholder": "Option 1\nOption 2\nOption 3",
@@ -312,7 +315,18 @@
     },
     "terms": "By signing up, you agree to our",
     "termsOfService": "Terms of Service",
-    "privacyPolicy": "Privacy Policy"
+    "privacyPolicy": "Privacy Policy",
+    "invalidEmail": "Please enter a valid email address",
+    "waitBeforeRetry": "Please wait {{seconds}} seconds before trying again",
+    "otpSent": "OTP code sent to your email.",
+    "otpSendError": "Unable to send OTP. Please try again.",
+    "otpRequired": "Please enter the 6-digit OTP code",
+    "devBypassSuccess": "Development mode: OTP bypassed successfully!",
+    "accountCreated": "Account created and verified successfully!",
+    "signInSuccess": "Signed in successfully!",
+    "devBypassError": "Development bypass failed",
+    "invalidOtp": "Invalid OTP code. Please try again.",
+    "otpVerifyError": "Unable to verify OTP. Please try again."
   },
   "profile": {
     "title": "Profile Settings",
@@ -336,6 +350,13 @@
     "errorSaving": "Failed to save changes. Please try again.",
     "loadError": "Failed to load profile",
     "createError": "Failed to create profile",
+    "avatarUploadSuccess": "Avatar uploaded successfully",
+    "avatarUploadError": "Failed to upload avatar",
+    "fullNameRequired": "Full name is required",
+    "aliasRequired": "Alias is required",
+    "aliasTaken": "This alias is already taken. Please choose another one.",
+    "updateSuccess": "Profile updated successfully",
+    "updateError": "Failed to update profile",
     "publicProfile": "Your Public Profile",
     "profileAvailableAt": "Your profile will be available at:",
     "shareLinkDescription": "Share this link with your community to let them book appointments with you."
@@ -452,7 +473,8 @@
     "confirmButton": "Confirm Appointment",
     "bookingAppointment": "Booking Appointment...",
     "backToTimeSelection": "← Back to time selection",
-    "bookingSuccess": "Appointment booked successfully!"
+    "bookingSuccess": "Appointment booked successfully!",
+    "bookingError": "Failed to book appointment. Please try again."
   },
   "bookingSuccess": {
     "title": "Appointment Confirmed!",

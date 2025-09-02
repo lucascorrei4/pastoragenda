@@ -115,7 +115,10 @@
         "45min": "45 minutos",
         "1hour": "1 hora",
         "1.5hours": "1.5 horas",
-        "2hours": "2 horas"
+        "2hours": "2 horas",
+        "3hours": "3 horas",
+        "5hours": "5 horas",
+        "8hours": "8 horas"
       },
       "options": "Opções (uma por linha)",
       "optionsPlaceholder": "Opção 1\nOpção 2\nOpção 3",
@@ -311,7 +314,18 @@
     },
     "terms": "Ao se cadastrar, você concorda com nossos",
     "termsOfService": "Termos de Serviço",
-    "privacyPolicy": "Política de Privacidade"
+    "privacyPolicy": "Política de Privacidade",
+    "invalidEmail": "Por favor, insira um endereço de email válido",
+    "waitBeforeRetry": "Por favor, aguarde {{seconds}} segundos antes de tentar novamente",
+    "otpSent": "Código OTP enviado para seu email.",
+    "otpSendError": "Não foi possível enviar o OTP. Tente novamente.",
+    "otpRequired": "Por favor, insira o código OTP de 6 dígitos",
+    "devBypassSuccess": "Modo desenvolvimento: OTP ignorado com sucesso!",
+    "accountCreated": "Conta criada e verificada com sucesso!",
+    "signInSuccess": "Login realizado com sucesso!",
+    "devBypassError": "Falha no bypass de desenvolvimento",
+    "invalidOtp": "Código OTP inválido. Tente novamente.",
+    "otpVerifyError": "Não foi possível verificar o OTP. Tente novamente."
   },
   "profile": {
     "title": "Configurações do Perfil",
@@ -335,6 +349,13 @@
     "errorSaving": "Falha ao salvar alterações. Tente novamente.",
     "loadError": "Falha ao carregar perfil",
     "createError": "Falha ao criar perfil",
+    "avatarUploadSuccess": "Avatar enviado com sucesso",
+    "avatarUploadError": "Falha ao enviar avatar",
+    "fullNameRequired": "Nome completo é obrigatório",
+    "aliasRequired": "Alias é obrigatório",
+    "aliasTaken": "Este alias já está em uso. Por favor, escolha outro.",
+    "updateSuccess": "Perfil atualizado com sucesso",
+    "updateError": "Falha ao atualizar perfil",
     "publicProfile": "Seu Perfil Público",
     "profileAvailableAt": "Seu perfil estará disponível em:",
     "shareLinkDescription": "Compartilhe este link com sua comunidade para que eles possam agendar compromissos com você."
@@ -451,7 +472,8 @@
     "confirmButton": "Confirmar Compromisso",
     "bookingAppointment": "Agendando Compromisso...",
     "backToTimeSelection": "← Voltar para seleção de horário",
-    "bookingSuccess": "Compromisso agendado com sucesso!"
+    "bookingSuccess": "Compromisso agendado com sucesso!",
+    "bookingError": "Falha ao agendar compromisso. Tente novamente."
   },
   "bookingSuccess": {
     "title": "Compromisso Confirmado!",
