@@ -148,7 +148,9 @@ function EventBookingPage() {
             })
           }
           
-          currentTime = new Date(currentTime.getTime() + 30 * 60000) // 30-minute intervals
+          // Move to next slot by 30-minute intervals (industry standard)
+          // This allows overlapping slots and maximizes availability
+          currentTime = new Date(currentTime.getTime() + 30 * 60000)
         }
       })
 

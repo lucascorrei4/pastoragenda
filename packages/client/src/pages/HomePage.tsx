@@ -14,7 +14,7 @@ function HomePage() {
       {/* Navigation */}
       <nav className="bg-white/80 dark:bg-gray-900/80 backdrop-blur-md border-b border-gray-200/50 dark:border-gray-700/50 sticky top-0 z-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between h-20">
+          <div className="flex justify-between">
             <div className="flex items-center">
               <img src="/logo.png" alt="PastorAgenda" className="h-12 w-auto" />
             </div>
@@ -87,7 +87,7 @@ function HomePage() {
               {t('home.hero.badge')}
             </div>
 
-            <h1 className="text-5xl md:text-6xl lg:text-7xl font-bold tracking-tight text-gray-900 dark:text-white mb-6">
+            <h1 className="text-4xl md:text-6xl lg:text-7xl font-bold tracking-tight text-gray-900 dark:text-white mb-6">
               <span className="block">{t('home.hero.title')}</span>
               <span className="block bg-gradient-to-r from-blue-600 via-blue-500 to-purple-600 dark:from-blue-400 dark:via-blue-300 dark:to-purple-400 bg-clip-text text-transparent">
                 {t('home.hero.subtitle')}
@@ -103,7 +103,7 @@ function HomePage() {
                 to="/auth"
                 className="group inline-flex items-center px-8 py-4 text-lg font-semibold rounded-full text-white bg-teal-600 hover:bg-teal-700 focus:outline-none focus:ring-4 focus:ring-teal-500/30 transition-all duration-300 shadow-xl hover:shadow-2xl transform hover:-translate-y-1"
               >
-                {t('home.hero.cta')} +
+                {t('home.hero.cta')} →
                 <ArrowRight className="ml-2 w-5 h-5 group-hover:translate-x-1 transition-transform duration-300" />
               </Link>
 
@@ -114,6 +114,77 @@ function HomePage() {
                 {t('home.learnMore')}
               </button>
             </div>
+
+            {/* Social Proof */}
+            <div className="mt-8 text-center">
+              <p className="text-lg text-gray-600 dark:text-gray-300 font-medium">
+                {t('home.hero.socialProof')}
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Problem Section */}
+      <section className="py-24 bg-gray-50 dark:bg-gray-800">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-16">
+            <h2 className="text-4xl md:text-5xl font-bold text-gray-900 dark:text-white mb-6">
+              {t('home.problem.title')}
+            </h2>
+            <p className="text-xl text-gray-600 dark:text-gray-300 max-w-4xl mx-auto leading-relaxed mb-12">
+              {t('home.problem.description')}
+            </p>
+          </div>
+
+          <div className="max-w-4xl mx-auto">
+            <div className="grid gap-6 mb-12">
+              {(t('home.problem.problems', { returnObjects: true }) as string[]).map((problem: string, index: number) => (
+                <div key={index} className="flex items-start space-x-4 p-6 bg-white dark:bg-gray-700 rounded-2xl shadow-sm border border-gray-200 dark:border-gray-600">
+                  <div className="flex-shrink-0 w-6 h-6 rounded-full flex items-center justify-center mt-1">
+                    <span className="text-red-600 dark:text-red-400 text-lg font-bold">❌</span>
+                  </div>
+                  <p className="text-lg text-gray-700 dark:text-gray-300 font-medium">
+                    {problem}
+                  </p>
+                </div>
+              ))}
+            </div>
+
+            <div className="text-center">
+              <p className="text-2xl font-bold text-white-600 dark:text-white-400">
+                {t('home.problem.solution')}
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Growth Section */}
+      <section className="py-20 bg-gradient-to-br from-teal-50 via-white to-blue-50 dark:from-teal-900/20 dark:via-gray-800 dark:to-blue-900/20">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center max-w-4xl mx-auto">
+            <div className="inline-flex items-center px-4 py-2 rounded-full bg-teal-100 dark:bg-teal-900/30 text-teal-800 dark:text-teal-200 text-sm font-medium mb-8">
+              ✨ Reflexão Ministerial
+            </div>
+            
+            <h2 className="text-4xl md:text-5xl font-bold text-gray-900 dark:text-white mb-8 leading-tight">
+              {t('home.growth.title')}
+            </h2>
+            
+            <div className="bg-white dark:bg-gray-800 rounded-3xl p-8 md:p-12 shadow-xl border border-gray-200/50 dark:border-gray-700/50">
+              <p className="text-xl md:text-2xl text-gray-700 dark:text-gray-300 leading-relaxed font-medium">
+                {t('home.growth.message')}
+              </p>
+            </div>
+            
+            <div className="mt-8 flex justify-center">
+              <div className="flex items-center space-x-2 text-teal-600 dark:text-teal-400">
+                <div className="w-2 h-2 bg-teal-500 rounded-full animate-pulse"></div>
+                <div className="w-2 h-2 bg-teal-500 rounded-full animate-pulse" style={{ animationDelay: '0.2s' }}></div>
+                <div className="w-2 h-2 bg-teal-500 rounded-full animate-pulse" style={{ animationDelay: '0.4s' }}></div>
+              </div>
+            </div>
           </div>
         </div>
       </section>
@@ -122,13 +193,13 @@ function HomePage() {
       <section id="features" className="py-24 bg-white dark:bg-gray-900">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-20">
-            <div className="inline-flex items-center px-4 py-2 rounded-full bg-primary-100 dark:bg-primary-900/30 text-primary-800 dark:text-primary-200 text-sm font-medium mb-6">
-              {t('home.features.badge')}
-            </div>
             <h2 className="text-4xl md:text-5xl font-bold text-gray-900 dark:text-white mb-6">
-              {t('home.features.subtitle')}
+              {t('home.features.title')}
             </h2>
-            <p className="text-xl text-gray-600 dark:text-gray-300 max-w-3xl mx-auto leading-relaxed">
+            <p className="text-xl text-gray-600 dark:text-gray-300 max-w-4xl mx-auto leading-relaxed mb-8">
+              {t('home.features.subtitle')}
+            </p>
+            <p className="text-lg text-gray-500 dark:text-gray-400 max-w-3xl mx-auto leading-relaxed">
               {t('home.features.description')}
             </p>
           </div>
@@ -136,11 +207,14 @@ function HomePage() {
           <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
             <div className="group p-8 rounded-3xl bg-gradient-to-br from-gray-50 to-white dark:from-gray-800 dark:to-gray-900 border border-gray-200/50 dark:border-gray-700/50 hover:border-primary-300 dark:hover:border-primary-600 transition-all duration-300 hover:shadow-2xl hover:-translate-y-2">
               <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-primary-500 to-primary-600 flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300">
-                <Calendar className="w-8 h-8 text-white" />
+                <Clock className="w-8 h-8 text-white" />
               </div>
-              <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-4">
+              <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-2">
                 {t('home.features.feature1.title')}
               </h3>
+              <p className="text-sm font-medium text-primary-600 dark:text-primary-400 mb-4">
+                {t('home.features.feature1.subtitle')}
+              </p>
               <p className="text-gray-600 dark:text-gray-300 leading-relaxed">
                 {t('home.features.feature1.description')}
               </p>
@@ -150,9 +224,12 @@ function HomePage() {
               <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-primary-500 to-primary-600 flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300">
                 <Users className="w-8 h-8 text-white" />
               </div>
-              <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-4">
+              <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-2">
                 {t('home.features.feature2.title')}
               </h3>
+              <p className="text-sm font-medium text-primary-600 dark:text-primary-400 mb-4">
+                {t('home.features.feature2.subtitle')}
+              </p>
               <p className="text-gray-600 dark:text-gray-300 leading-relaxed">
                 {t('home.features.feature2.description')}
               </p>
@@ -160,11 +237,14 @@ function HomePage() {
 
             <div className="group p-8 rounded-3xl bg-gradient-to-br from-gray-50 to-white dark:from-gray-800 dark:to-gray-900 border border-gray-200/50 dark:border-gray-700/50 hover:border-primary-300 dark:hover:border-primary-600 transition-all duration-300 hover:shadow-2xl hover:-translate-y-2">
               <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-primary-500 to-primary-600 flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300">
-                <Clock className="w-8 h-8 text-white" />
+                <Calendar className="w-8 h-8 text-white" />
               </div>
-              <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-4">
+              <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-2">
                 {t('home.features.feature3.title')}
               </h3>
+              <p className="text-sm font-medium text-primary-600 dark:text-primary-400 mb-4">
+                {t('home.features.feature3.subtitle')}
+              </p>
               <p className="text-gray-600 dark:text-gray-300 leading-relaxed">
                 {t('home.features.feature3.description')}
               </p>
@@ -174,9 +254,12 @@ function HomePage() {
               <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-primary-500 to-primary-600 flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300">
                 <Shield className="w-8 h-8 text-white" />
               </div>
-              <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-4">
+              <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-2">
                 {t('home.features.feature4.title')}
               </h3>
+              <p className="text-sm font-medium text-primary-600 dark:text-primary-400 mb-4">
+                {t('home.features.feature4.subtitle')}
+              </p>
               <p className="text-gray-600 dark:text-gray-300 leading-relaxed">
                 {t('home.features.feature4.description')}
               </p>
@@ -223,14 +306,14 @@ function HomePage() {
           <h2 className="text-4xl md:text-5xl font-bold text-white mb-6">
             {t('home.cta.title')}
           </h2>
-          <p className="text-xl text-primary-100 mb-10 max-w-3xl mx-auto">
-            {t('home.cta.description')}
+          <p className="text-xl text-primary-100 mb-10 max-w-4xl mx-auto leading-relaxed">
+            {t('home.cta.subtitle')}
           </p>
           <Link
             to="/auth"
             className="inline-flex items-center px-8 py-4 text-lg font-semibold rounded-full text-primary-600 bg-white hover:bg-gray-50 focus:outline-none focus:ring-4 focus:ring-white/30 transition-all duration-300 shadow-xl hover:shadow-2xl transform hover:-translate-y-1"
           >
-            {t('home.cta.button')}
+            {t('home.cta.button')} →
             <ArrowRight className="ml-2 w-5 h-5" />
           </Link>
         </div>
@@ -248,7 +331,7 @@ function HomePage() {
             </p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-4xl mx-auto">
             {/* Free Plan */}
             <div className="bg-white dark:bg-gray-700 rounded-2xl p-8 shadow-lg border border-gray-200 dark:border-gray-600">
               <div className="text-center">
@@ -300,7 +383,7 @@ function HomePage() {
                   {t('home.pricing.pro.description')}
                 </p>
                 <div className="text-4xl font-bold text-white mb-2">
-                  $19
+                  $7.99
                 </div>
                 <div className="text-primary-200 mb-8">
                   /{t('home.pricing.month')}
@@ -328,48 +411,6 @@ function HomePage() {
                   className="w-full inline-flex justify-center items-center px-6 py-3 border border-transparent text-primary-600 font-medium rounded-lg bg-white hover:bg-gray-50 transition-colors"
                 >
                   {t('home.pricing.pro.button')}
-                </Link>
-              </div>
-            </div>
-
-            {/* Enterprise Plan */}
-            <div className="bg-white dark:bg-gray-700 rounded-2xl p-8 shadow-lg border border-gray-200 dark:border-gray-600">
-              <div className="text-center">
-                <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">
-                  {t('home.pricing.enterprise.title')}
-                </h3>
-                <p className="text-gray-600 dark:text-gray-300 mb-6">
-                  {t('home.pricing.enterprise.description')}
-                </p>
-                <div className="text-4xl font-bold text-gray-900 dark:text-white mb-2">
-                  {t('home.pricing.enterprise.price')}
-                </div>
-                <div className="text-gray-500 dark:text-gray-400 mb-8">
-                  {t('home.pricing.enterprise.period')}
-                </div>
-                <ul className="space-y-3 mb-8">
-                  <li className="flex items-center text-gray-600 dark:text-gray-300">
-                    <CheckCircle className="w-5 h-5 text-green-500 mr-3 flex-shrink-0" />
-                    {t('home.pricing.enterprise.features.feature1')}
-                  </li>
-                  <li className="flex items-center text-gray-600 dark:text-gray-300">
-                    <CheckCircle className="w-5 h-5 text-green-500 mr-3 flex-shrink-0" />
-                    {t('home.pricing.enterprise.features.feature2')}
-                  </li>
-                  <li className="flex items-center text-gray-600 dark:text-gray-300">
-                    <CheckCircle className="w-5 h-5 text-green-500 mr-3 flex-shrink-0" />
-                    {t('home.pricing.enterprise.features.feature3')}
-                  </li>
-                  <li className="flex items-center text-gray-600 dark:text-gray-300">
-                    <CheckCircle className="w-5 h-5 text-green-500 mr-3 flex-shrink-0" />
-                    {t('home.pricing.enterprise.features.feature4')}
-                  </li>
-                </ul>
-                <Link
-                  to="/auth"
-                  className="w-full inline-flex justify-center items-center px-6 py-3 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 font-medium rounded-lg hover:bg-gray-50 dark:hover:bg-gray-600 transition-colors"
-                >
-                  {t('home.pricing.enterprise.button')}
                 </Link>
               </div>
             </div>
@@ -441,43 +482,14 @@ function HomePage() {
       {/* Footer */}
       <footer className="bg-gray-900 dark:bg-black">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-8 mb-8">
-            <div>
-              <img src="/logo.png" alt="PastorAgenda" className="h-12 w-auto mb-4" />
-              <p className="text-gray-400 text-sm">
-                {t('home.footer.description')}
-              </p>
-            </div>
-
-            <div>
-              <h3 className="text-white font-semibold mb-4">{t('home.footer.product.title')}</h3>
-              <ul className="space-y-2 text-sm text-gray-400">
-                <li><a href="#" className="hover:text-white transition-colors">{t('home.footer.product.features')}</a></li>
-                <li><a href="#" className="hover:text-white transition-colors">{t('home.footer.product.pricing')}</a></li>
-                <li><a href="#" className="hover:text-white transition-colors">{t('home.footer.product.updates')}</a></li>
-              </ul>
-            </div>
-
-            <div>
-              <h3 className="text-white font-semibold mb-4">{t('home.footer.support.title')}</h3>
-              <ul className="space-y-2 text-sm text-gray-400">
-                <li><a href="#" className="hover:text-white transition-colors">{t('home.footer.support.help')}</a></li>
-                <li><a href="#" className="hover:text-white transition-colors">{t('home.footer.support.contact')}</a></li>
-                <li><a href="#" className="hover:text-white transition-colors">{t('home.footer.support.community')}</a></li>
-              </ul>
-            </div>
-
-            <div>
-              <h3 className="text-white font-semibold mb-4">{t('home.footer.company.title')}</h3>
-              <ul className="space-y-2 text-sm text-gray-400">
-                <li><a href="#" className="hover:text-white transition-colors">{t('home.footer.company.about')}</a></li>
-                <li><a href="#" className="hover:text-white transition-colors">{t('home.footer.company.blog')}</a></li>
-                <li><a href="#" className="hover:text-white transition-colors">{t('home.footer.company.careers')}</a></li>
-              </ul>
-            </div>
+          <div className="text-center mb-8">
+            <img src="/logo.png" alt="PastorAgenda" className="h-12 w-auto mx-auto mb-4" />
+            <p className="text-gray-400 text-sm max-w-md mx-auto">
+              {t('home.footer.description')}
+            </p>
           </div>
 
-          <div className="border-t border-gray-800 mt-12 pt-8">
+          <div className="border-t border-gray-800 pt-8">
             <div className="flex flex-col sm:flex-row justify-between items-center">
               <p className="text-gray-400 mb-4 sm:mb-0">
                 {t('home.footer.copyright')} v. {packageJson.version}

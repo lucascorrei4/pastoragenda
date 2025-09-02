@@ -157,52 +157,71 @@
   },
   "home": {
     "hero": {
-      "badge": "Trained by 1000+ Pastors",
-      "title": "Connect with",
-      "subtitle": "Your Pastor",
-      "description": "Schedule appointments and spiritual guidance sessions with your pastor through our easy-to-use booking platform.",
-      "cta": "Get Started"
+      "badge": "Consistent Natural Growth",
+      "title": "Less Time Scheduling,",
+      "subtitle": "More Time Shepherding.",
+      "description": "The scheduling tool that returns your focus to ministry and strengthens genuine connection with your community. Stop the back-and-forth of messages and calls.",
+      "cta": "Start Using for Free",
+      "socialProof": "Join over 10,000 pastors who trust PastorAgenda."
+    },
+    "problem": {
+      "title": "Does your ministerial schedule feel like a puzzle?",
+      "description": "Between preparing sermons, leading meetings, visiting the sick, and caring for your own family, managing counseling requests and schedules can become a second job.",
+      "problems": [
+        "WhatsApp messages and calls at any hour to schedule an appointment?",
+        "Fear of double-booking or forgetting to follow up?",
+        "Difficulty protecting your rest time and family time?",
+        "Feeling like you're not as available to your church as you'd like to be?"
+      ],
+      "solution": "It's time to stop managing chaos and start leading with peace."
+    },
+    "growth": {
+      "title": "Cultivate Natural Growth in Your Church",
+      "message": "Stop fighting for numbers and start cultivating health. Release the growth potential that God has already planted in your church, focusing on quality that generates quantity naturally."
     },
     "features": {
-      "badge": "Why Choose PastorAgenda?",
-      "title": "Why Choose PastorAgenda?",
-      "subtitle": "Everything you need to manage your ministry",
+      "title": "Everything you need for a more organized and present ministry",
+      "subtitle": "PastorAgenda isn't just a calendar. It's your personal assistant that works 24/7 to protect your time and facilitate caring for your flock.",
       "description": "PastorAgenda provides a comprehensive solution for religious leaders to manage appointments, share their availability, and connect with their community.",
       "feature1": {
-        "title": "Easy Scheduling",
-        "description": "Create custom agendas with specific durations and availability rules. Let people book appointments that fit your schedule."
+        "title": "Take Back Control of Your Time",
+        "subtitle": "Smart Availability",
+        "description": "Set your counseling, visitation, and meeting hours once. PastorAgenda handles the rest, showing your community only the times when you're truly available. No more unexpected interruptions."
       },
       "feature2": {
-        "title": "Flexible Options",
-        "description": "Share your unique profile URL with your community. People can easily find and book appointments with you."
+        "title": "Be Present for Your Community, Effortlessly",
+        "subtitle": "Community Connection",
+        "description": "Share a single link in your church group, status, or website. Any member can see your availability and book an appointment with just a few clicks, simply and respectfully."
       },
       "feature3": {
-        "title": "Smart Availability",
-        "description": "Set your weekly availability and let our system automatically find the best time slots for appointments."
+        "title": "A Professional Scheduling Process",
+        "subtitle": "Easy and Customized Scheduling",
+        "description": "Create different types of schedules (counseling, visitation, pre-marriage) with specific durations. The system sends automatic notifications, reducing no-shows and showing a level of organization and care."
       },
       "feature4": {
-        "title": "Secure & Private",
-        "description": "Built with security in mind. Your data is protected and appointments are managed with privacy and care."
+        "title": "Conversations with Trust and Privacy",
+        "subtitle": "Secure and Private",
+        "description": "Counseling is a sacred moment. Our platform was built with security and privacy in mind, ensuring that data and the nature of appointments are kept in complete confidentiality."
       }
     },
     "cta": {
-      "title": "Ready to Connect?",
-      "subtitle": "Start your spiritual journey today",
+      "title": "Ready to focus on what really matters?",
+      "subtitle": "Let technology take care of your schedule so you can take care of people. Free your time, organize your ministry, and strengthen your bonds with the community.",
       "description": "Start managing your ministry appointments with ease and connect with your community.",
-      "button": "Book an Appointment"
+      "button": "Create My Free Schedule Now"
     },
     "learnMore": "Learn More",
     "stats": {
-      "pastors": "10,000+",
-      "pastorsLabel": "Active Pastors",
-      "appointments": "50,000+",
-      "appointmentsLabel": "Appointments Booked",
-      "satisfaction": "98%",
-      "satisfactionLabel": "Satisfaction Rate"
+      "pastors": "Quality",
+      "pastorsLabel": "Over Quantity",
+      "appointments": "Sustainable",
+      "appointmentsLabel": "Growth Focus",
+      "satisfaction": "Community",
+      "satisfactionLabel": "First Approach"
     },
     "pricing": {
-      "title": "Simple, Transparent Pricing",
-      "description": "Choose the plan that best fits your ministry needs. Start free and upgrade as you grow.",
+      "title": "Start Free. Grow with Confidence.",
+      "description": "Choose the plan that best fits your ministry needs. Start free and upgrade as your usage grows.",
       "month": "month",
       "free": {
         "title": "Free",
@@ -224,19 +243,6 @@
           "feature2": "Advanced Scheduling",
           "feature3": "Custom Questions",
           "feature4": "Priority Support"
-        }
-      },
-      "enterprise": {
-        "title": "Enterprise",
-        "description": "For large organizations and multi-location ministries",
-        "price": "Custom",
-        "period": "Contact Us",
-        "button": "Contact Sales",
-        "features": {
-          "feature1": "Multi-Location Support",
-          "feature2": "Advanced Analytics",
-          "feature3": "Dedicated Support",
-          "feature4": "Custom Integrations"
         }
       }
     },

@@ -219,7 +219,7 @@ function BookingsPage() {
                         <Clock className="w-4 h-4 mr-2" />
                         {formatTime(booking.start_time)} - {formatTime(booking.end_time)}
                         <span className="ml-2 text-gray-500 dark:text-gray-400">
-                          ({booking.event_types.duration} {t('common.min')})
+                          ({Math.round((new Date(booking.end_time).getTime() - new Date(booking.start_time).getTime()) / (1000 * 60))} {t('common.min')})
                         </span>
                       </div>
                     </div>

@@ -156,51 +156,71 @@
   },
   "home": {
     "hero": {
-      "badge": "Usado por 1000+ Pastores",
-      "title": "Conecte-se com",
-      "subtitle": "Seu Pastor",
-      "description": "Agende compromissos e sessões de orientação espiritual com seu pastor através de nossa plataforma de agendamento fácil de usar.",
-      "cta": "Começar"
+      "badge": "Crescimento Natural Consistente",
+      "title": "Menos Tempo Agendando,",
+      "subtitle": "Mais Tempo Pastoreando.",
+      "description": "A ferramenta de agendamento que devolve seu foco ao ministério e fortalece a conexão genuína com sua comunidade. Pare o \"vai e vem\" de mensagens e ligações.",
+      "cta": "Comece a Usar de Graça",
+      "socialProof": "Junte-se a mais de 10.000 pastores que confiam no PastorAgenda."
+    },
+    "problem": {
+      "title": "Sua agenda ministerial parece um quebra-cabeça?",
+      "description": "Entre preparar sermões, liderar reuniões, visitar enfermos e cuidar da sua própria família, gerenciar os pedidos de aconselhamento e horários pode se tornar um segundo trabalho.",
+      "problems": [
+        "Mensagens de WhatsApp e ligações a qualquer hora para marcar um horário?",
+        "Medo de agendar dois compromissos ao mesmo tempo ou esquecer de um retorno?",
+        "Dificuldade em proteger seu tempo de descanso e com a família?",
+        "Sentimento de que você não está tão disponível para sua igreja quanto gostaria?"
+      ],
+      "solution": "É hora de parar de gerenciar o caos e começar a liderar com paz."
+    },
+    "growth": {
+      "title": "Cultive o Crescimento Natural da Sua Igreja",
+      "message": "Pare de lutar por números e comece a cultivar a saúde. Libere o potencial de crescimento que Deus já plantou na sua igreja, focando na qualidade que gera quantidade de forma natural."
     },
     "features": {
-      "title": "Por que escolher o PastorAgenda?",
-      "subtitle": "Tudo o que você precisa para gerenciar seu ministério",
+      "title": "Tudo o que você precisa para um ministério mais organizado e presente",
+      "subtitle": "O PastorAgenda não é apenas uma agenda. É seu assistente pessoal que trabalha 24/7 para proteger seu tempo e facilitar o cuidado com suas ovelhas.",
       "description": "O PastorAgenda fornece uma solução abrangente para líderes religiosos gerenciarem compromissos, compartilharem sua disponibilidade e se conectarem com sua comunidade.",
       "feature1": {
-        "title": "Agendamento Fácil",
-        "description": "Crie agendas personalizados com durações específicas e regras de disponibilidade. Deixe as pessoas agendarem compromissos que se encaixem na sua agenda."
+        "title": "Recupere o Controle do Seu Tempo",
+        "subtitle": "Disponibilidade Inteligente",
+        "description": "Defina seus horários de aconselhamento, visitas e reuniões uma única vez. O PastorAgenda cuida do resto, mostrando à sua comunidade apenas os horários em que você está realmente livre. Chega de interrupções inesperadas."
       },
       "feature2": {
-        "title": "Conexão com a Comunidade",
-        "description": "Compartilhe sua URL de perfil única com sua comunidade. As pessoas podem facilmente encontrá-lo e agendar compromissos com você."
+        "title": "Esteja Presente para Sua Comunidade, Sem Esforço",
+        "subtitle": "Conexão com a Comunidade",
+        "description": "Compartilhe um único link no grupo da igreja, no seu status ou no site. Qualquer membro poderá ver sua disponibilidade e agendar um horário com apenas alguns cliques, de forma simples e respeitosa."
       },
       "feature3": {
-        "title": "Disponibilidade Inteligente",
-        "description": "Configure sua disponibilidade semanal e deixe nosso sistema encontrar automaticamente os melhores horários para compromissos."
+        "title": "Um Processo de Agendamento Profissional",
+        "subtitle": "Agendamento Fácil e Personalizado",
+        "description": "Crie diferentes tipos de agenda (aconselhamento, visita, pré-casamento) com durações específicas. O sistema envia notificações automáticas, diminuindo as faltas e mostrando um nível de organização e cuidado."
       },
       "feature4": {
-        "title": "Seguro e Privado",
-        "description": "Construído com segurança em mente. Seus dados estão protegidos e os compromissos são gerenciados com privacidade e cuidado."
+        "title": "Conversas com Confiança e Privacidade",
+        "subtitle": "Seguro e Privado",
+        "description": "Aconselhamento é um momento sagrado. Nossa plataforma foi construída com segurança e privacidade em mente, garantindo que os dados e a natureza dos compromissos sejam mantidos em total sigilo."
       }
     },
     "cta": {
-      "title": "Pronto para se Conectar?",
-      "subtitle": "Comece sua jornada espiritual hoje",
+      "title": "Pronto para focar no que realmente importa?",
+      "subtitle": "Deixe a tecnologia cuidar da sua agenda para que você possa cuidar das pessoas. Liberte seu tempo, organize seu ministério e fortaleça seus laços com a comunidade.",
       "description": "Comece a gerenciar seus compromissos ministeriais com facilidade e conecte-se com sua comunidade.",
-      "button": "Agendar um Compromisso"
+      "button": "Criar Minha Agenda Gratuita Agora"
     },
     "learnMore": "Saiba Mais",
     "stats": {
-      "pastors": "10.000+",
-      "pastorsLabel": "Pastores Ativos",
-      "appointments": "50.000+",
-      "appointmentsLabel": "Agendamentos Realizados",
-      "satisfaction": "98%",
-      "satisfactionLabel": "Taxa de Satisfação"
+      "pastors": "Qualidade",
+      "pastorsLabel": "Sobre Quantidade",
+      "appointments": "Crescimento",
+      "appointmentsLabel": "Sustentável",
+      "satisfaction": "Comunidade",
+      "satisfactionLabel": "Em Primeiro Lugar"
     },
     "pricing": {
-      "title": "Preços Simples e Transparentes",
-      "description": "Escolha o plano que melhor se adapta às necessidades do seu ministério. Comece grátis e atualize conforme cresce.",
+      "title": "Comece de Graça. Cresça com Confiança.",
+      "description": "Escolha o plano que melhor se adapta às necessidades do seu ministério. Comece grátis e atualize conforme seu uso cresce.",
       "month": "mês",
       "free": {
         "title": "Grátis",
@@ -222,19 +242,6 @@
           "feature2": "Agendamento Avançado",
           "feature3": "Perguntas Personalizadas",
           "feature4": "Suporte Prioritário"
-        }
-      },
-      "enterprise": {
-        "title": "Empresarial",
-        "description": "Para grandes organizações e ministérios multi-localização",
-        "price": "Personalizado",
-        "period": "Entre em Contato",
-        "button": "Contatar Vendas",
-        "features": {
-          "feature1": "Suporte Multi-Localização",
-          "feature2": "Analytics Avançado",
-          "feature3": "Suporte Dedicado",
-          "feature4": "Integrações Personalizadas"
         }
       }
     },
