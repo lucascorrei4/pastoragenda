@@ -214,24 +214,69 @@ Deno.serve(async (req) => {
       })
     }
 
-    // Get user profile
+    // Get or create user profile
     console.log('Fetching profile for email:', email)
-    const { data: profile, error: profileError } = await supabase
+    let { data: profile, error: profileError } = await supabase
       .from('profiles')
       .select('id, email, full_name, alias, email_verified, created_at')
       .eq('email', email)
       .single()
 
-    if (profileError || !profile) {
+    let isNewUser = false
+
+    // If profile doesn't exist, create it for new users
+    if (profileError && profileError.code === 'PGRST116') {
+      console.log('Profile not found, creating new user profile for:', email)
+      
+      // Generate a unique alias for the new user
+      const emailPrefix = email.split('@')[0]
+      const randomSuffix = Math.random().toString(36).substring(2, 8)
+      const alias = `${emailPrefix}-${randomSuffix}`
+      
+      // Create new profile
+      const { data: newProfile, error: createError } = await supabase
+        .from('profiles')
+        .insert({
+          id: crypto.randomUUID(),
+          email: email,
+          full_name: emailPrefix.charAt(0).toUpperCase() + emailPrefix.slice(1),
+          alias: alias,
+          email_verified: true,
+          last_login_at: new Date().toISOString()
+        })
+        .select('id, email, full_name, alias, email_verified, created_at')
+        .single()
+
+      if (createError || !newProfile) {
+        console.error('Error creating profile:', createError)
+        return new Response(JSON.stringify({ error: "Failed to create user profile" }), {
+          headers: corsHeaders,
+          status: 500
+        })
+      }
+
+      profile = newProfile
+      isNewUser = true
+      console.log('New user profile created:', profile.id)
+    } else if (profileError) {
       console.error('Error fetching profile:', profileError)
-      return new Response(JSON.stringify({ error: "User profile not found" }), {
+      return new Response(JSON.stringify({ error: "Failed to fetch user profile" }), {
         headers: corsHeaders,
         status: 500
       })
+    } else {
+      // Update last login time for existing user
+      console.log('Updating last login for existing user:', profile.id)
+      await supabase
+        .from('profiles')
+        .update({ 
+          last_login_at: new Date().toISOString(),
+          email_verified: true 
+        })
+        .eq('id', profile.id)
     }
 
-    // Check if this is a new user (created within the last minute)
-    const isNewUser = new Date(profile.created_at).getTime() > (Date.now() - 60000)
+    // Use the isNewUser flag we set during profile creation/fetching
 
     // Create JWT token
     console.log('Creating JWT token for user:', profile.id)
