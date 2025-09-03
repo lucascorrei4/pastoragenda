@@ -6,6 +6,7 @@ import { QRCodeSVG } from 'qrcode.react'
 import { Calendar, Clock, User, Share2 } from 'lucide-react'
 import type { Profile, EventType } from '../lib/supabase'
 import LanguageSwitcher from '../components/LanguageSwitcher'
+import { translateDefaultEventTypes } from '../lib/eventTypeTranslations'
 
 function PublicProfilePage() {
   const { alias } = useParams<{ alias: string }>()
@@ -35,6 +36,14 @@ function PublicProfilePage() {
       mounted = false
     }
   }, [alias]) // Only depend on alias changes
+
+  // Re-translate event types when language changes
+  useEffect(() => {
+    if (eventTypes.length > 0) {
+      const translatedData = translateDefaultEventTypes(eventTypes, t)
+      setEventTypes(translatedData)
+    }
+  }, [t])
 
   const fetchProfileData = async () => {
     let mounted = true
@@ -84,7 +93,9 @@ function PublicProfilePage() {
         // Don't fail the whole request if agendas fail
         setEventTypes([])
       } else {
-        setEventTypes(eventTypesData || [])
+        // Translate default event types
+        const translatedEventTypes = translateDefaultEventTypes(eventTypesData || [], t)
+        setEventTypes(translatedEventTypes)
       }
 
     } catch (error) {

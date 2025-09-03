@@ -1,10 +1,12 @@
 import { useState, useEffect } from 'react'
 import { useAuth } from '../contexts/AuthContext'
 import { useTranslation } from 'react-i18next'
+import { useNavigate } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
 import { toast } from 'react-hot-toast'
-import { Calendar, Plus, Edit, Trash2, Clock, Settings } from 'lucide-react'
+import { Calendar, Plus, Edit, Trash2, Clock, Settings, Ban } from 'lucide-react'
 import type { EventType, AvailabilityRules, CustomQuestion } from '../lib/supabase'
+import { translateDefaultEventTypes } from '../lib/eventTypeTranslations'
 
 interface EventTypeFormData {
   title: string
@@ -17,12 +19,30 @@ interface EventTypeFormData {
 function EventTypesPage() {
   const { user } = useAuth()
   const { t } = useTranslation()
+  const navigate = useNavigate()
   const [eventTypes, setEventTypes] = useState<EventType[]>([])
   const [loading, setLoading] = useState(true)
   const [showForm, setShowForm] = useState(false)
   const [editingEventType, setEditingEventType] = useState<EventType | null>(null)
   const [saving, setSaving] = useState(false)
   const [deleting, setDeleting] = useState<string | null>(null)
+
+  // Helper function to safely parse time values
+  const parseTime = (time: string | undefined) => {
+    if (!time) return { hour: 0, minute: '00' }
+    const parts = time.split(':')
+    return {
+      hour: parseInt(parts[0]) || 0,
+      minute: parts[1] || '00'
+    }
+  }
+
+  // Helper function to validate time format (HH:MM)
+  const isValidTimeFormat = (time: string | undefined): boolean => {
+    if (!time) return false
+    const timeRegex = /^([01]?[0-9]|2[0-3]):[0-5][0-9]$/
+    return timeRegex.test(time)
+  }
 
   const [formData, setFormData] = useState<EventTypeFormData>({
     title: '',
@@ -48,6 +68,14 @@ function EventTypesPage() {
     }
   }, [user])
 
+  // Re-translate event types when language changes
+  useEffect(() => {
+    if (eventTypes.length > 0) {
+      const translatedData = translateDefaultEventTypes(eventTypes, t)
+      setEventTypes(translatedData)
+    }
+  }, [t])
+
   const fetchEventTypes = async () => {
     try {
       setLoading(true)
@@ -58,7 +86,17 @@ function EventTypesPage() {
         .order('created_at', { ascending: false })
 
       if (error) throw error
-      setEventTypes(data || [])
+      
+      // Clean up any malformed availability rules in the fetched data
+      const cleanedData = (data || []).map(eventType => ({
+        ...eventType,
+        availability_rules: cleanAvailabilityRules(eventType.availability_rules)
+      }))
+      
+      // Translate default event types
+      const translatedData = translateDefaultEventTypes(cleanedData, t)
+      
+      setEventTypes(translatedData)
     } catch (error) {
       console.error('Error fetching agendas:', error)
       toast.error(t('eventTypes.form.loadError'))
@@ -137,25 +175,42 @@ function EventTypesPage() {
     }))
   }
 
+    // Helper function to clean up availability rules
+  const cleanAvailabilityRules = (rules: AvailabilityRules): AvailabilityRules => {
+    const cleaned: AvailabilityRules = {}
+    
+    Object.keys(rules).forEach(day => {
+      const daySlots = rules[day] || []
+      cleaned[day] = daySlots.filter(slot => 
+        isValidTimeFormat(slot.from) && isValidTimeFormat(slot.to)
+      )
+    })
+    
+    return cleaned
+  }
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     
-         if (!formData.title.trim()) {
-       toast.error(t('eventTypes.validation.titleRequired'))
-       return
-     }
+    if (!formData.title.trim()) {
+      toast.error(t('eventTypes.validation.titleRequired'))
+      return
+    }
 
-     if (formData.duration < 15 || formData.duration > 480) {
-       toast.error(t('eventTypes.validation.durationRange'))
-       return
-     }
+    if (formData.duration < 15 || formData.duration > 480) {
+      toast.error(t('eventTypes.validation.durationRange'))
+      return
+    }
 
-     // Check if at least one day has availability
-     const hasAvailability = Object.values(formData.availability_rules).some(day => day.length > 0)
-     if (!hasAvailability) {
-       toast.error(t('eventTypes.validation.availabilityRequired'))
-       return
-     }
+    // Clean up availability rules to remove invalid time formats
+    const cleanedAvailabilityRules = cleanAvailabilityRules(formData.availability_rules)
+
+    // Check if at least one day has valid availability
+    const hasAvailability = Object.values(cleanedAvailabilityRules).some(day => day.length > 0)
+    if (!hasAvailability) {
+      toast.error(t('eventTypes.validation.availabilityRequired'))
+      return
+    }
 
     try {
       setSaving(true)
@@ -168,7 +223,7 @@ function EventTypesPage() {
             title: formData.title.trim(),
             duration: formData.duration,
             description: formData.description.trim(),
-            availability_rules: formData.availability_rules,
+            availability_rules: cleanedAvailabilityRules,
             custom_questions: formData.custom_questions
           })
           .eq('id', editingEventType.id)
@@ -184,7 +239,7 @@ function EventTypesPage() {
              title: formData.title.trim(),
              duration: formData.duration,
              description: formData.description.trim(),
-             availability_rules: formData.availability_rules,
+             availability_rules: cleanedAvailabilityRules,
              custom_questions: formData.custom_questions
            }])
 
@@ -296,13 +351,22 @@ function EventTypesPage() {
       {/* Header */}
       <div className="flex justify-between items-center">
         <h1 className="text-2xl font-bold text-gray-900 dark:text-white">{t('eventTypes.title')}</h1>
-        <button
-          onClick={() => setShowForm(true)}
-          className="btn-primary flex items-center"
-        >
-          <Plus className="w-4 h-4 mr-2" />
-          {t('eventTypes.createButton')}
-        </button>
+        <div className="flex space-x-3">
+          <button
+            onClick={() => navigate('/dashboard/unavailability')}
+            className="btn-secondary flex items-center"
+          >
+            <Ban className="w-4 h-4 mr-2" />
+            {t('eventTypes.blockDates')}
+          </button>
+          <button
+            onClick={() => setShowForm(true)}
+            className="btn-primary flex items-center"
+          >
+            <Plus className="w-4 h-4 mr-2" />
+            {t('eventTypes.createButton')}
+          </button>
+        </div>
       </div>
 
       {/* Agendas List */}
@@ -346,32 +410,51 @@ function EventTypesPage() {
                 <div className="pt-3 border-t border-gray-200 dark:border-gray-600">
                   <h4 className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">{t('eventTypes.form.availability')}</h4>
                   <div className="space-y-1">
-                    {daysOfWeek.map(day => {
-                      const daySlots = eventType.availability_rules[day] || []
-                      if (daySlots.length === 0) return null
+                    {(() => {
+                      const daysWithSlots = daysOfWeek.filter(day => {
+                        const daySlots = eventType.availability_rules[day] || []
+                        return daySlots.length > 0 && daySlots.some(slot => 
+                          isValidTimeFormat(slot.from) && isValidTimeFormat(slot.to)
+                        )
+                      })
                       
-                      return (
-                        <div key={day} className="text-xs text-gray-500 dark:text-gray-400">
-                          <span className="capitalize">{day}:</span>
-                          {daySlots.map((slot, index) => {
-                            const formatTimeToAMPM = (time: string) => {
-                              const [hour, minute] = time.split(':')
-                              const hourNum = parseInt(hour)
-                              const ampm = hourNum >= 12 ? 'PM' : 'AM'
-                              const displayHour = hourNum === 0 ? 12 : (hourNum > 12 ? hourNum - 12 : hourNum)
-                              return `${displayHour}:${minute} ${ampm}`
-                            }
-                            
-                            return (
-                              <span key={index} className="ml-2">
-                                {formatTimeToAMPM(slot.from)}-{formatTimeToAMPM(slot.to)}
-                                {index < daySlots.length - 1 ? ', ' : ''}
-                              </span>
-                            )
-                          })}
-                        </div>
-                      )
-                    })}
+                      if (daysWithSlots.length === 0) {
+                        return (
+                          <div className="text-xs text-gray-400 dark:text-gray-500">
+                            No availability set
+                          </div>
+                        )
+                      }
+                      
+                      return daysWithSlots.map(day => {
+                        const daySlots = eventType.availability_rules[day] || []
+                        const validSlots = daySlots.filter(slot => 
+                          isValidTimeFormat(slot.from) && isValidTimeFormat(slot.to)
+                        )
+                        
+                        return (
+                          <div key={day} className="text-xs text-gray-500 dark:text-gray-400">
+                            <span className="capitalize">{day}:</span>
+                            {validSlots.map((slot, index) => {
+                              const formatTimeToAMPM = (time: string) => {
+                                const [hour, minute] = time.split(':')
+                                const hourNum = parseInt(hour)
+                                const ampm = hourNum >= 12 ? 'PM' : 'AM'
+                                const displayHour = hourNum === 0 ? 12 : (hourNum > 12 ? hourNum - 12 : hourNum)
+                                return `${displayHour}:${minute} ${ampm}`
+                              }
+                              
+                              return (
+                                <span key={index} className="ml-2">
+                                  {formatTimeToAMPM(slot.from)}-{formatTimeToAMPM(slot.to)}
+                                  {index < validSlots.length - 1 ? ', ' : ''}
+                                </span>
+                              )
+                            })}
+                          </div>
+                        )
+                      })
+                    })()}
                   </div>
                 </div>
               </div>
@@ -507,11 +590,12 @@ function EventTypesPage() {
                             <div key={index} className="flex items-center space-x-2">
                               <div className="flex-1 flex items-center space-x-2">
                                 <select
-                                  value={Math.floor(parseInt(slot.from.split(':')[0]) % 12) || 12}
+                                  value={Math.floor(parseTime(slot.from).hour % 12) || 12}
                                   onChange={(e) => {
                                     const hour = parseInt(e.target.value)
-                                    const minute = slot.from.split(':')[1]
-                                    const ampm = parseInt(slot.from.split(':')[0]) >= 12 ? 'PM' : 'AM'
+                                    const { minute } = parseTime(slot.from)
+                                    const { hour: currentHour } = parseTime(slot.from)
+                                    const ampm = currentHour >= 12 ? 'PM' : 'AM'
                                     const newHour = ampm === 'PM' ? (hour === 12 ? 12 : hour + 12) : (hour === 12 ? 0 : hour)
                                     const newTime = `${newHour.toString().padStart(2, '0')}:${minute}`
                                     updateTimeSlot(day, index, 'from', newTime)
@@ -526,10 +610,10 @@ function EventTypesPage() {
                                 </select>
                                 <span className="text-gray-500 dark:text-gray-400">:</span>
                                 <select
-                                  value={slot.from.split(':')[1]}
+                                  value={parseTime(slot.from).minute}
                                   onChange={(e) => {
-                                    const hour = slot.from.split(':')[0]
-                                    const newTime = `${hour}:${e.target.value}`
+                                    const { hour } = parseTime(slot.from)
+                                    const newTime = `${hour.toString().padStart(2, '0')}:${e.target.value}`
                                     updateTimeSlot(day, index, 'from', newTime)
                                   }}
                                   className="px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md text-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
@@ -541,15 +625,14 @@ function EventTypesPage() {
                                   ))}
                                 </select>
                                 <select
-                                  value={parseInt(slot.from.split(':')[0]) >= 12 ? 'PM' : 'AM'}
+                                  value={parseTime(slot.from).hour >= 12 ? 'PM' : 'AM'}
                                   onChange={(e) => {
-                                    const [hour, minute] = slot.from.split(':')
-                                    const currentHour = parseInt(hour)
+                                    const { hour, minute } = parseTime(slot.from)
                                     let newHour
                                     if (e.target.value === 'PM') {
-                                      newHour = currentHour >= 12 ? currentHour : currentHour + 12
+                                      newHour = hour >= 12 ? hour : hour + 12
                                     } else {
-                                      newHour = currentHour >= 12 ? currentHour - 12 : currentHour
+                                      newHour = hour >= 12 ? hour - 12 : hour
                                     }
                                     if (newHour === 0) newHour = 12
                                     if (newHour === 24) newHour = 12
@@ -565,11 +648,12 @@ function EventTypesPage() {
                               <span className="text-gray-500 dark:text-gray-400">{t('common.to')}</span>
                               <div className="flex-1 flex items-center space-x-2">
                                 <select
-                                  value={Math.floor(parseInt(slot.to.split(':')[0]) % 12) || 12}
+                                  value={Math.floor(parseTime(slot.to).hour % 12) || 12}
                                   onChange={(e) => {
                                     const hour = parseInt(e.target.value)
-                                    const minute = slot.to.split(':')[1]
-                                    const ampm = parseInt(slot.to.split(':')[0]) >= 12 ? 'PM' : 'AM'
+                                    const { minute } = parseTime(slot.to)
+                                    const { hour: currentHour } = parseTime(slot.to)
+                                    const ampm = currentHour >= 12 ? 'PM' : 'AM'
                                     const newHour = ampm === 'PM' ? (hour === 12 ? 12 : hour + 12) : (hour === 12 ? 0 : hour)
                                     const newTime = `${newHour.toString().padStart(2, '0')}:${minute}`
                                     updateTimeSlot(day, index, 'to', newTime)
@@ -584,10 +668,10 @@ function EventTypesPage() {
                                 </select>
                                 <span className="text-gray-500 dark:text-gray-400">:</span>
                                 <select
-                                  value={slot.to.split(':')[1]}
+                                  value={parseTime(slot.to).minute}
                                   onChange={(e) => {
-                                    const hour = slot.to.split(':')[0]
-                                    const newTime = `${hour}:${e.target.value}`
+                                    const { hour } = parseTime(slot.to)
+                                    const newTime = `${hour.toString().padStart(2, '0')}:${e.target.value}`
                                     updateTimeSlot(day, index, 'to', newTime)
                                   }}
                                   className="px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md text-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
@@ -599,15 +683,14 @@ function EventTypesPage() {
                                   ))}
                                 </select>
                                 <select
-                                  value={parseInt(slot.to.split(':')[0]) >= 12 ? 'PM' : 'AM'}
+                                  value={parseTime(slot.to).hour >= 12 ? 'PM' : 'AM'}
                                   onChange={(e) => {
-                                    const [hour, minute] = slot.to.split(':')
-                                    const currentHour = parseInt(hour)
+                                    const { hour, minute } = parseTime(slot.to)
                                     let newHour
                                     if (e.target.value === 'PM') {
-                                      newHour = currentHour >= 12 ? currentHour : currentHour + 12
+                                      newHour = hour >= 12 ? hour : hour + 12
                                     } else {
-                                      newHour = currentHour >= 12 ? currentHour - 12 : currentHour
+                                      newHour = hour >= 12 ? hour - 12 : hour
                                     }
                                     if (newHour === 0) newHour = 12
                                     if (newHour === 24) newHour = 12

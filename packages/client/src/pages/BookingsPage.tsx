@@ -5,6 +5,7 @@ import { supabase } from '../lib/supabase'
 import { toast } from 'react-hot-toast'
 import { Calendar, Clock, User, Mail, X, CheckCircle, XCircle, Phone, MessageSquare } from 'lucide-react'
 import type { BookingWithDetails } from '../lib/supabase'
+import { translateDefaultEventType } from '../lib/eventTypeTranslations'
 
 function BookingsPage() {
   const { user } = useAuth()
@@ -19,6 +20,23 @@ function BookingsPage() {
       fetchBookings()
     }
   }, [user])
+
+  // Re-translate bookings when language changes
+  useEffect(() => {
+    if (bookings.length > 0) {
+      const translatedBookings = bookings.map(booking => {
+        if (booking.event_types) {
+          const translatedEventType = translateDefaultEventType(booking.event_types, t)
+          return {
+            ...booking,
+            event_types: translatedEventType
+          }
+        }
+        return booking
+      })
+      setBookings(translatedBookings)
+    }
+  }, [t])
 
   const fetchBookings = async () => {
     try {
@@ -48,7 +66,20 @@ function BookingsPage() {
           .order('start_time', { ascending: false })
 
         if (error) throw error
-        setBookings(data || [])
+        
+        // Translate event types in bookings
+        const translatedBookings = (data || []).map(booking => {
+          if (booking.event_types) {
+            const translatedEventType = translateDefaultEventType(booking.event_types, t)
+            return {
+              ...booking,
+              event_types: translatedEventType
+            }
+          }
+          return booking
+        })
+        
+        setBookings(translatedBookings)
       } else {
         setBookings([])
       }

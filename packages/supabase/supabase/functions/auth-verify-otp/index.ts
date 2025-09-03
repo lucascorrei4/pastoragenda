@@ -258,6 +258,77 @@ Deno.serve(async (req) => {
       profile = newProfile
       isNewUser = true
       console.log('New user profile created:', profile.id)
+
+      // Create default event types for new users
+      try {
+        console.log('Creating default event types for new user:', profile.id)
+        
+        // Default event types with translation keys
+        const defaultEventTypes = [
+          {
+            user_id: profile.id,
+            title: 'defaultEventTypes.pastoralCounseling.title',
+            duration: 60,
+            description: 'defaultEventTypes.pastoralCounseling.description',
+            availability_rules: {
+              monday: [{ from: '09:00', to: '17:00' }],
+              tuesday: [{ from: '09:00', to: '17:00' }],
+              wednesday: [{ from: '09:00', to: '17:00' }],
+              thursday: [{ from: '09:00', to: '17:00' }],
+              friday: [{ from: '09:00', to: '17:00' }],
+              saturday: [],
+              sunday: []
+            },
+            custom_questions: []
+          },
+          {
+            user_id: profile.id,
+            title: 'defaultEventTypes.prayerMeeting.title',
+            duration: 30,
+            description: 'defaultEventTypes.prayerMeeting.description',
+            availability_rules: {
+              monday: [{ from: '10:00', to: '16:00' }],
+              tuesday: [{ from: '10:00', to: '16:00' }],
+              wednesday: [{ from: '10:00', to: '16:00' }],
+              thursday: [{ from: '10:00', to: '16:00' }],
+              friday: [{ from: '10:00', to: '16:00' }],
+              saturday: [],
+              sunday: []
+            },
+            custom_questions: []
+          },
+          {
+            user_id: profile.id,
+            title: 'defaultEventTypes.ministryMeeting.title',
+            duration: 45,
+            description: 'defaultEventTypes.ministryMeeting.description',
+            availability_rules: {
+              monday: [{ from: '14:00', to: '18:00' }],
+              tuesday: [{ from: '14:00', to: '18:00' }],
+              wednesday: [{ from: '14:00', to: '18:00' }],
+              thursday: [{ from: '14:00', to: '18:00' }],
+              friday: [{ from: '14:00', to: '18:00' }],
+              saturday: [],
+              sunday: []
+            },
+            custom_questions: []
+          }
+        ]
+
+        const { error: eventTypesError } = await supabase
+          .from('event_types')
+          .insert(defaultEventTypes)
+
+        if (eventTypesError) {
+          console.error('Error creating default event types:', eventTypesError)
+          // Don't fail the request if default event types creation fails
+        } else {
+          console.log('Default event types created successfully for user:', profile.id)
+        }
+      } catch (eventTypesError) {
+        console.error('Error creating default event types:', eventTypesError)
+        // Don't fail the request if default event types creation fails
+      }
     } else if (profileError) {
       console.error('Error fetching profile:', profileError)
       return new Response(JSON.stringify({ error: "Failed to fetch user profile" }), {
@@ -279,7 +350,6 @@ Deno.serve(async (req) => {
     // Use the isNewUser flag we set during profile creation/fetching
 
     // Create JWT token
-    console.log('Creating JWT token for user:', profile.id)
     const token = await createJWT({
       userId: profile.id,
       email: profile.email,

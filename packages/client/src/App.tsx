@@ -36,6 +36,7 @@ import PublicProfilePage from './pages/PublicProfilePage'
 import EventBookingPage from './pages/EventBookingPage'
 import BookingConfirmationPage from './pages/BookingConfirmationPage'
 import BookingSuccessPage from './pages/BookingSuccessPage'
+import UnavailabilityPage from './pages/UnavailabilityPage'
 
 function App() {
   return (
@@ -78,6 +79,13 @@ function App() {
               <ProtectedRoute>
                 <Layout>
                   <BookingsPage />
+                </Layout>
+              </ProtectedRoute>
+            } />
+            <Route path="/dashboard/unavailability" element={
+              <ProtectedRoute>
+                <Layout>
+                  <UnavailabilityPage />
                 </Layout>
               </ProtectedRoute>
             } />

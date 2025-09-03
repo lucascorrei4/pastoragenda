@@ -3,14 +3,16 @@ import { Link } from 'react-router-dom'
 import { useAuth } from '../contexts/AuthContext'
 import { useTranslation } from 'react-i18next'
 import { supabase } from '../lib/supabase'
-import { Calendar, Clock, Users, TrendingUp, MessageSquare, ExternalLink, Edit, Globe } from 'lucide-react'
-import type { Profile, BookingWithDetails } from '../lib/supabase'
+import { Calendar, Clock, Users, TrendingUp, MessageSquare, ExternalLink, Edit, Globe, Plus, Settings, Ban } from 'lucide-react'
+import type { Profile, BookingWithDetails, EventType } from '../lib/supabase'
+import { translateDefaultEventTypes } from '../lib/eventTypeTranslations'
 
 function DashboardPage() {
   const { user } = useAuth()
   const { t } = useTranslation()
   const [profile, setProfile] = useState<Profile | null>(null)
   const [recentBookings, setRecentBookings] = useState<BookingWithDetails[]>([])
+  const [eventTypes, setEventTypes] = useState<EventType[]>([])
   const [stats, setStats] = useState({
     totalBookings: 0,
     thisMonthBookings: 0,
@@ -23,6 +25,14 @@ function DashboardPage() {
       fetchDashboardData()
     }
   }, [user])
+
+  // Re-translate event types when language changes
+  useEffect(() => {
+    if (eventTypes.length > 0) {
+      const translatedData = translateDefaultEventTypes(eventTypes, t)
+      setEventTypes(translatedData)
+    }
+  }, [t])
 
   const fetchDashboardData = async () => {
     try {
@@ -44,9 +54,12 @@ function DashboardPage() {
         .from('event_types')
         .select('*')
         .eq('user_id', user?.id)
+        .order('created_at', { ascending: false })
 
       if (eventTypesData) {
-        // setEventTypes(eventTypesData) // This line is removed
+        // Translate default event types
+        const translatedEventTypes = translateDefaultEventTypes(eventTypesData, t)
+        setEventTypes(translatedEventTypes)
       }
 
       // Fetch recent bookings - first get event type IDs for this user
@@ -173,10 +186,106 @@ function DashboardPage() {
         </div>
       </div>
 
+      {/* Agendas Overview */}
+      <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
+        <div className="flex items-center justify-between mb-6">
+          <h2 className="text-lg font-medium text-gray-900 dark:text-white flex items-center">
+            <Calendar className="h-5 w-5 text-primary-600 mr-2" />
+            {t('dashboard.agendas.title')}
+          </h2>
+          <Link
+            to="/dashboard/event-types"
+            className="inline-flex items-center px-3 py-1.5 text-sm font-medium text-primary-600 dark:text-primary-400 bg-primary-50 dark:bg-primary-900/20 border border-primary-200 dark:border-primary-800 rounded-md hover:bg-primary-100 dark:hover:bg-primary-900/30 transition-colors"
+          >
+            <Plus className="w-4 h-4 mr-1.5" />
+            {t('dashboard.agendas.createNew')}
+          </Link>
+        </div>
+        
+        {eventTypes.length > 0 ? (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            {eventTypes.slice(0, 6).map((eventType) => (
+              <div key={eventType.id} className="border border-gray-200 dark:border-gray-600 rounded-lg p-4 hover:border-primary-300 hover:shadow-md transition-all">
+                <div className="flex items-start justify-between mb-3">
+                  <h3 className="text-lg font-semibold text-gray-900 dark:text-white line-clamp-2">
+                    {eventType.title}
+                  </h3>
+                  <div className="flex items-center text-sm text-gray-500 dark:text-gray-400 ml-2">
+                    <Clock className="w-4 h-4 mr-1" />
+                    {eventType.duration} {t('common.min')}
+                  </div>
+                </div>
+                
+                {eventType.description && (
+                  <p className="text-sm text-gray-600 dark:text-gray-300 mb-4 line-clamp-2">
+                    {eventType.description}
+                  </p>
+                )}
+                
+                <div className="space-y-2">
+                  <div className="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wide">
+                    {t('dashboard.agendas.availability')}
+                  </div>
+                  <div className="flex flex-wrap gap-1">
+                    {Object.entries(eventType.availability_rules || {}).map(([day, slots]) => {
+                      if (!slots || slots.length === 0) return null
+                      const dayNames = {
+                        monday: t('common.days.monday'),
+                        tuesday: t('common.days.tuesday'),
+                        wednesday: t('common.days.wednesday'),
+                        thursday: t('common.days.thursday'),
+                        friday: t('common.days.friday'),
+                        saturday: t('common.days.saturday'),
+                        sunday: t('common.days.sunday')
+                      }
+                      return (
+                        <span
+                          key={day}
+                          className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200"
+                        >
+                          {dayNames[day as keyof typeof dayNames]}
+                        </span>
+                      )
+                    })}
+                  </div>
+                </div>
+                
+                <div className="mt-4 pt-3 border-t border-gray-200 dark:border-gray-600">
+                  <Link
+                    to={`/dashboard/event-types?edit=${eventType.id}`}
+                    className="inline-flex items-center text-sm font-medium text-primary-600 dark:text-primary-400 hover:text-primary-500 dark:hover:text-primary-300"
+                  >
+                    <Settings className="w-4 h-4 mr-1.5" />
+                    {t('dashboard.agendas.manage')}
+                  </Link>
+                </div>
+              </div>
+            ))}
+          </div>
+        ) : (
+          <div className="text-center py-8">
+            <Calendar className="h-12 w-12 text-gray-400 dark:text-gray-500 mx-auto mb-4" />
+            <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2">
+              {t('dashboard.agendas.noAgendas')}
+            </h3>
+            <p className="text-gray-500 dark:text-gray-400 mb-4">
+              {t('dashboard.agendas.noAgendasDesc')}
+            </p>
+            <Link
+              to="/dashboard/event-types"
+              className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-primary-600 hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500"
+            >
+              <Plus className="w-4 h-4 mr-2" />
+              {t('dashboard.agendas.createFirst')}
+            </Link>
+          </div>
+        )}
+      </div>
+
       {/* Quick Actions */}
       <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
         <h2 className="text-lg font-medium text-gray-900 dark:text-white mb-4">{t('dashboard.quickActions.title')}</h2>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <Link
             to="/dashboard/event-types"
             className="flex items-center p-4 border border-gray-200 dark:border-gray-600 rounded-lg hover:border-primary-300 hover:bg-primary-50 dark:hover:bg-primary-900/20 transition-colors"
@@ -185,6 +294,17 @@ function DashboardPage() {
             <div>
               <h3 className="font-medium text-gray-900 dark:text-white">{t('dashboard.quickActions.createEventType')}</h3>
               <p className="text-sm text-gray-500 dark:text-gray-400">{t('dashboard.quickActions.createEventTypeDesc')}</p>
+            </div>
+          </Link>
+
+          <Link
+            to="/dashboard/unavailability"
+            className="flex items-center p-4 border border-gray-200 dark:border-gray-600 rounded-lg hover:border-primary-300 hover:bg-primary-50 dark:hover:bg-primary-900/20 transition-colors"
+          >
+            <Ban className="h-6 w-6 text-primary-600 mr-3" />
+            <div>
+              <h3 className="font-medium text-gray-900 dark:text-white">{t('dashboard.quickActions.manageUnavailability')}</h3>
+              <p className="text-sm text-gray-500 dark:text-gray-400">{t('dashboard.quickActions.manageUnavailabilityDesc')}</p>
             </div>
           </Link>
 

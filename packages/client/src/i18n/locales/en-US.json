@@ -36,7 +36,16 @@
     "domain": "pastoragenda.com",
     "share": "Share",
     "goHome": "Go Home",
-    "today": "Today"
+    "today": "Today",
+    "days": {
+      "monday": "Mon",
+      "tuesday": "Tue",
+      "wednesday": "Wed",
+      "thursday": "Thu",
+      "friday": "Fri",
+      "saturday": "Sat",
+      "sunday": "Sun"
+    }
   },
   "navigation": {
     "home": "Home",
@@ -61,6 +70,8 @@
       "title": "Quick Actions",
       "createEventType": "Create Agenda",
       "createEventTypeDesc": "Set up new appointment types",
+      "manageUnavailability": "Block Dates",
+      "manageUnavailabilityDesc": "Block dates for conferences or vacations",
       "updateProfile": "Update Profile",
       "updateProfileDesc": "Edit your public information"
     },
@@ -82,11 +93,58 @@
       "edit": "Edit Profile",
       "eventTypes": "agendas",
       "description": "This is how your community sees your public profile. Share your profile link to let people book appointments with you."
+    },
+    "agendas": {
+      "title": "Your Agendas",
+      "createNew": "Create New",
+      "availability": "Available Days",
+      "manage": "Manage",
+      "noAgendas": "No agendas yet",
+      "noAgendasDesc": "Create your first agenda to start receiving bookings from your community.",
+      "createFirst": "Create Your First Agenda"
     }
+  },
+  "unavailability": {
+    "title": "Unavailability Periods",
+    "subtitle": "Block dates when you're unavailable for appointments (conferences, vacations, etc.)",
+    "createButton": "Block Dates",
+    "createTitle": "Block Unavailable Dates",
+    "editTitle": "Edit Unavailability Period",
+    "noPeriods": "No blocked periods yet",
+    "noPeriodsDesc": "Block dates when you're unavailable for appointments to prevent bookings during conferences, vacations, or other commitments.",
+    "createFirst": "Block Your First Period",
+    "form": {
+      "title": "Title",
+      "titlePlaceholder": "e.g., Annual Conference",
+      "description": "Description",
+      "descriptionPlaceholder": "Optional description of why you're unavailable",
+      "startDate": "Start Date",
+      "endDate": "End Date",
+      "startTime": "Start Time",
+      "endTime": "End Time",
+      "allDay": "All day"
+    },
+    "status": {
+      "active": "Active",
+      "upcoming": "Upcoming"
+    },
+    "validation": {
+      "titleRequired": "Title is required",
+      "datesRequired": "Start and end dates are required",
+      "endDateAfterStart": "End date must be after start date"
+    },
+    "createSuccess": "Unavailability period created successfully",
+    "updateSuccess": "Unavailability period updated successfully",
+    "deleteSuccess": "Unavailability period deleted successfully",
+    "saveError": "Failed to save unavailability period",
+    "deleteError": "Failed to delete unavailability period",
+    "loadError": "Failed to load unavailability periods",
+    "confirmDelete": "Are you sure you want to delete this unavailability period?"
   },
   "eventTypes": {
     "title": "Agendas",
     "createButton": "Create Agenda",
+    "blockDates": "Block Dates",
     "editButton": "Edit Agenda",
     "noEventTypes": "No agendas yet",
     "noEventTypesDesc": "Create your first event type to start receiving bookings",
@@ -432,6 +490,8 @@
     "noAvailableSlots": "No available slots for this date",
     "continue": "Continue",
     "loadError": "Failed to load event information",
+    "profileNotFound": "Profile not found",
+    "eventNotFound": "Event not found",
     "calendar": {
       "legend": "Calendar Legend",
       "available": "Available",
@@ -546,5 +606,19 @@
     "friday": "Friday",
     "saturday": "Saturday",
     "sunday": "Sunday"
+  },
+  "defaultEventTypes": {
+    "pastoralCounseling": {
+      "title": "Pastoral Counseling",
+      "description": "One-on-one pastoral counseling session"
+    },
+    "prayerMeeting": {
+      "title": "Prayer Meeting",
+      "description": "Personal prayer and spiritual guidance"
+    },
+    "ministryMeeting": {
+      "title": "Ministry Meeting",
+      "description": "Ministry planning and discussion"
+    }
   }
 }

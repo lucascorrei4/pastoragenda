@@ -122,13 +122,11 @@ class CustomAuthService {
     
     // Check if we have a recent validation
     if (now - this.lastValidationTime < this.VALIDATION_CACHE_DURATION) {
-      console.log('Using cached token validation')
       return { success: true, user: this.user! }
     }
 
     // Check if there's already a validation in progress
     if (this.validationPromise) {
-      console.log('Token validation already in progress, waiting...')
       return await this.validationPromise
     }
 

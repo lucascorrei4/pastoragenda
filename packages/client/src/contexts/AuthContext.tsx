@@ -46,7 +46,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           
           // Only validate if token is older than 5 minutes
           if (validationAge > 5 * 60 * 1000) {
-            console.log('Validating token...')
             const validationResult = await customAuth.validateToken()
             
             if (validationResult.success && validationResult.user) {
@@ -64,8 +63,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
               customAuth.signOut()
             }
           } else {
-            // Use cached user data
-            console.log('Using cached user data')
             if (mounted) {
               // Only update if user data has actually changed
               if (!user || JSON.stringify(user) !== JSON.stringify(currentUser)) {

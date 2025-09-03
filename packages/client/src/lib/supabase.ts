@@ -106,6 +106,20 @@ export interface TimeSlot {
   to: string
 }
 
+export interface UnavailabilityPeriod {
+  id: string
+  user_id: string
+  title: string
+  description: string | null
+  start_date: string
+  end_date: string
+  start_time: string
+  end_time: string
+  is_all_day: boolean
+  created_at: string
+  updated_at: string
+}
+
 export interface Booking {
   id: string
   event_type_id: string

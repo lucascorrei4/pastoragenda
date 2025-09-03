@@ -32,14 +32,12 @@ function AuthPage() {
 
     // Check if user is already authenticated before sending OTP
     if (user) {
-      console.log('User is already authenticated')
       return
     }
 
     // Check for existing authentication with matching email
     const currentUser = customAuth.getCurrentUser()
     if (currentUser && currentUser.email === email) {
-      console.log('Valid session found for email')
       return
     }
 

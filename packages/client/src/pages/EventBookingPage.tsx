@@ -4,7 +4,9 @@ import { useTranslation } from 'react-i18next'
 import { supabase } from '../lib/supabase'
 import { Calendar, Clock, ArrowLeft, Check } from 'lucide-react'
 import { format, addDays, startOfWeek, addWeeks, isSameDay, parseISO } from 'date-fns'
-import type { EventType, Profile, AvailabilityRules } from '../lib/supabase'
+import type { EventType, Profile, AvailabilityRules, UnavailabilityPeriod } from '../lib/supabase'
+import { translateDefaultEventType } from '../lib/eventTypeTranslations'
+import { checkUnavailability } from '../lib/unavailabilityUtils'
 import LanguageSwitcher from '../components/LanguageSwitcher'
 
 interface AvailableTimeSlot {
@@ -29,6 +31,7 @@ function EventBookingPage() {
   const [currentWeek, setCurrentWeek] = useState(new Date())
   const [availableSlots, setAvailableSlots] = useState<AvailableTimeSlot[]>([])
   const [loadingSlots, setLoadingSlots] = useState(false)
+  const [unavailabilityPeriods, setUnavailabilityPeriods] = useState<UnavailabilityPeriod[]>([])
 
   useEffect(() => {
     if (alias && eventTypeId) {
@@ -40,7 +43,15 @@ function EventBookingPage() {
     if (selectedDate && eventType) {
       fetchAvailableSlots()
     }
-  }, [selectedDate, eventType])
+  }, [selectedDate, eventType, unavailabilityPeriods])
+
+  // Re-translate event type when language changes
+  useEffect(() => {
+    if (eventType) {
+      const translatedEventType = translateDefaultEventType(eventType, t)
+      setEventType(translatedEventType)
+    }
+  }, [t])
 
   const fetchEventData = async () => {
     try {
@@ -54,7 +65,22 @@ function EventBookingPage() {
         .eq('alias', alias)
         .single()
 
-      if (profileError) throw profileError
+      if (profileError) {
+        console.error('Profile fetch error:', profileError)
+        if (profileError.code === 'PGRST116') {
+          setError(t('booking.profileNotFound'))
+        } else {
+          throw profileError
+        }
+        return
+      }
+
+      if (!profileData) {
+        console.error('No profile data found for alias:', alias)
+        setError(t('booking.profileNotFound'))
+        return
+      }
+
       setProfile(profileData)
 
       // Fetch event type
@@ -65,8 +91,41 @@ function EventBookingPage() {
         .eq('user_id', profileData.id)
         .single()
 
-      if (eventTypeError) throw eventTypeError
-      setEventType(eventTypeData)
+      if (eventTypeError) {
+        console.error('Event type fetch error:', eventTypeError)
+        if (eventTypeError.code === 'PGRST116') {
+          setError(t('booking.eventNotFound'))
+        } else {
+          throw eventTypeError
+        }
+        return
+      }
+
+      if (!eventTypeData) {
+        console.error('No event type data found for id:', eventTypeId, 'user_id:', profileData.id)
+        setError(t('booking.eventNotFound'))
+        return
+      }
+
+      console.log('Event type found:', eventTypeData)
+      
+      // Translate the event type if it's a default one
+      const translatedEventType = translateDefaultEventType(eventTypeData, t)
+      setEventType(translatedEventType)
+
+      // Fetch unavailability periods for this user
+      const { data: unavailabilityData, error: unavailabilityError } = await supabase
+        .from('unavailability_periods')
+        .select('*')
+        .eq('user_id', profileData.id)
+        .gte('end_date', new Date().toISOString().split('T')[0]) // Only get active/future periods
+
+      if (unavailabilityError) {
+        console.error('Error fetching unavailability periods:', unavailabilityError)
+        setUnavailabilityPeriods([])
+      } else {
+        setUnavailabilityPeriods(unavailabilityData || [])
+      }
 
     } catch (error) {
       console.error('Error fetching event data:', error)
@@ -139,12 +198,15 @@ function EventBookingPage() {
               )
             }) || false
 
-            // Add all slots (both available and booked)
+            // Check if this slot is blocked by unavailability periods
+            const { isUnavailable: isBlocked } = checkUnavailability(slotDate, format(slotDate, 'HH:mm'), unavailabilityPeriods)
+
+            // Add all slots (available, booked, and blocked)
             slots.push({
               date: slotDate,
               time: format(slotDate, 'h:mm a'),
               endTime: format(slotEndDate, 'h:mm a'),
-              isBooked
+              isBooked: isBooked || isBlocked // Blocked slots are treated as booked
             })
           }
           

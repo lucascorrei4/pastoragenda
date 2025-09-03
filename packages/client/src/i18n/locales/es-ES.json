@@ -36,7 +36,16 @@
     "domain": "pastoragenda.com",
     "share": "Compartir",
     "goHome": "Ir al Inicio",
-    "today": "Hoy"
+    "today": "Hoy",
+    "days": {
+      "monday": "Lun",
+      "tuesday": "Mar",
+      "wednesday": "Mié",
+      "thursday": "Jue",
+      "friday": "Vie",
+      "saturday": "Sáb",
+      "sunday": "Dom"
+    }
   },
   "navigation": {
     "home": "Inicio",
@@ -61,6 +70,8 @@
       "title": "Acciones Rápidas",
       "createEventType": "Crear Agenda",
       "createEventTypeDesc": "Configura nuevos tipos de cita",
+      "manageUnavailability": "Bloquear Fechas",
+      "manageUnavailabilityDesc": "Bloquear fechas para conferencias o vacaciones",
       "updateProfile": "Actualizar Perfil",
       "updateProfileDesc": "Edita tu información pública"
     },
@@ -82,11 +93,58 @@
       "edit": "Editar Perfil",
       "eventTypes": "agendas",
       "description": "Así es como tu comunidad ve tu perfil público. Comparte tu enlace de perfil para que las personas puedan reservar citas contigo."
+    },
+    "agendas": {
+      "title": "Tus Agendas",
+      "createNew": "Crear Nueva",
+      "availability": "Días Disponibles",
+      "manage": "Gestionar",
+      "noAgendas": "Aún no hay agendas",
+      "noAgendasDesc": "Crea tu primera agenda para comenzar a recibir reservas de tu comunidad.",
+      "createFirst": "Crear Tu Primera Agenda"
     }
+  },
+  "unavailability": {
+    "title": "Períodos de Indisponibilidad",
+    "subtitle": "Bloquea fechas cuando no estarás disponible para citas (conferencias, vacaciones, etc.)",
+    "createButton": "Bloquear Fechas",
+    "createTitle": "Bloquear Fechas Indisponibles",
+    "editTitle": "Editar Período de Indisponibilidad",
+    "noPeriods": "Aún no hay períodos bloqueados",
+    "noPeriodsDesc": "Bloquea fechas cuando no estarás disponible para citas para evitar reservas durante conferencias, vacaciones u otros compromisos.",
+    "createFirst": "Bloquear Tu Primer Período",
+    "form": {
+      "title": "Título",
+      "titlePlaceholder": "ej., Conferencia Anual",
+      "description": "Descripción",
+      "descriptionPlaceholder": "Descripción opcional del motivo de indisponibilidad",
+      "startDate": "Fecha de Inicio",
+      "endDate": "Fecha de Fin",
+      "startTime": "Hora de Inicio",
+      "endTime": "Hora de Fin",
+      "allDay": "Todo el día"
+    },
+    "status": {
+      "active": "Activo",
+      "upcoming": "Próximo"
+    },
+    "validation": {
+      "titleRequired": "El título es requerido",
+      "datesRequired": "Las fechas de inicio y fin son requeridas",
+      "endDateAfterStart": "La fecha de fin debe ser después de la fecha de inicio"
+    },
+    "createSuccess": "Período de indisponibilidad creado exitosamente",
+    "updateSuccess": "Período de indisponibilidad actualizado exitosamente",
+    "deleteSuccess": "Período de indisponibilidad eliminado exitosamente",
+    "saveError": "Error al guardar período de indisponibilidad",
+    "deleteError": "Error al eliminar período de indisponibilidad",
+    "loadError": "Error al cargar períodos de indisponibilidad",
+    "confirmDelete": "¿Estás seguro de que quieres eliminar este período de indisponibilidad?"
   },
   "eventTypes": {
     "title": "Agendas",
     "createButton": "Crear Agenda",
+    "blockDates": "Bloquear Fechas",
     "editButton": "Editar Agenda",
     "noEventTypes": "Aún no hay agendas",
     "noEventTypesDesc": "Crea tu primer tipo de agenda para comenzar a recibir reservas",
@@ -431,6 +489,8 @@
     "noAvailableSlots": "No hay horarios disponibles para esta fecha",
     "continue": "Continuar",
     "loadError": "Error al cargar información del agenda",
+    "profileNotFound": "Perfil no encontrado",
+    "eventNotFound": "Agenda no encontrada",
     "calendar": {
       "legend": "Leyenda del Calendario",
       "available": "Disponible",
@@ -545,5 +605,19 @@
     "friday": "Viernes",
     "saturday": "Sábado",
     "sunday": "Domingo"
+  },
+  "defaultEventTypes": {
+    "pastoralCounseling": {
+      "title": "Consejería Pastoral",
+      "description": "Sesión de consejería pastoral individual"
+    },
+    "prayerMeeting": {
+      "title": "Reunión de Oración",
+      "description": "Oración personal y orientación espiritual"
+    },
+    "ministryMeeting": {
+      "title": "Reunión Ministerial",
+      "description": "Planificación y discusión ministerial"
+    }
   }
 }
