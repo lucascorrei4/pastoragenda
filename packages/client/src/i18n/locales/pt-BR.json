@@ -47,6 +47,15 @@
       "sunday": "Dom"
     }
   },
+  "welcome": {
+    "title": "Bem-vindo ao Pastor Agenda, {{name}}!",
+    "message": "Obrigado por se juntar a nós! Agora você pode começar a gerenciar seus compromissos e horários. Aqui está o que você pode fazer:",
+    "createEventTypes": "Criar tipos de eventos",
+    "manageBookings": "Gerenciar agendamentos",
+    "setAvailability": "Definir sua disponibilidade",
+    "getStarted": "Começar",
+    "dismiss": "Dispensar"
+  },
   "navigation": {
     "home": "Início",
     "dashboard": "Painel",

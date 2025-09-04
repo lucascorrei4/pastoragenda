@@ -1,8 +1,9 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Link, useLocation, useNavigate } from 'react-router-dom'
 import { useAuth } from '../contexts/AuthContext'
 import { useTheme } from '../contexts/ThemeContext'
 import { useTranslation } from 'react-i18next'
+import { notificationService } from '../lib/notification-service'
 import {
   Calendar,
   Settings,
@@ -15,6 +16,7 @@ import {
   Moon
 } from 'lucide-react'
 import LanguageSwitcher from './LanguageSwitcher'
+import packageJson from '../../package.json'
 
 interface LayoutProps {
   children: React.ReactNode
@@ -22,7 +24,8 @@ interface LayoutProps {
 
 function Layout({ children }: LayoutProps) {
   const [sidebarOpen, setSidebarOpen] = useState(false)
-  const { signOut } = useAuth()
+  const [welcomeSent, setWelcomeSent] = useState(false)
+  const { user, signOut } = useAuth()
   const { theme, toggleTheme } = useTheme()
   const { t } = useTranslation()
   const location = useLocation()
@@ -34,6 +37,27 @@ function Layout({ children }: LayoutProps) {
     { nameKey: 'navigation.bookings', href: '/dashboard/bookings', icon: Clock },
     { nameKey: 'navigation.profile', href: '/dashboard/profile', icon: Settings },
   ]
+
+  // Send welcome notification when user first logs in
+  useEffect(() => {
+    if (user && !welcomeSent) {
+      const hasSeenWelcome = localStorage.getItem('welcome_notification_sent')
+      
+      if (!hasSeenWelcome) {
+        // Send welcome notification
+        notificationService.sendWelcomeNotification({
+          title: 'Welcome to Pastor Agenda!',
+          body: 'Thank you for joining us. You can now start managing your appointments and schedule.',
+          userName: user.email || 'User',
+          userEmail: user.email || ''
+        })
+        
+        // Mark welcome as sent
+        localStorage.setItem('welcome_notification_sent', 'true')
+        setWelcomeSent(true)
+      }
+    }
+  }, [user, welcomeSent])
 
   const handleSignOut = async () => {
     await signOut()
@@ -96,6 +120,7 @@ function Layout({ children }: LayoutProps) {
               {t('navigation.signOut')}
             </button>
           </div>
+
         </div>
       </div>
 
@@ -142,6 +167,9 @@ function Layout({ children }: LayoutProps) {
               <LogOut className="mr-3 h-5 w-5" />
               {t('navigation.signOut')}
             </button>
+          </div>
+          <div className="border-t border-gray-200 dark:border-gray-700 p-4 text-center">
+            <small className="text-gray-500 dark:text-gray-400">@pastoragenda v. {packageJson.version}</small>
           </div>
         </div>
       </div>

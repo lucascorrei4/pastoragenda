@@ -7,6 +7,7 @@ import { Calendar, Clock, ArrowLeft, CheckCircle } from 'lucide-react'
 import { format } from 'date-fns'
 import type { EventType, Profile } from '../lib/supabase'
 import LanguageSwitcher from '../components/LanguageSwitcher'
+import { notificationService } from '../lib/notification-service'
 
 interface LocationState {
   date: Date
@@ -98,6 +99,38 @@ function BookingConfirmationPage() {
          .single()
 
       if (bookingError) throw bookingError
+
+      // Send notifications for appointment creation
+      try {
+        // Send notification to pastor about new appointment
+        await notificationService.sendAppointmentCreatedNotification({
+          title: 'New Appointment Booked!',
+          body: `${formData.booker_name.trim()} has booked a ${state.eventType.title} appointment`,
+          bookerName: formData.booker_name.trim(),
+          bookerEmail: formData.booker_email.trim(),
+          eventTypeName: state.eventType.title,
+          appointmentDate: format(state.date, 'MMMM dd, yyyy'),
+          appointmentTime: state.time,
+          pastorName: state.profile.full_name || 'Pastor',
+          pastorEmail: state.profile.email || ''
+        })
+
+        // Send confirmation notification to booker
+        await notificationService.sendAppointmentConfirmationNotification({
+          title: 'Appointment Confirmed!',
+          body: `Your ${state.eventType.title} appointment is confirmed`,
+          bookerName: formData.booker_name.trim(),
+          bookerEmail: formData.booker_email.trim(),
+          eventTypeName: state.eventType.title,
+          appointmentDate: format(state.date, 'MMMM dd, yyyy'),
+          appointmentTime: state.time,
+          pastorName: state.profile.full_name || 'Pastor',
+          pastorEmail: state.profile.email || ''
+        })
+      } catch (notificationError) {
+        console.error('Error sending notifications:', notificationError)
+        // Don't fail the booking if notifications fail
+      }
 
       toast.success(t('bookingConfirmation.bookingSuccess'))
       

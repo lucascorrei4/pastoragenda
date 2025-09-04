@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useEffect, useState, useRef } from 'react'
 import { customAuth, User } from '../lib/custom-auth'
+import { webViewBridge } from '../lib/webview-bridge'
 
 interface AuthContextType {
   user: User | null
@@ -54,6 +55,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
                 // Only update if user data has actually changed
                 if (!user || JSON.stringify(user) !== JSON.stringify(validationResult.user)) {
                   setUser(validationResult.user)
+                  // Notify React Native about user authentication
+                  webViewBridge.updateUserAuth(
+                    validationResult.user.id,
+                    validationResult.user.email,
+                    token
+                  )
                 }
                 setLoading(false)
               }
@@ -67,6 +74,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
               // Only update if user data has actually changed
               if (!user || JSON.stringify(user) !== JSON.stringify(currentUser)) {
                 setUser(currentUser)
+                // Notify React Native about user authentication
+                webViewBridge.updateUserAuth(
+                  currentUser.id,
+                  currentUser.email,
+                  token
+                )
               }
               setLoading(false)
             }
@@ -86,6 +99,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
                 // Only update if user data has actually changed
                 if (!user || JSON.stringify(user) !== JSON.stringify(devResult.user)) {
                   setUser(devResult.user)
+                  // Notify React Native about user authentication
+                  webViewBridge.updateUserAuth(
+                    devResult.user.id,
+                    devResult.user.email,
+                    devResult.token || null
+                  )
                 }
                 setLoading(false)
               }
@@ -97,6 +116,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         // No valid authentication found
         if (mounted) {
           setUser(null)
+          // Notify React Native about user logout
+          webViewBridge.updateUserAuth(null, null, null)
           setLoading(false)
         }
       } catch (error) {
@@ -120,6 +141,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           if (mounted && (!user || JSON.stringify(user) !== JSON.stringify(newUser))) {
             console.log('User data changed in localStorage, updating context')
             setUser(newUser)
+            // Notify React Native about user authentication
+            webViewBridge.updateUserAuth(
+              newUser.id,
+              newUser.email,
+              customAuth.getToken()
+            )
           }
         } catch (error) {
           console.error('Error parsing user data from storage event:', error)
@@ -128,6 +155,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         // User data was removed (logout)
         if (mounted) {
           setUser(null)
+          // Notify React Native about user logout
+          webViewBridge.updateUserAuth(null, null, null)
         }
       }
     }
@@ -140,6 +169,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       if (mounted && currentUser && (!user || JSON.stringify(user) !== JSON.stringify(currentUser))) {
         console.log('User data changed, updating context')
         setUser(currentUser)
+        // Notify React Native about user authentication
+        webViewBridge.updateUserAuth(
+          currentUser.id,
+          currentUser.email,
+          customAuth.getToken()
+        )
       }
     }, 1000) // Check every second
 
@@ -165,6 +200,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       // Clear local state immediately for better UX
       setUser(null)
       
+      // Notify React Native about user logout
+      webViewBridge.updateUserAuth(null, null, null)
+      
       // Clear validation cache
       localStorage.removeItem('last_token_validation')
       
@@ -175,6 +213,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       console.error('Unexpected error during sign out:', error)
       // Ensure local state is cleared even on unexpected errors
       setUser(null)
+      // Notify React Native about user logout even on error
+      webViewBridge.updateUserAuth(null, null, null)
     }
   }
 
@@ -183,6 +223,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     if (currentUser && (!user || JSON.stringify(user) !== JSON.stringify(currentUser))) {
       console.log('Refreshing user state from customAuth')
       setUser(currentUser)
+      // Notify React Native about user authentication
+      webViewBridge.updateUserAuth(
+        currentUser.id,
+        currentUser.email,
+        customAuth.getToken()
+      )
     }
   }
 

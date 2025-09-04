@@ -6,6 +6,7 @@ import { supabase } from '../lib/supabase'
 import { Calendar, Clock, Users, TrendingUp, MessageSquare, ExternalLink, Edit, Globe, Plus, Settings, Ban } from 'lucide-react'
 import type { Profile, BookingWithDetails, EventType } from '../lib/supabase'
 import { translateDefaultEventTypes } from '../lib/eventTypeTranslations'
+import WelcomeMessage from '../components/WelcomeMessage'
 
 function DashboardPage() {
   const { user } = useAuth()
@@ -137,6 +138,9 @@ function DashboardPage() {
 
   return (
     <div className="space-y-6">
+      {/* Welcome Message */}
+      <WelcomeMessage userName={profile?.full_name || user?.alias || user?.email} />
+      
       {/* Welcome Section */}
       <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
         <h1 className="text-2xl font-bold text-gray-900 dark:text-white">

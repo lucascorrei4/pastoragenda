@@ -47,6 +47,15 @@
       "sunday": "Sun"
     }
   },
+  "welcome": {
+    "title": "Welcome to Pastor Agenda, {{name}}!",
+    "message": "Thank you for joining us! You can now start managing your appointments and schedule. Here's what you can do:",
+    "createEventTypes": "Create event types",
+    "manageBookings": "Manage bookings",
+    "setAvailability": "Set your availability",
+    "getStarted": "Get Started",
+    "dismiss": "Dismiss"
+  },
   "navigation": {
     "home": "Home",
     "dashboard": "Dashboard",
