@@ -11,9 +11,6 @@ export function initializeWebViewIntegration() {
   if (webViewBridge.isRunningInReactNative()) {
     console.log('Running in React Native WebView - WebView bridge enabled');
     
-    // Set up device registration for web platform
-    setupWebDeviceRegistration();
-    
     // Set up notification handling
     setupWebNotificationHandling();
   } else {
@@ -21,39 +18,6 @@ export function initializeWebViewIntegration() {
   }
 }
 
-/**
- * Set up device registration for web platform
- */
-function setupWebDeviceRegistration() {
-  // Generate a unique device ID for web
-  const deviceId = getWebDeviceId();
-  
-  // Register device with React Native
-  webViewBridge.registerDevice({
-    token: 'web-push-token', // This would be replaced with actual web push token
-    deviceId,
-    platform: 'web',
-    appVersion: '1.0.0',
-    deviceModel: navigator.userAgent,
-    osVersion: navigator.platform,
-  });
-}
-
-/**
- * Get unique device ID for web platform
- */
-function getWebDeviceId(): string {
-  // Try to get from localStorage first
-  let deviceId = localStorage.getItem('web_device_id');
-  
-  if (!deviceId) {
-    // Generate a new device ID
-    deviceId = 'web_' + Math.random().toString(36).substr(2, 9) + '_' + Date.now();
-    localStorage.setItem('web_device_id', deviceId);
-  }
-  
-  return deviceId;
-}
 
 /**
  * Set up web notification handling

@@ -38,6 +38,7 @@ import EventBookingPage from './pages/EventBookingPage'
 import BookingConfirmationPage from './pages/BookingConfirmationPage'
 import BookingSuccessPage from './pages/BookingSuccessPage'
 import UnavailabilityPage from './pages/UnavailabilityPage'
+import SitemapPage from './pages/SitemapPage'
 
 function App() {
   return (
@@ -49,6 +50,7 @@ function App() {
             {/* Public routes */}
             <Route path="/" element={<HomePage />} />
             <Route path="/auth" element={<AuthPageWrapper />} />
+            <Route path="/sitemap.xml" element={<SitemapPage />} />
             <Route path="/:alias" element={<PublicProfilePage />} />
             <Route path="/:alias/:eventTypeId" element={<EventBookingPage />} />
             <Route path="/:alias/:eventTypeId/confirmation" element={<BookingConfirmationPage />} />
@@ -93,7 +95,7 @@ function App() {
           </Routes>
         </div>
         <Toaster position="top-right" />
-        <PWAInstallPrompt />
+        <PWAInstallPrompt showOnPublicPages={false} />
       </Router>
         </AuthProvider>
       </ThemeProvider>

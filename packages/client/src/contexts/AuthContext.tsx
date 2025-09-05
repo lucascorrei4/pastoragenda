@@ -61,6 +61,17 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
                     validationResult.user.email,
                     token
                   )
+                  // Register device for push notifications if in React Native
+                  if (webViewBridge.isRunningInReactNative()) {
+                    webViewBridge.registerDevice({
+                      token: 'web-push-token', // This should be replaced with actual push token from React Native
+                      deviceId: `web_${validationResult.user.id}_${Date.now()}`,
+                      platform: 'web',
+                      appVersion: '1.0.0',
+                      deviceModel: navigator.userAgent,
+                      osVersion: navigator.platform,
+                    })
+                  }
                 }
                 setLoading(false)
               }
@@ -80,6 +91,17 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
                   currentUser.email,
                   token
                 )
+                // Register device for push notifications if in React Native
+                if (webViewBridge.isRunningInReactNative()) {
+                  webViewBridge.registerDevice({
+                    token: 'web-push-token', // This should be replaced with actual push token from React Native
+                    deviceId: `web_${currentUser.id}_${Date.now()}`,
+                    platform: 'web',
+                    appVersion: '1.0.0',
+                    deviceModel: navigator.userAgent,
+                    osVersion: navigator.platform,
+                  })
+                }
               }
               setLoading(false)
             }
@@ -105,6 +127,17 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
                     devResult.user.email,
                     devResult.token || null
                   )
+                  // Register device for push notifications if in React Native
+                  if (webViewBridge.isRunningInReactNative()) {
+                    webViewBridge.registerDevice({
+                      token: 'web-push-token', // This should be replaced with actual push token from React Native
+                      deviceId: `web_${devResult.user.id}_${Date.now()}`,
+                      platform: 'web',
+                      appVersion: '1.0.0',
+                      deviceModel: navigator.userAgent,
+                      osVersion: navigator.platform,
+                    })
+                  }
                 }
                 setLoading(false)
               }
@@ -147,6 +180,17 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
               newUser.email,
               customAuth.getToken()
             )
+            // Register device for push notifications if in React Native
+            if (webViewBridge.isRunningInReactNative()) {
+              webViewBridge.registerDevice({
+                token: 'web-push-token', // This should be replaced with actual push token from React Native
+                deviceId: `web_${newUser.id}_${Date.now()}`,
+                platform: 'web',
+                appVersion: '1.0.0',
+                deviceModel: navigator.userAgent,
+                osVersion: navigator.platform,
+              })
+            }
           }
         } catch (error) {
           console.error('Error parsing user data from storage event:', error)
@@ -175,6 +219,17 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           currentUser.email,
           customAuth.getToken()
         )
+        // Register device for push notifications if in React Native
+        if (webViewBridge.isRunningInReactNative()) {
+          webViewBridge.registerDevice({
+            token: 'web-push-token', // This should be replaced with actual push token from React Native
+            deviceId: `web_${currentUser.id}_${Date.now()}`,
+            platform: 'web',
+            appVersion: '1.0.0',
+            deviceModel: navigator.userAgent,
+            osVersion: navigator.platform,
+          })
+        }
       }
     }, 1000) // Check every second
 
@@ -229,6 +284,17 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         currentUser.email,
         customAuth.getToken()
       )
+      // Register device for push notifications if in React Native
+      if (webViewBridge.isRunningInReactNative()) {
+        webViewBridge.registerDevice({
+          token: 'web-push-token', // This should be replaced with actual push token from React Native
+          deviceId: `web_${currentUser.id}_${Date.now()}`,
+          platform: 'web',
+          appVersion: '1.0.0',
+          deviceModel: navigator.userAgent,
+          osVersion: navigator.platform,
+        })
+      }
     }
   }
 

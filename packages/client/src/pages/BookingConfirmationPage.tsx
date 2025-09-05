@@ -8,6 +8,7 @@ import { format } from 'date-fns'
 import type { EventType, Profile } from '../lib/supabase'
 import LanguageSwitcher from '../components/LanguageSwitcher'
 import { notificationService } from '../lib/notification-service'
+import { pastorNotificationService } from '../lib/pastor-notification-service'
 
 interface LocationState {
   date: Date
@@ -102,20 +103,24 @@ function BookingConfirmationPage() {
 
       // Send notifications for appointment creation
       try {
-        // Send notification to pastor about new appointment
-        await notificationService.sendAppointmentCreatedNotification({
-          title: 'New Appointment Booked!',
-          body: `${formData.booker_name.trim()} has booked a ${state.eventType.title} appointment`,
-          bookerName: formData.booker_name.trim(),
-          bookerEmail: formData.booker_email.trim(),
-          eventTypeName: state.eventType.title,
-          appointmentDate: format(state.date, 'MMMM dd, yyyy'),
-          appointmentTime: state.time,
-          pastorName: state.profile.full_name || 'Pastor',
-          pastorEmail: state.profile.email || ''
-        })
+        // Send enhanced notification to pastor about new appointment
+        await pastorNotificationService.sendAppointmentBooked(
+          {
+            id: booking.id,
+            bookerName: formData.booker_name.trim(),
+            bookerEmail: formData.booker_email.trim(),
+            eventTypeName: state.eventType.title,
+            appointmentDate: format(state.date, 'MMMM dd, yyyy'),
+            appointmentTime: state.time,
+            duration: state.eventType.duration,
+            description: formData.booker_description.trim() || undefined,
+            status: 'confirmed'
+          },
+          state.profile.email || '',
+          state.profile.full_name || 'Pastor'
+        )
 
-        // Send confirmation notification to booker
+        // Send confirmation notification to booker (keep existing for now)
         await notificationService.sendAppointmentConfirmationNotification({
           title: 'Appointment Confirmed!',
           body: `Your ${state.eventType.title} appointment is confirmed`,

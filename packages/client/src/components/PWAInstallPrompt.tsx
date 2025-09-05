@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { useLocation } from 'react-router-dom'
 import { Download, X, Share, Plus } from 'lucide-react'
 
 interface BeforeInstallPromptEvent extends Event {
@@ -6,11 +7,27 @@ interface BeforeInstallPromptEvent extends Event {
   userChoice: Promise<{ outcome: 'accepted' | 'dismissed' }>
 }
 
-export function PWAInstallPrompt() {
+interface PWAInstallPromptProps {
+  showOnPublicPages?: boolean
+}
+
+export function PWAInstallPrompt({ showOnPublicPages = true }: PWAInstallPromptProps) {
+  const location = useLocation()
   const [deferredPrompt, setDeferredPrompt] = useState<BeforeInstallPromptEvent | null>(null)
   const [showPrompt, setShowPrompt] = useState(false)
   const [isIOS, setIsIOS] = useState(false)
   const [isStandalone, setIsStandalone] = useState(false)
+
+  // Check if we're on a public page (pastor profile, booking pages)
+  const isPublicPage = location.pathname !== '/' && 
+                      !location.pathname.startsWith('/dashboard') && 
+                      !location.pathname.startsWith('/auth') &&
+                      location.pathname !== '/sitemap.xml'
+
+  // Don't show prompt on public pages if showOnPublicPages is false
+  if (isPublicPage && !showOnPublicPages) {
+    return null
+  }
 
   useEffect(() => {
     // Check if running on iOS

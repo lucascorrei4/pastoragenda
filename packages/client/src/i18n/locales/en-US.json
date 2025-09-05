@@ -82,7 +82,9 @@
       "manageUnavailability": "Block Dates",
       "manageUnavailabilityDesc": "Block dates for conferences or vacations",
       "updateProfile": "Update Profile",
-      "updateProfileDesc": "Edit your public information"
+      "updateProfileDesc": "Edit your public information",
+      "notificationSettings": "Notification Settings",
+      "notificationSettingsDesc": "Manage your push notification preferences"
     },
     "recentBookings": {
       "title": "Recent Bookings",

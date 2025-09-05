@@ -223,12 +223,13 @@ function ProfileSettingsPage() {
                 {t('profile.avatar')}
               </label>
               <div className="flex items-center space-x-4">
-                <div className="w-20 h-20 rounded-full bg-gray-200 dark:bg-gray-600 flex items-center justify-center overflow-hidden">
+                <div className="w-20 rounded-full bg-gray-200 dark:bg-gray-600 flex items-center justify-center overflow-hidden" style={{ aspectRatio: '1/1' }}>
                   {formData.avatar_url ? (
                     <img
                       src={formData.avatar_url}
                       alt="Profile"
-                      className="w-full h-full object-cover"
+                      className="w-full h-full object-cover rounded-full"
+                      style={{ aspectRatio: '1/1' }}
                     />
                   ) : (
                     <User className="w-10 h-10 text-gray-400 dark:text-gray-500" />
@@ -350,12 +351,12 @@ function ProfileSettingsPage() {
             <div className="bg-gray-50 dark:bg-gray-700 rounded-lg p-4">
               <p className="text-sm text-gray-600 dark:text-gray-300 mb-2">{t('profile.profileAvailableAt')}</p>
               <a
-                href={`/${profile.alias}`}
+                href={`${window.location.origin}/${profile.alias}`}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="inline-flex items-center font-mono text-primary-600 dark:text-primary-400 hover:text-primary-700 dark:hover:text-primary-300 transition-colors duration-200"
               >
-                {window.location.origin}/{profile.alias}
+                /{profile.alias}
                 <ExternalLink className="w-4 h-4 ml-2" />
               </a>
               <p className="text-xs text-gray-500 dark:text-gray-400 mt-2">

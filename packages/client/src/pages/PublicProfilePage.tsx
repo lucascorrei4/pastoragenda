@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { useParams, Link } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
+import { Helmet } from 'react-helmet-async'
 import { supabase } from '../lib/supabase'
 import { QRCodeSVG } from 'qrcode.react'
 import { Calendar, Clock, User, Share2 } from 'lucide-react'
@@ -113,11 +114,20 @@ function PublicProfilePage() {
   const shareProfile = async () => {
     const url = window.location.href
     
+    if (!profile) return
+    
+    const isFemale = profile.full_name.toLowerCase().includes('pastora') || 
+                    profile.full_name.toLowerCase().includes('reverenda') ||
+                    profile.full_name.toLowerCase().includes('pastora')
+    
+    const shareTitle = `${profile.full_name}'s Agenda - Choose the best time to talk with ${isFemale ? 'her' : 'him'}`
+    const shareText = `Schedule appointments with ${profile.full_name}${profile.bio ? ` - ${profile.bio}` : ''}. Book your time with ${isFemale ? 'her' : 'him'} through our easy-to-use scheduling platform.`
+    
     if (navigator.share) {
       try {
         await navigator.share({
-          title: t('publicProfile.shareTitle', { name: profile?.full_name }),
-          text: t('publicProfile.shareText', { name: profile?.full_name }),
+          title: shareTitle,
+          text: shareText,
           url: url
         })
       } catch (error) {
@@ -126,8 +136,8 @@ function PublicProfilePage() {
     } else {
       // Fallback to copying to clipboard
       try {
-        await navigator.clipboard.writeText(url)
-        alert(t('publicProfile.linkCopied'))
+        await navigator.clipboard.writeText(`${shareTitle}\n\n${shareText}\n\n${url}`)
+        alert('Profile link copied to clipboard!')
       } catch (error) {
         console.error('Error copying to clipboard:', error)
       }
@@ -165,8 +175,105 @@ function PublicProfilePage() {
     )
   }
 
+  // Generate SEO-friendly content
+  const getPastorTitle = (name: string) => {
+    const isFemale = name.toLowerCase().includes('pastora') || 
+                    name.toLowerCase().includes('reverenda') ||
+                    name.toLowerCase().includes('pastora')
+    return isFemale ? `${name}'s Agenda - Choose the best time to talk with her` : `${name}'s Agenda - Choose the best time to talk with him`
+  }
+
+  const getPastorDescription = (profile: Profile, eventTypes: EventType[]) => {
+    const isFemale = profile.full_name.toLowerCase().includes('pastora') || 
+                    profile.full_name.toLowerCase().includes('reverenda') ||
+                    profile.full_name.toLowerCase().includes('pastora')
+    
+    const appointmentText = eventTypes.length > 1 ? 'appointments' : 'appointment'
+    const pronoun = isFemale ? 'her' : 'him'
+    
+    return `Schedule ${appointmentText} with ${profile.full_name}${profile.bio ? ` - ${profile.bio}` : ''}. Book your time with ${pronoun} through our easy-to-use scheduling platform.`
+  }
+
+  const getStructuredData = () => {
+    if (!profile) return null
+
+    const isFemale = profile.full_name.toLowerCase().includes('pastora') || 
+                    profile.full_name.toLowerCase().includes('reverenda') ||
+                    profile.full_name.toLowerCase().includes('pastora')
+
+    return {
+      "@context": "https://schema.org",
+      "@type": "Person",
+      "name": profile.full_name,
+      "jobTitle": isFemale ? "Pastora" : "Pastor",
+      "description": profile.bio || `Schedule appointments with ${profile.full_name}`,
+      "image": profile.avatar_url || `${window.location.origin}/default-pastor-avatar.svg`,
+      "url": window.location.href,
+      "sameAs": [],
+      "worksFor": {
+        "@type": "Organization",
+        "name": "PastorAgenda",
+        "url": "https://pastoragenda.com"
+      },
+      "offers": eventTypes.map(eventType => ({
+        "@type": "Offer",
+        "name": eventType.title,
+        "description": eventType.description,
+        "price": "0",
+        "priceCurrency": "USD",
+        "availability": "https://schema.org/InStock"
+      }))
+    }
+  }
+
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
+      {/* SEO Meta Tags */}
+      {profile && (
+        <Helmet>
+          <title>{getPastorTitle(profile.full_name)}</title>
+          <meta name="description" content={getPastorDescription(profile, eventTypes)} />
+          <meta name="keywords" content={`${profile.full_name}, pastor, appointment, booking, schedule, ministry, counseling, ${eventTypes.map(et => et.title).join(', ')}`} />
+          <meta name="author" content={profile.full_name} />
+          <link rel="canonical" href={window.location.href} />
+          
+          {/* Open Graph / Facebook */}
+          <meta property="og:type" content="profile" />
+          <meta property="og:url" content={window.location.href} />
+          <meta property="og:title" content={getPastorTitle(profile.full_name)} />
+          <meta property="og:description" content={getPastorDescription(profile, eventTypes)} />
+          <meta property="og:image" content={profile.avatar_url || `${window.location.origin}/default-pastor-avatar.svg`} />
+          <meta property="og:image:width" content="1200" />
+          <meta property="og:image:height" content="630" />
+          <meta property="og:image:alt" content={`${profile.full_name} - Pastor Profile`} />
+          <meta property="profile:first_name" content={profile.full_name.split(' ')[0]} />
+          <meta property="profile:last_name" content={profile.full_name.split(' ').slice(1).join(' ')} />
+          
+          {/* Twitter */}
+          <meta name="twitter:card" content="summary_large_image" />
+          <meta name="twitter:url" content={window.location.href} />
+          <meta name="twitter:title" content={getPastorTitle(profile.full_name)} />
+          <meta name="twitter:description" content={getPastorDescription(profile, eventTypes)} />
+          <meta name="twitter:image" content={profile.avatar_url || `${window.location.origin}/default-pastor-avatar.svg`} />
+          <meta name="twitter:image:alt" content={`${profile.full_name} - Pastor Profile`} />
+          
+          {/* Additional SEO */}
+          <meta name="robots" content="index, follow" />
+          <meta name="googlebot" content="index, follow" />
+          <meta name="theme-color" content="#0ea5e9" />
+          
+          {/* Performance hints */}
+          <link rel="preload" href={profile.avatar_url || "/default-pastor-avatar.svg"} as="image" />
+          <link rel="dns-prefetch" href="//fonts.googleapis.com" />
+          <link rel="dns-prefetch" href="//fonts.gstatic.com" />
+          
+          {/* Structured Data */}
+          <script type="application/ld+json">
+            {JSON.stringify(getStructuredData())}
+          </script>
+        </Helmet>
+      )}
+
       {/* Header */}
       <div className="bg-white dark:bg-gray-800 shadow-sm">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
@@ -188,27 +295,56 @@ function PublicProfilePage() {
         </div>
       </div>
 
+      {/* Breadcrumbs */}
+      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+        <nav aria-label="Breadcrumb" className="text-sm text-gray-600 dark:text-gray-400">
+          <ol className="flex items-center space-x-2">
+            <li><Link to="/" className="hover:text-primary-600">Home</Link></li>
+            <li className="flex items-center">
+              <span className="mx-2">/</span>
+              <span className="text-gray-900 dark:text-white">{profile?.full_name}</span>
+            </li>
+          </ol>
+        </nav>
+      </div>
+
       {/* Profile Section */}
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg overflow-hidden">
+        <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg overflow-hidden" itemScope itemType="https://schema.org/Person">
           {/* Profile Header */}
           <div className="bg-gradient-to-r from-primary-600 to-primary-700 px-6 py-8 text-white">
             <div className="flex items-center space-x-6">
-              <div className="w-24 h-24 rounded-full bg-white/20 flex items-center justify-center overflow-hidden">
+              <div className="w-24 h-24 rounded-full bg-white/20 flex items-center justify-center overflow-hidden" style={{ aspectRatio: '1/1' }}>
                 {profile.avatar_url ? (
                   <img 
                     src={profile.avatar_url} 
-                    alt={profile.full_name} 
-                    className="w-full h-full object-cover"
+                    alt={`${profile.full_name} - Pastor Profile Picture`}
+                    className="w-full h-full object-cover rounded-full"
+                    width="96"
+                    height="96"
+                    loading="eager"
+                    decoding="async"
+                    fetchPriority="high"
+                    style={{ aspectRatio: '1/1' }}
                   />
                 ) : (
-                  <User className="w-12 h-12 text-white/80" />
+                  <img 
+                    src="/default-pastor-avatar.svg" 
+                    alt={`${profile.full_name} - Pastor Profile Picture`}
+                    className="w-full h-full object-cover rounded-full"
+                    width="96"
+                    height="96"
+                    loading="eager"
+                    decoding="async"
+                    fetchPriority="high"
+                    style={{ aspectRatio: '1/1' }}
+                  />
                 )}
               </div>
               <div className="flex-1">
-                <h1 className="text-3xl font-bold">{profile.full_name}</h1>
+                <h1 className="text-3xl font-bold" itemProp="name">{profile.full_name}</h1>
                 {profile.bio && (
-                  <p className="text-primary-100 mt-2 text-lg">{profile.bio}</p>
+                  <p className="text-primary-100 mt-2 text-lg" itemProp="description">{profile.bio}</p>
                 )}
               </div>
               <div className="hidden md:block">
@@ -225,37 +361,38 @@ function PublicProfilePage() {
           </div>
 
           {/* Agendas */}
-          <div className="p-6">
+          <div className="p-6" itemScope itemType="https://schema.org/Person">
             <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-6">
-              {t('publicProfile.eventTypes')}
+              Available Appointments
             </h2>
 
             {eventTypes.length > 0 ? (
               <div className="grid gap-6 md:grid-cols-2">
                 {eventTypes.map((eventType) => (
-                  <div key={eventType.id} className="border border-gray-200 dark:border-gray-600 rounded-lg p-6 hover:border-primary-300 hover:shadow-md transition-all">
+                  <article key={eventType.id} className="border border-gray-200 dark:border-gray-600 rounded-lg p-6 hover:border-primary-300 hover:shadow-md transition-all" itemScope itemType="https://schema.org/Offer">
                     <div className="flex items-start justify-between mb-4">
-                      <h3 className="text-xl font-semibold text-gray-900 dark:text-white">
+                      <h3 className="text-xl font-semibold text-gray-900 dark:text-white" itemProp="name">
                         {eventType.title}
                       </h3>
                       <div className="flex items-center text-sm text-gray-500 dark:text-gray-400">
-                        <Clock className="w-4 h-4 mr-1" />
-                        {eventType.duration} {t('common.min')}
+                        <Clock className="w-4 h-4 mr-1" aria-hidden="true" />
+                        <span itemProp="duration">{eventType.duration} {t('common.min')}</span>
                       </div>
                     </div>
                     
                     {eventType.description && (
-                      <p className="text-gray-600 dark:text-gray-300 mb-4">{eventType.description}</p>
+                      <p className="text-gray-600 dark:text-gray-300 mb-4" itemProp="description">{eventType.description}</p>
                     )}
                     
                     <Link
                       to={`/${alias}/${eventType.id}`}
                       className="btn-primary w-full text-center"
+                      aria-label={`Book ${eventType.title} appointment with ${profile.full_name}`}
                     >
-                      <Calendar className="w-4 h-4 mr-2 inline" />
-                      {t('publicProfile.bookAppointment')}
+                      <Calendar className="w-4 h-4 mr-2 inline" aria-hidden="true" />
+                      Book Appointment
                     </Link>
-                  </div>
+                  </article>
                 ))}
               </div>
             ) : (

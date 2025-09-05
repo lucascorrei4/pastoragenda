@@ -70,18 +70,27 @@ serve(async (req) => {
       )
     }
 
-    // Get user from JWT token if available
+    // Get user from custom JWT token if available
     let userId: string | null = null
     let userEmail: string | null = null
 
     try {
-      const { data: { user }, error: userError } = await supabaseClient.auth.getUser()
-      if (user && !userError) {
-        userId = user.id
-        userEmail = user.email || null
+      // Try to get user from custom JWT token
+      const authHeader = req.headers.get('Authorization')
+      if (authHeader && authHeader.startsWith('Bearer ')) {
+        const token = authHeader.substring(7)
+        
+        // Decode JWT token to get user info
+        const parts = token.split('.')
+        if (parts.length === 3) {
+          const payload = JSON.parse(atob(parts[1]))
+          userId = payload.userId
+          userEmail = payload.email
+          console.log('Found user from custom JWT:', { userId, userEmail })
+        }
       }
     } catch (error) {
-      console.log('No authenticated user:', error.message)
+      console.log('No authenticated user from custom JWT:', error.message)
     }
 
     // Check if device already exists
@@ -94,15 +103,15 @@ serve(async (req) => {
 
     const now = new Date().toISOString()
     const deviceData: DeviceRecord = {
-      user_id: userId || body.userId || null,
-      user_email: userEmail || body.userEmail || null,
+      user_id: userId || body.userId || undefined,
+      user_email: userEmail || body.userEmail || undefined,
       push_token: body.token,
       token_type: body.type || 'expo',
       device_id: body.deviceId,
       platform: body.platform,
       app_version: body.appVersion || '1.0.0',
-      device_model: body.deviceModel || null,
-      os_version: body.osVersion || null,
+      device_model: body.deviceModel || undefined,
+      os_version: body.osVersion || undefined,
       is_active: true,
       last_seen: now,
     }
@@ -111,13 +120,18 @@ serve(async (req) => {
     let error
 
     if (existingDevice) {
-      // Update existing device
+      // Update existing device with user info if available
+      const updateData = {
+        ...deviceData,
+        updated_at: now,
+        // Only update user info if we have it and the device doesn't already have it
+        ...(userId && !existingDevice.user_id ? { user_id: userId } : {}),
+        ...(userEmail && !existingDevice.user_email ? { user_email: userEmail } : {})
+      }
+      
       const { data, error: updateError } = await supabaseClient
         .from('devices')
-        .update({
-          ...deviceData,
-          updated_at: now,
-        })
+        .update(updateData)
         .eq('id', existingDevice.id)
         .select()
         .single()

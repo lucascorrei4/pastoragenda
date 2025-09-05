@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PWA Icon Generator</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .icon-preview {
+            display: flex;
+            gap: 20px;
+            margin: 20px 0;
+            flex-wrap: wrap;
+        }
+        .icon-item {
+            text-align: center;
+            border: 2px solid #ddd;
+            padding: 10px;
+            border-radius: 8px;
+            background: #fafafa;
+        }
+        .icon-item img {
+            border: 1px solid #ccc;
+            background: white;
+        }
+        canvas {
+            border: 1px solid #ccc;
+            background: white;
+        }
+        button {
+            background: #0ea5e9;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 16px;
+            margin: 10px 5px;
+        }
+        button:hover {
+            background: #0284c7;
+        }
+        .instructions {
+            background: #e0f2fe;
+            padding: 15px;
+            border-radius: 6px;
+            margin: 20px 0;
+        }
+        .file-info {
+            background: #f0f9ff;
+            padding: 10px;
+            border-radius: 4px;
+            margin: 10px 0;
+            font-family: monospace;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎨 PastorAgenda PWA Icon Generator</h1>
+        
+        <div class="instructions">
+            <h3>📋 Instructions:</h3>
+            <ol>
+                <li>Upload your logo.png file below</li>
+                <li>Click "Generate PWA Icons"</li>
+                <li>Download the generated icons</li>
+                <li>Replace the existing files in your public folder</li>
+            </ol>
+        </div>
+
+        <div>
+            <label for="logoUpload">Upload Logo (logo.png):</label><br>
+            <input type="file" id="logoUpload" accept="image/*" style="margin: 10px 0;">
+        </div>
+
+        <div>
+            <button onclick="generateIcons()">🎯 Generate PWA Icons</button>
+            <button onclick="downloadAll()">💾 Download All Icons</button>
+        </div>
+
+        <div class="icon-preview" id="iconPreview">
+            <!-- Generated icons will appear here -->
+        </div>
+
+        <div class="file-info" id="fileInfo">
+            <!-- File information will appear here -->
+        </div>
+
+        <div class="instructions">
+            <h3>🔧 Expected File Sizes:</h3>
+            <ul>
+                <li><strong>pwa-192x192.png:</strong> 20-50 KB (currently: 7,655 bytes - too small!)</li>
+                <li><strong>pwa-512x512.png:</strong> 50-150 KB (currently: 13,313 bytes - too small!)</li>
+                <li><strong>apple-touch-icon.png:</strong> 20-50 KB (currently: 7,522 bytes - OK)</li>
+            </ul>
+        </div>
+    </div>
+
+    <script>
+        let generatedIcons = {};
+
+        function generateIcons() {
+            const fileInput = document.getElementById('logoUpload');
+            const file = fileInput.files[0];
+            
+            if (!file) {
+                alert('Please upload a logo file first!');
+                return;
+            }
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const img = new Image();
+                img.onload = function() {
+                    generateIconSet(img);
+                };
+                img.src = e.target.result;
+            };
+            reader.readAsDataURL(file);
+        }
+
+        function generateIconSet(sourceImg) {
+            const sizes = [
+                { name: 'pwa-192x192.png', size: 192, purpose: 'PWA Icon' },
+                { name: 'pwa-512x512.png', size: 512, purpose: 'PWA Icon' },
+                { name: 'apple-touch-icon.png', size: 180, purpose: 'iOS Icon' },
+                { name: 'favicon-32x32.png', size: 32, purpose: 'Favicon' },
+                { name: 'favicon-16x16.png', size: 16, purpose: 'Favicon' }
+            ];
+
+            const preview = document.getElementById('iconPreview');
+            const fileInfo = document.getElementById('fileInfo');
+            preview.innerHTML = '';
+            generatedIcons = {};
+
+            let fileInfoText = '<h3>📊 Generated Icons:</h3>';
+
+            sizes.forEach(({ name, size, purpose }) => {
+                const canvas = document.createElement('canvas');
+                const ctx = canvas.getContext('2d');
+                canvas.width = size;
+                canvas.height = size;
+
+                // Create a square background
+                ctx.fillStyle = '#0ea5e9'; // PastorAgenda blue
+                ctx.fillRect(0, 0, size, size);
+
+                // Add a subtle border
+                ctx.strokeStyle = '#0284c7';
+                ctx.lineWidth = Math.max(1, size / 64);
+                ctx.strokeRect(0, 0, size, size);
+
+                // Calculate logo size (80% of canvas)
+                const logoSize = size * 0.8;
+                const logoX = (size - logoSize) / 2;
+                const logoY = (size - logoSize) / 2;
+
+                // Draw the logo
+                ctx.drawImage(sourceImg, logoX, logoY, logoSize, logoSize);
+
+                // Add "PA" text as fallback
+                ctx.fillStyle = 'white';
+                ctx.font = `bold ${size * 0.3}px Arial`;
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'middle';
+                ctx.fillText('PA', size / 2, size / 2);
+
+                // Convert to blob
+                canvas.toBlob(function(blob) {
+                    const url = URL.createObjectURL(blob);
+                    generatedIcons[name] = { blob, url, size: blob.size };
+
+                    // Create preview
+                    const iconItem = document.createElement('div');
+                    iconItem.className = 'icon-item';
+                    iconItem.innerHTML = `
+                        <h4>${name}</h4>
+                        <img src="${url}" width="${Math.min(size, 100)}" height="${Math.min(size, 100)}">
+                        <p>${size}x${size}px</p>
+                        <p>${Math.round(blob.size / 1024)} KB</p>
+                        <p>${purpose}</p>
+                    `;
+                    preview.appendChild(iconItem);
+
+                    // Update file info
+                    fileInfoText += `<div><strong>${name}:</strong> ${Math.round(blob.size / 1024)} KB (${size}x${size}px)</div>`;
+                    fileInfo.innerHTML = fileInfoText;
+                }, 'image/png');
+            });
+        }
+
+        function downloadAll() {
+            if (Object.keys(generatedIcons).length === 0) {
+                alert('Please generate icons first!');
+                return;
+            }
+
+            Object.entries(generatedIcons).forEach(([filename, { blob }]) => {
+                const link = document.createElement('a');
+                link.href = URL.createObjectURL(blob);
+                link.download = filename;
+                link.click();
+            });
+
+            alert('All icons downloaded! Replace the files in your public folder.');
+        }
+    </script>
+</body>
+</html>

@@ -38,19 +38,31 @@
     <meta property="og:title" content="PastorAgenda - Schedule with Pastors" />
     <meta property="og:description" content="Schedule appointments with pastors and religious leaders through our easy-to-use booking platform" />
     <meta property="og:image" content="/pwa-512x512.png" />
+    <meta property="og:image:width" content="512" />
+    <meta property="og:image:height" content="512" />
+    <meta property="og:image:alt" content="PastorAgenda - Schedule with Pastors" />
+    <meta property="og:site_name" content="PastorAgenda" />
+    <meta property="og:locale" content="en_US" />
     
     <!-- Twitter -->
-    <meta property="twitter:card" content="summary_large_image" />
-    <meta property="twitter:url" content="https://pastoragenda.com/" />
-    <meta property="twitter:title" content="PastorAgenda - Schedule with Pastors" />
-    <meta property="twitter:description" content="Schedule appointments with pastors and religious leaders through our easy-to-use booking platform" />
-    <meta property="twitter:image" content="/pwa-512x512.png" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:url" content="https://pastoragenda.com/" />
+    <meta name="twitter:title" content="PastorAgenda - Schedule with Pastors" />
+    <meta name="twitter:description" content="Schedule appointments with pastors and religious leaders through our easy-to-use booking platform" />
+    <meta name="twitter:image" content="/pwa-512x512.png" />
+    <meta name="twitter:image:alt" content="PastorAgenda - Schedule with Pastors" />
+    <meta name="twitter:site" content="@pastoragenda" />
+    <meta name="twitter:creator" content="@pastoragenda" />
     
-    <!-- Icons -->
+    <!-- Icons - Only reference existing files -->
     <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
     <link rel="apple-touch-icon" sizes="152x152" href="/apple-touch-icon-152x152.png" />
-    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon-180x180.png" />
     <link rel="apple-touch-icon" sizes="167x167" href="/apple-touch-icon-167x167.png" />
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon-180x180.png" />
+    
+    <!-- PWA Icons -->
+    <link rel="icon" type="image/png" sizes="192x192" href="/pwa-192x192.png" />
+    <link rel="icon" type="image/png" sizes="512x512" href="/pwa-512x512.png" />
     
     <!-- Manifest -->
     <link rel="manifest" href="/manifest.json" />
@@ -58,6 +70,33 @@
     <!-- Preconnect to external domains -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    
+    <!-- Additional SEO -->
+    <link rel="canonical" href="https://pastoragenda.com/" />
+    <meta name="robots" content="index, follow" />
+    <meta name="googlebot" content="index, follow" />
+    <meta name="bingbot" content="index, follow" />
+    
+    <!-- Structured Data for Organization -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "Organization",
+      "name": "PastorAgenda",
+      "url": "https://pastoragenda.com",
+      "logo": "https://pastoragenda.com/logo.png",
+      "description": "Schedule appointments with pastors and religious leaders through our easy-to-use booking platform",
+      "sameAs": [
+        "https://twitter.com/pastoragenda",
+        "https://facebook.com/pastoragenda"
+      ],
+      "contactPoint": {
+        "@type": "ContactPoint",
+        "contactType": "customer service",
+        "email": "support@pastoragenda.com"
+      }
+    }
+    </script>
     
     <title>PastorAgenda - Schedule with Pastors</title>
   </head>

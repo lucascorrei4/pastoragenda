@@ -3,10 +3,11 @@ import { Link } from 'react-router-dom'
 import { useAuth } from '../contexts/AuthContext'
 import { useTranslation } from 'react-i18next'
 import { supabase } from '../lib/supabase'
-import { Calendar, Clock, Users, TrendingUp, MessageSquare, ExternalLink, Edit, Globe, Plus, Settings, Ban } from 'lucide-react'
+import { Calendar, Clock, Users, TrendingUp, MessageSquare, ExternalLink, Edit, Globe, Plus, Settings, Ban, Bell } from 'lucide-react'
 import type { Profile, BookingWithDetails, EventType } from '../lib/supabase'
 import { translateDefaultEventTypes } from '../lib/eventTypeTranslations'
 import WelcomeMessage from '../components/WelcomeMessage'
+import NotificationSettings from '../components/NotificationSettings'
 
 function DashboardPage() {
   const { user } = useAuth()
@@ -20,6 +21,7 @@ function DashboardPage() {
     totalEventTypes: 0
   })
   const [loading, setLoading] = useState(true)
+  const [showNotificationSettings, setShowNotificationSettings] = useState(false)
 
   useEffect(() => {
     if (user) {
@@ -289,7 +291,7 @@ function DashboardPage() {
       {/* Quick Actions */}
       <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
         <h2 className="text-lg font-medium text-gray-900 dark:text-white mb-4">{t('dashboard.quickActions.title')}</h2>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
           <Link
             to="/dashboard/event-types"
             className="flex items-center p-4 border border-gray-200 dark:border-gray-600 rounded-lg hover:border-primary-300 hover:bg-primary-50 dark:hover:bg-primary-900/20 transition-colors"
@@ -322,6 +324,17 @@ function DashboardPage() {
               <p className="text-sm text-gray-500 dark:text-gray-400">{t('dashboard.quickActions.updateProfileDesc')}</p>
             </div>
           </Link>
+
+          <button
+            onClick={() => setShowNotificationSettings(true)}
+            className="flex items-center p-4 border border-gray-200 dark:border-gray-600 rounded-lg hover:border-primary-300 hover:bg-primary-50 dark:hover:bg-primary-900/20 transition-colors text-left w-full"
+          >
+            <Bell className="h-6 w-6 text-primary-600 mr-3" />
+            <div>
+              <h3 className="font-medium text-gray-900 dark:text-white">{t('dashboard.quickActions.notificationSettings')}</h3>
+              <p className="text-sm text-gray-500 dark:text-gray-400">{t('dashboard.quickActions.notificationSettingsDesc')}</p>
+            </div>
+          </button>
         </div>
       </div>
 
@@ -334,15 +347,6 @@ function DashboardPage() {
               {t('dashboard.publicProfile.title')}
             </h2>
             <div className="flex space-x-2">
-              <a
-                href={`/${profile.alias}`}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex items-center px-3 py-1.5 text-sm font-medium text-primary-600 dark:text-primary-400 bg-primary-50 dark:bg-primary-900/20 border border-primary-200 dark:border-primary-800 rounded-md hover:bg-primary-100 dark:hover:bg-primary-900/30 transition-colors"
-              >
-                <ExternalLink className="w-4 h-4 mr-1.5" />
-                {t('dashboard.publicProfile.view')}
-              </a>
               <Link
                 to="/dashboard/profile"
                 className="inline-flex items-center px-3 py-1.5 text-sm font-medium text-gray-700 dark:text-gray-300 bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-md hover:bg-gray-100 dark:hover:bg-gray-600 transition-colors"
@@ -356,12 +360,13 @@ function DashboardPage() {
           <div className="bg-gradient-to-r from-primary-50 to-blue-50 dark:from-primary-900/10 dark:to-blue-900/10 border border-primary-200 dark:border-primary-800 rounded-lg p-4">
             <div className="flex items-start space-x-4">
               <div className="flex-shrink-0">
-                <div className="w-16 h-16 rounded-full bg-primary-100 dark:bg-primary-900/30 flex items-center justify-center overflow-hidden">
+                <div className="w-16 h-16 rounded-full bg-primary-100 dark:bg-primary-900/30 flex items-center justify-center overflow-hidden" style={{ aspectRatio: '1/1' }}>
                   {profile.avatar_url ? (
                     <img
                       src={profile.avatar_url}
                       alt="Profile"
-                      className="w-full h-full object-cover"
+                      className="w-full h-full object-cover rounded-full"
+                      style={{ aspectRatio: '1/1' }}
                     />
                   ) : (
                     <Users className="w-8 h-8 text-primary-600 dark:text-primary-400" />
@@ -388,7 +393,7 @@ function DashboardPage() {
                       rel="noopener noreferrer"
                       className="font-mono text-primary-600 dark:text-primary-400 hover:text-primary-700 dark:hover:text-primary-300 underline transition-colors"
                     >
-                      {window.location.origin}/{profile.alias}
+                      /{profile.alias}
                     </a>
                   </div>
                   <div className="flex items-center">
@@ -512,6 +517,15 @@ function DashboardPage() {
                 </Link>
               </div>
             </div>
+          </div>
+        </div>
+      )}
+
+      {/* Notification Settings Modal */}
+      {showNotificationSettings && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+          <div className="max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+            <NotificationSettings onClose={() => setShowNotificationSettings(false)} />
           </div>
         </div>
       )}
