@@ -49,9 +49,20 @@ async function createJWT(payload: Omit<JWTPayload, 'iat' | 'exp'>): Promise<stri
 }
 
 async function createSignature(data: string): Promise<string> {
+  // Convert hex string to binary data if needed
+  let keyData: Uint8Array;
+  if (JWT_SECRET.length === 128 && /^[0-9a-fA-F]+$/.test(JWT_SECRET)) {
+    // It's a hex string, convert to binary
+    const hexBytes = JWT_SECRET.match(/.{2}/g) || [];
+    keyData = new Uint8Array(hexBytes.map(byte => parseInt(byte, 16)));
+  } else {
+    // It's a regular string, encode as UTF-8
+    keyData = new TextEncoder().encode(JWT_SECRET);
+  }
+
   const key = await crypto.subtle.importKey(
     'raw',
-    new TextEncoder().encode(JWT_SECRET),
+    keyData,
     { name: 'HMAC', hash: 'SHA-256' },
     false,
     ['sign']

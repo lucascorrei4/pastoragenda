@@ -32,17 +32,30 @@ END $$;
 -- Create a backup of the auth.users table (optional - for safety)
 -- CREATE TABLE auth.users_backup AS SELECT * FROM auth.users;
 
--- Verify the migration
-SELECT 
-    p.id,
-    p.email,
-    p.email_verified,
-    p.last_login_at,
-    p.full_name,
-    p.alias
-FROM public.profiles p
-WHERE p.email IS NOT NULL
-ORDER BY p.created_at DESC;
+-- Verify the migration (only if email column exists)
+DO $$
+BEGIN
+    IF EXISTS (SELECT 1 FROM information_schema.columns 
+               WHERE table_name = 'profiles' 
+               AND column_name = 'email' 
+               AND table_schema = 'public') THEN
+        -- Verify the migration
+        PERFORM 
+            p.id,
+            p.email,
+            p.email_verified,
+            p.last_login_at,
+            p.full_name,
+            p.alias
+        FROM public.profiles p
+        WHERE p.email IS NOT NULL
+        ORDER BY p.created_at DESC;
+        
+        RAISE NOTICE 'Migration verification completed';
+    ELSE
+        RAISE NOTICE 'Email column not yet added to profiles table - verification skipped';
+    END IF;
+END $$;
 
 -- Add a comment to document the migration
-COMMENT ON TABLE public.profiles IS 'User profiles with custom authentication (migrated from auth.users on ' || NOW() || ')';
+COMMENT ON TABLE public.profiles IS 'User profiles with custom authentication (migrated from auth.users)';

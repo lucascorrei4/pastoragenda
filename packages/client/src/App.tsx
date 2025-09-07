@@ -34,11 +34,13 @@ import ProfileSettingsPage from './pages/ProfileSettingsPage'
 import EventTypesPage from './pages/EventTypesPage'
 import BookingsPage from './pages/BookingsPage'
 import PublicProfilePage from './pages/PublicProfilePage'
+import PublicAgendaPage from './pages/PublicAgendaPage'
 import EventBookingPage from './pages/EventBookingPage'
 import BookingConfirmationPage from './pages/BookingConfirmationPage'
 import BookingSuccessPage from './pages/BookingSuccessPage'
 import UnavailabilityPage from './pages/UnavailabilityPage'
 import SitemapPage from './pages/SitemapPage'
+import MasterPastorDashboard from './pages/MasterPastorDashboard'
 
 function App() {
   return (
@@ -51,6 +53,7 @@ function App() {
             <Route path="/" element={<HomePage />} />
             <Route path="/auth" element={<AuthPageWrapper />} />
             <Route path="/sitemap.xml" element={<SitemapPage />} />
+            <Route path="/agenda/:slug" element={<PublicAgendaPage />} />
             <Route path="/:alias" element={<PublicProfilePage />} />
             <Route path="/:alias/:eventTypeId" element={<EventBookingPage />} />
             <Route path="/:alias/:eventTypeId/confirmation" element={<BookingConfirmationPage />} />
@@ -89,6 +92,13 @@ function App() {
               <ProtectedRoute>
                 <Layout>
                   <UnavailabilityPage />
+                </Layout>
+              </ProtectedRoute>
+            } />
+            <Route path="/dashboard/master" element={
+              <ProtectedRoute>
+                <Layout>
+                  <MasterPastorDashboard />
                 </Layout>
               </ProtectedRoute>
             } />

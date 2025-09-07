@@ -141,3 +141,60 @@ export interface BookingWithDetails extends Booking {
     custom_questions: CustomQuestion[]
   }
 }
+
+// Pastor Sharing Interfaces
+export interface PastorSharingSettings {
+  id: string
+  pastor_id: string
+  is_public_enabled: boolean
+  public_slug: string
+  allow_booking_view: boolean
+  allow_event_types_view: boolean
+  show_pastor_name: boolean
+  show_pastor_contact: boolean
+  created_at: string
+  updated_at: string
+}
+
+export interface MasterPastorFollow {
+  id: string
+  master_pastor_id: string
+  followed_pastor_id: string
+  invitation_status: 'pending' | 'accepted' | 'declined' | 'revoked'
+  invited_by: string | null
+  invitation_token: string
+  invited_at: string
+  responded_at: string | null
+  created_at: string
+  updated_at: string
+}
+
+export interface PastorInvitation {
+  id: string
+  from_pastor_id: string
+  to_email: string
+  invitation_token: string
+  invitation_type: 'master_pastor' | 'viewer'
+  permissions: {
+    view_bookings: boolean
+    view_event_types: boolean
+    view_contact: boolean
+  }
+  expires_at: string
+  status: 'pending' | 'accepted' | 'declined' | 'expired'
+  accepted_by: string | null
+  created_at: string
+  updated_at: string
+}
+
+export interface PastorWithFollows extends Profile {
+  master_pastor_follows: MasterPastorFollow[]
+  pastor_sharing_settings: PastorSharingSettings
+}
+
+export interface FollowedPastorData {
+  profile: Profile
+  sharing_settings: PastorSharingSettings
+  bookings: BookingWithDetails[]
+  event_types: EventType[]
+}

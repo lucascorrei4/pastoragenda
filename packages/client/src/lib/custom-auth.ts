@@ -254,8 +254,8 @@ class CustomAuthService {
       last_login_at: new Date().toISOString()
     }
 
-    // Create a mock token (in real implementation, this would be a proper JWT)
-    const mockToken = 'dev-token-' + Date.now()
+    // Create a proper JWT token for development
+    const mockToken = await this.createDevJWT(mockUser)
 
     this.token = mockToken
     this.user = mockUser
@@ -270,6 +270,64 @@ class CustomAuthService {
       user: mockUser,
       isNewUser: false
     }
+  }
+
+  /**
+   * Create a development JWT token that matches the server-side format
+   */
+  private async createDevJWT(user: User): Promise<string> {
+    const JWT_SECRET = import.meta.env.VITE_JWT_SECRET || 'your-super-secret-jwt-key-change-this-in-production'
+    
+    const now = Math.floor(Date.now() / 1000)
+    const payload = {
+      userId: user.id,
+      email: user.email,
+      emailVerified: user.email_verified,
+      iat: now,
+      exp: now + (365 * 24 * 60 * 60) // 1 year expiration
+    }
+
+    const header = {
+      alg: 'HS256',
+      typ: 'JWT'
+    }
+
+    // Encode header and payload
+    const encodedHeader = btoa(JSON.stringify(header)).replace(/\+/g, '-').replace(/\//g, '_').replace(/=/g, '')
+    const encodedPayload = btoa(JSON.stringify(payload)).replace(/\+/g, '-').replace(/\//g, '_').replace(/=/g, '')
+
+    // Create signature
+    const signature = await this.createSignature(`${encodedHeader}.${encodedPayload}`, JWT_SECRET)
+    
+    return `${encodedHeader}.${encodedPayload}.${signature}`
+  }
+
+  /**
+   * Create HMAC signature for JWT
+   */
+  private async createSignature(data: string, secret: string): Promise<string> {
+    // Convert hex string to binary data if needed (same as server)
+    let keyData: Uint8Array;
+    if (secret.length === 128 && /^[0-9a-fA-F]+$/.test(secret)) {
+      // It's a hex string, convert to binary
+      const hexBytes = secret.match(/.{2}/g) || [];
+      keyData = new Uint8Array(hexBytes.map(byte => parseInt(byte, 16)));
+    } else {
+      // It's a regular string, encode as UTF-8
+      keyData = new TextEncoder().encode(secret);
+    }
+
+    const key = await crypto.subtle.importKey(
+      'raw',
+      keyData as unknown as ArrayBuffer,
+      { name: 'HMAC', hash: 'SHA-256' },
+      false,
+      ['sign']
+    )
+
+    const signature = await crypto.subtle.sign('HMAC', key, new TextEncoder().encode(data))
+    const signatureArray = new Uint8Array(signature)
+    return btoa(String.fromCharCode(...signatureArray)).replace(/\+/g, '-').replace(/\//g, '_').replace(/=/g, '')
   }
 }
 

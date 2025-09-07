@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom'
 import { useAuth } from '../contexts/AuthContext'
 import { useTranslation } from 'react-i18next'
 import { supabase } from '../lib/supabase'
-import { Calendar, Clock, Users, TrendingUp, MessageSquare, ExternalLink, Edit, Globe, Plus, Settings, Ban, Bell } from 'lucide-react'
+import { Calendar, Clock, Users, TrendingUp, MessageSquare, ExternalLink, Edit, Globe, Plus, Settings, Ban, Bell, Share2 } from 'lucide-react'
 import type { Profile, BookingWithDetails, EventType } from '../lib/supabase'
 import { translateDefaultEventTypes } from '../lib/eventTypeTranslations'
 import WelcomeMessage from '../components/WelcomeMessage'
@@ -325,6 +325,28 @@ function DashboardPage() {
             </div>
           </Link>
 
+          <Link
+            to="/dashboard/event-types?sharing=true"
+            className="flex items-center p-4 border border-gray-200 dark:border-gray-600 rounded-lg hover:border-primary-300 hover:bg-primary-50 dark:hover:bg-primary-900/20 transition-colors"
+          >
+            <Share2 className="h-6 w-6 text-primary-600 mr-3" />
+            <div>
+              <h3 className="font-medium text-gray-900 dark:text-white">{t('dashboard.quickActions.shareAgenda')}</h3>
+              <p className="text-sm text-gray-500 dark:text-gray-400">{t('dashboard.quickActions.shareAgendaDesc')}</p>
+            </div>
+          </Link>
+
+          <Link
+            to="/dashboard/master"
+            className="flex items-center p-4 border border-gray-200 dark:border-gray-600 rounded-lg hover:border-primary-300 hover:bg-primary-50 dark:hover:bg-primary-900/20 transition-colors"
+          >
+            <Users className="h-6 w-6 text-primary-600 mr-3" />
+            <div>
+              <h3 className="font-medium text-gray-900 dark:text-white">{t('dashboard.quickActions.masterDashboard')}</h3>
+              <p className="text-sm text-gray-500 dark:text-gray-400">{t('dashboard.quickActions.masterDashboardDesc')}</p>
+            </div>
+          </Link>
+
           <button
             onClick={() => setShowNotificationSettings(true)}
             className="flex items-center p-4 border border-gray-200 dark:border-gray-600 rounded-lg hover:border-primary-300 hover:bg-primary-50 dark:hover:bg-primary-900/20 transition-colors text-left w-full"
@@ -430,7 +452,16 @@ function DashboardPage() {
             {recentBookings.map((booking) => (
               <div key={booking.id} className="flex items-center justify-between p-4 border border-gray-200 dark:border-gray-600 rounded-lg">
                 <div className="flex-1">
-                  <p className="font-medium text-gray-900 dark:text-white">{booking.booker_name}</p>
+                  <div className="flex items-center justify-between mb-2">
+                    <p className="font-medium text-gray-900 dark:text-white">{booking.booker_name}</p>
+                    <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
+                      booking.status === 'confirmed' 
+                        ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200' 
+                        : 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200'
+                    }`}>
+                      {booking.status}
+                    </span>
+                  </div>
                   <p className="text-sm text-gray-500 dark:text-gray-400">{booking.booker_email}</p>
                   {booking.booker_phone && (
                     <p className="text-sm text-gray-500 dark:text-gray-400">{booking.booker_phone}</p>
@@ -468,15 +499,6 @@ function DashboardPage() {
                        </div>
                      </div>
                    )}
-                </div>
-                <div className="text-right">
-                  <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
-                    booking.status === 'confirmed' 
-                      ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200' 
-                      : 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200'
-                  }`}>
-                    {booking.status}
-                  </span>
                 </div>
               </div>
             ))}

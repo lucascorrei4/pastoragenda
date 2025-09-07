@@ -197,7 +197,7 @@ function BookingsPage() {
 
       {/* Filter Tabs */}
       <div className="border-b border-gray-200 dark:border-gray-700">
-        <nav className="-mb-px flex space-x-8">
+        <nav className="-mb-px flex flex-wrap gap-2 sm:gap-8 overflow-x-auto">
           {[
             { key: 'all', label: t('bookings.filter.all'), count: bookings.length },
             { key: 'upcoming', label: t('bookings.filter.upcoming'), count: bookings.filter(b => new Date(b.start_time) > new Date() && b.status === 'confirmed').length },
@@ -207,13 +207,13 @@ function BookingsPage() {
             <button
               key={tab.key}
               onClick={() => setFilter(tab.key as any)}
-              className={`py-2 px-1 border-b-2 font-medium text-sm ${filter === tab.key
+              className={`py-2 px-1 border-b-2 font-medium text-sm whitespace-nowrap flex items-center ${filter === tab.key
                   ? 'border-primary-500 text-primary-600 dark:text-primary-400'
                   : 'border-transparent text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 hover:border-gray-300 dark:hover:border-gray-600'
                 }`}
             >
-              {tab.label}
-              <span className="ml-2 bg-gray-100 dark:bg-gray-700 text-gray-900 dark:text-gray-100 py-0.5 px-2.5 rounded-full text-xs">
+              <span>{tab.label}</span>
+              <span className="ml-2 bg-gray-100 dark:bg-gray-700 text-gray-900 dark:text-gray-100 py-0.5 px-2.5 rounded-full text-xs flex-shrink-0">
                 {tab.count}
               </span>
             </button>

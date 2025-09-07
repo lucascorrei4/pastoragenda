@@ -211,7 +211,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     const intervalId = setInterval(() => {
       const currentUser = customAuth.getCurrentUser()
       if (mounted && currentUser && (!user || JSON.stringify(user) !== JSON.stringify(currentUser))) {
-        console.log('User data changed, updating context')
         setUser(currentUser)
         // Notify React Native about user authentication
         webViewBridge.updateUserAuth(
