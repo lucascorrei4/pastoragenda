@@ -12,7 +12,9 @@ import {
   XCircle,
   Clock,
   ExternalLink,
-  Settings
+  Settings,
+  User,
+  Phone
 } from 'lucide-react'
 import { supabase } from '../lib/supabase'
 import { useAuth } from '../contexts/AuthContext'
@@ -62,6 +64,8 @@ const MasterPastorDashboard: React.FC = () => {
   const { user } = useAuth()
   const [followedPastors, setFollowedPastors] = useState<FollowedPastor[]>([])
   const [invitations, setInvitations] = useState<PastorInvitation[]>([])
+  const [bookings, setBookings] = useState<any[]>([])
+  const [selectedPastorId, setSelectedPastorId] = useState<string>('all')
   const [loading, setLoading] = useState(true)
   const [showInviteModal, setShowInviteModal] = useState(false)
   const [inviteEmail, setInviteEmail] = useState('')
@@ -81,62 +85,99 @@ const MasterPastorDashboard: React.FC = () => {
     if (user) {
       fetchFollowedPastors()
       fetchInvitations()
+      fetchBookings()
     }
   }, [user])
 
+  useEffect(() => {
+    if (followedPastors.length > 0) {
+      fetchBookings()
+    }
+  }, [followedPastors, selectedPastorId])
+
   const fetchFollowedPastors = async () => {
     try {
-      const { data, error } = await supabase
-        .from('master_pastor_follows')
-        .select(`
-          *,
-          followed_pastor:profiles!master_pastor_follows_followed_pastor_id_fkey(
-            id,
-            alias,
-            full_name,
-            email,
-            avatar_url
-          )
-        `)
-        .eq('master_pastor_id', user?.id)
-        .order('created_at', { ascending: false })
+      console.log('=== FETCHING FOLLOWED PASTORS ===')
+      console.log('User ID:', user?.id)
+      
+      // Use the service role through an Edge Function to bypass RLS
+      const token = getAuthToken()
+      const API_BASE_URL = import.meta.env.VITE_SUPABASE_URL?.replace('/rest/v1', '') || ''
 
-      if (error) throw error
+      const response = await fetch(`${API_BASE_URL}/functions/v1/pastor-invitations/followed-pastors`, {
+        method: 'GET',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
+      })
 
-      // Fetch sharing settings for each followed pastor
-      const pastorsWithSettings = await Promise.all(
-        (data || []).map(async (follow) => {
-          const { data: settings } = await supabase
-            .from('pastor_sharing_settings')
-            .select('*')
-            .eq('pastor_id', follow.followed_pastor_id)
-            .single()
+      console.log('Followed pastors response status:', response.status)
 
-          return {
-            ...follow,
-            sharing_settings: settings
-          }
-        })
-      )
+      if (!response.ok) {
+        const errorData = await response.json()
+        console.error('Error fetching followed pastors:', errorData)
+        throw new Error(errorData.error || 'Failed to fetch followed pastors')
+      }
 
-      setFollowedPastors(pastorsWithSettings)
+      const { data } = await response.json()
+      console.log('Followed pastors data:', data)
+      setFollowedPastors(data || [])
     } catch (error) {
       console.error('Error fetching followed pastors:', error)
-      toast.error(t('masterDashboard.loadError'))
+      // Fallback to empty array if there's an error
+      setFollowedPastors([])
+    }
+  }
+
+  const fetchBookings = async () => {
+    try {
+      console.log('=== FETCHING BOOKINGS ===')
+      console.log('Selected pastor ID:', selectedPastorId)
+      
+      const token = getAuthToken()
+      const API_BASE_URL = import.meta.env.VITE_SUPABASE_URL?.replace('/rest/v1', '') || ''
+
+      const response = await fetch(`${API_BASE_URL}/functions/v1/pastor-invitations/bookings`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          pastor_id: selectedPastorId === 'all' ? null : selectedPastorId
+        })
+      })
+
+      console.log('Bookings response status:', response.status)
+
+      if (!response.ok) {
+        const errorData = await response.json()
+        console.error('Error fetching bookings:', errorData)
+        throw new Error(errorData.error || 'Failed to fetch bookings')
+      }
+
+      const { data } = await response.json()
+      console.log('Bookings data:', data)
+      setBookings(data || [])
+    } catch (error) {
+      console.error('Error fetching bookings:', error)
+      setBookings([])
     }
   }
 
   const fetchInvitations = async () => {
     try {
+      console.log('=== FETCHING INVITATIONS ===')
       const token = getAuthToken()
 
-    console.log('=== DEBUG TOKEN INFO ===')
-    console.log('Token length:', token.length)
-    console.log('Token starts with:', token.substring(0, 50) + '...')
-    console.log('Token parts count:', token.split('.').length)
-    console.log('Is JWT format?', token.split('.').length === 3)
-    console.log('VITE_JWT_SECRET length:', import.meta.env.VITE_JWT_SECRET?.length)
-    console.log('========================')
+      console.log('=== DEBUG TOKEN INFO ===')
+      console.log('Token length:', token.length)
+      console.log('Token starts with:', token.substring(0, 50) + '...')
+      console.log('Token parts count:', token.split('.').length)
+      console.log('Is JWT format?', token.split('.').length === 3)
+      console.log('VITE_JWT_SECRET length:', import.meta.env.VITE_JWT_SECRET?.length)
+      console.log('========================')
       console.log('Frontend token length:', token.length)
       console.log('Frontend token starts with:', token.substring(0, 20) + '...')
 
@@ -161,6 +202,7 @@ const MasterPastorDashboard: React.FC = () => {
       }
 
       const { data } = await response.json()
+      console.log('Received invitations data:', data)
       setInvitations(data || [])
     } catch (error) {
       console.error('Error fetching invitations:', error)
@@ -172,8 +214,15 @@ const MasterPastorDashboard: React.FC = () => {
 
   const handleAcceptInvitation = async (invitationId: string, _fromPastorId: string) => {
     try {
+      console.log('=== ACCEPTING INVITATION ===')
+      console.log('Invitation ID:', invitationId)
+      console.log('From Pastor ID:', _fromPastorId)
+      
       const token = getAuthToken()
       const API_BASE_URL = import.meta.env.VITE_SUPABASE_URL?.replace('/rest/v1', '') || ''
+      
+      console.log('API Base URL:', API_BASE_URL)
+      console.log('Token length:', token.length)
 
       const response = await fetch(`${API_BASE_URL}/functions/v1/pastor-invitations/respond`, {
         method: 'POST',
@@ -187,14 +236,32 @@ const MasterPastorDashboard: React.FC = () => {
         })
       })
 
+      console.log('Response status:', response.status)
+      console.log('Response ok:', response.ok)
+
       if (!response.ok) {
         const errorData = await response.json()
+        console.error('Error response:', errorData)
         throw new Error(errorData.error || 'Failed to accept invitation')
       }
 
-      toast.success(t('masterDashboard.invitationAccepted'))
-      fetchFollowedPastors()
-      fetchInvitations()
+      const responseData = await response.json()
+      console.log('Success response:', responseData)
+
+      // Show success message with more details
+      const pastorName = responseData.data?.from_pastor?.full_name || responseData.data?.from_pastor?.alias || 'Pastor'
+      toast.success(`${t('masterDashboard.invitationAccepted')} - ${pastorName}`)
+      
+      console.log('Refreshing data...')
+      
+      // Refresh both data sources
+      console.log('Calling fetchFollowedPastors...')
+      await fetchFollowedPastors()
+      
+      console.log('Calling fetchInvitations...')
+      await fetchInvitations()
+      
+      console.log('Data refreshed successfully')
     } catch (error) {
       console.error('Error accepting invitation:', error)
       toast.error(t('masterDashboard.acceptError'))
@@ -224,7 +291,7 @@ const MasterPastorDashboard: React.FC = () => {
       }
 
       toast.success(t('masterDashboard.invitationDeclined'))
-      fetchInvitations()
+      await fetchInvitations()
     } catch (error) {
       console.error('Error declining invitation:', error)
       toast.error(t('masterDashboard.declineError'))
@@ -325,19 +392,19 @@ const MasterPastorDashboard: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-6 lg:py-8">
         {/* Header */}
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">
+        <div className="mb-6 sm:mb-8">
+          <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white mb-2">
             {t('masterDashboard.title')}
           </h1>
-          <p className="text-gray-600 dark:text-gray-400">
+          <p className="text-sm sm:text-base text-gray-600 dark:text-gray-400">
             {t('masterDashboard.subtitle')}
           </p>
         </div>
 
         {/* Stats Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 mb-6 sm:mb-8">
           <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-6 border border-gray-200 dark:border-gray-700">
             <div className="flex items-center">
               <Users className="w-8 h-8 text-blue-600" />
@@ -360,7 +427,7 @@ const MasterPastorDashboard: React.FC = () => {
                   {t('masterDashboard.pendingInvitations')}
                 </p>
                 <p className="text-2xl font-bold text-gray-900 dark:text-white">
-                  {invitations.filter(i => i.status === 'pending').length}
+                  {invitations.length}
                 </p>
               </div>
             </div>
@@ -385,14 +452,14 @@ const MasterPastorDashboard: React.FC = () => {
         </div>
 
         {/* Followed Pastors */}
-        <div className="bg-white dark:bg-gray-800 rounded-lg shadow mb-8 border border-gray-200 dark:border-gray-700">
-          <div className="px-6 py-4 border-b border-gray-200 dark:border-gray-700 flex justify-between items-center">
+        <div className="bg-white dark:bg-gray-800 rounded-lg shadow mb-6 sm:mb-8 border border-gray-200 dark:border-gray-700">
+          <div className="px-4 sm:px-6 py-4 border-b border-gray-200 dark:border-gray-700 flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">
             <h2 className="text-lg font-semibold text-gray-900 dark:text-white">
               {t('masterDashboard.followedPastors')}
             </h2>
             <button
               onClick={() => setShowInviteModal(true)}
-              className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700"
+              className="inline-flex items-center justify-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors duration-200"
             >
               <Plus className="w-4 h-4 mr-2" />
               {t('masterDashboard.invitePastor')}
@@ -401,63 +468,81 @@ const MasterPastorDashboard: React.FC = () => {
 
           <div className="divide-y divide-gray-200 dark:divide-gray-700">
             {followedPastors.length === 0 ? (
-              <div className="px-6 py-12 text-center">
+              <div className="px-4 sm:px-6 py-8 sm:py-12 text-center">
                 <Users className="w-12 h-12 text-gray-400 dark:text-gray-500 mx-auto mb-4" />
-                <p className="text-gray-500 dark:text-gray-400">{t('masterDashboard.noFollowedPastors')}</p>
+                <p className="text-sm sm:text-base text-gray-500 dark:text-gray-400">{t('masterDashboard.noFollowedPastors')}</p>
               </div>
             ) : (
               followedPastors.map((pastor) => (
-                <div key={pastor.id} className="px-6 py-4">
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center space-x-4">
-                      <div className="w-10 h-10 bg-gray-200 dark:bg-gray-600 rounded-full flex items-center justify-center">
-                        {pastor.followed_pastor.avatar_url ? (
-                          <img
-                            src={pastor.followed_pastor.avatar_url}
-                            alt={pastor.followed_pastor.alias}
-                            className="w-10 h-10 rounded-full"
-                          />
-                        ) : (
-                          <span className="text-gray-600 dark:text-gray-300 font-medium">
-                            {pastor.followed_pastor.alias?.charAt(0).toUpperCase()}
-                          </span>
-                        )}
+                <div key={pastor.id} className="p-4 sm:p-6">
+                  <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                    <div className="flex items-start space-x-3">
+                      <div className="flex-shrink-0">
+                        <div className="w-12 h-12 bg-blue-100 dark:bg-blue-900/30 rounded-full flex items-center justify-center">
+                          {pastor.followed_pastor.avatar_url ? (
+                            <img
+                              src={pastor.followed_pastor.avatar_url}
+                              alt={pastor.followed_pastor.alias}
+                              className="w-12 h-12 rounded-full object-cover"
+                            />
+                          ) : (
+                            <span className="text-blue-600 dark:text-blue-400 font-medium text-lg">
+                              {(pastor.followed_pastor.full_name || pastor.followed_pastor.alias || 'U').charAt(0).toUpperCase()}
+                            </span>
+                          )}
+                        </div>
                       </div>
-                      <div>
-                        <h3 className="text-sm font-medium text-gray-900 dark:text-white">
+                      
+                      <div className="flex-1 min-w-0">
+                        <h3 className="text-sm font-semibold text-gray-900 dark:text-white truncate">
                           {pastor.followed_pastor.full_name || pastor.followed_pastor.alias}
                         </h3>
-                        <p className="text-sm text-gray-500 dark:text-gray-400">
-                          {pastor.followed_pastor.email}
-                        </p>
-                        <div className="flex items-center mt-1">
-                          {getStatusIcon(pastor.invitation_status)}
-                          <span className="ml-1 text-xs text-gray-500 dark:text-gray-400">
-                            {getStatusText(pastor.invitation_status)}
-                          </span>
+                        
+                        <div className="mt-1 space-y-1">
+                          <div className="flex items-center text-xs text-gray-500 dark:text-gray-400">
+                            <Mail className="w-3 h-3 mr-1.5 flex-shrink-0" />
+                            <span className="truncate">{pastor.followed_pastor.email}</span>
+                          </div>
+                          
+                          <div className="flex items-center text-xs text-gray-500 dark:text-gray-400">
+                            {getStatusIcon(pastor.invitation_status)}
+                            <span className="ml-1">{getStatusText(pastor.invitation_status)}</span>
+                          </div>
+                          
+                          {pastor.invitation_status === 'accepted' && (
+                            <div className="flex items-center text-xs text-green-600 dark:text-green-400">
+                              <CheckCircle className="w-3 h-3 mr-1.5 flex-shrink-0" />
+                              <span>Agenda Acessível</span>
+                            </div>
+                          )}
                         </div>
                       </div>
                     </div>
 
-                    <div className="flex items-center space-x-2">
-                      {pastor.sharing_settings?.is_public_enabled && (
+                    <div className="flex flex-col sm:flex-row gap-2">
+                      {pastor.invitation_status === 'accepted' ? (
                         <a
-                          href={`/agenda/${pastor.sharing_settings.public_slug}`}
+                          href={`/agenda/${pastor.sharing_settings?.public_slug || pastor.followed_pastor.alias}`}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="inline-flex items-center px-3 py-1 border border-gray-300 dark:border-gray-600 text-xs font-medium rounded text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600"
+                          className="inline-flex items-center justify-center px-3 py-2 border border-blue-300 dark:border-blue-600 text-sm font-medium rounded-md text-blue-700 dark:text-blue-400 bg-blue-50 dark:bg-blue-900/20 hover:bg-blue-100 dark:hover:bg-blue-900/30 transition-colors duration-200"
                         >
-                          <ExternalLink className="w-3 h-3 mr-1" />
+                          <ExternalLink className="w-4 h-4 mr-2" />
                           {t('masterDashboard.viewAgenda')}
                         </a>
+                      ) : (
+                        <span className="inline-flex items-center justify-center px-3 py-2 text-sm font-medium text-gray-500 dark:text-gray-400 bg-gray-100 dark:bg-gray-700 rounded-md">
+                          <Clock className="w-4 h-4 mr-2" />
+                          {t('masterDashboard.invitationPending')}
+                        </span>
                       )}
                       
                       {pastor.invitation_status === 'accepted' && (
                         <button
                           onClick={() => handleUnfollowPastor(pastor.id)}
-                          className="inline-flex items-center px-3 py-1 border border-red-300 dark:border-red-600 text-xs font-medium rounded text-red-700 dark:text-red-400 bg-white dark:bg-gray-700 hover:bg-red-50 dark:hover:bg-red-900/20"
+                          className="inline-flex items-center justify-center px-3 py-2 border border-red-300 dark:border-red-600 text-sm font-medium rounded-md text-red-700 dark:text-red-400 bg-red-50 dark:bg-red-900/20 hover:bg-red-100 dark:hover:bg-red-900/30 transition-colors duration-200"
                         >
-                          <Trash2 className="w-3 h-3 mr-1" />
+                          <Trash2 className="w-4 h-4 mr-2" />
                           {t('masterDashboard.unfollow')}
                         </button>
                       )}
@@ -472,49 +557,254 @@ const MasterPastorDashboard: React.FC = () => {
         {/* Pending Invitations */}
         {invitations.length > 0 && (
           <div className="bg-white dark:bg-gray-800 rounded-lg shadow border border-gray-200 dark:border-gray-700">
-            <div className="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
+            <div className="px-4 sm:px-6 py-4 border-b border-gray-200 dark:border-gray-700">
               <h2 className="text-lg font-semibold text-gray-900 dark:text-white">
                 {t('masterDashboard.pendingInvitations')}
               </h2>
             </div>
 
             <div className="divide-y divide-gray-200 dark:divide-gray-700">
-              {invitations.map((invitation) => (
-                <div key={invitation.id} className="px-6 py-4">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <h3 className="text-sm font-medium text-gray-900 dark:text-white">
-                        {t('masterDashboard.invitationFrom', { 
-                          name: invitation.from_pastor?.full_name || invitation.from_pastor?.alias || 'Unknown Pastor'
-                        })}
-                      </h3>
-                      <p className="text-sm text-gray-500 dark:text-gray-400">
-                        {invitation.to_email}
-                      </p>
-                      <p className="text-xs text-gray-400 dark:text-gray-500 mt-1">
-                        {new Date(invitation.created_at).toLocaleDateString()}
-                      </p>
+              {invitations.map((invitation) => {
+                console.log('Rendering invitation:', invitation)
+                console.log('From pastor data:', invitation.from_pastor)
+                console.log('From pastor name:', invitation.from_pastor?.full_name)
+                console.log('From pastor alias:', invitation.from_pastor?.alias)
+                return (
+                <div key={invitation.id} className="p-4 sm:p-6">
+                  <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                    {/* Invitation Details */}
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-start space-x-3">
+                        {/* Avatar */}
+                        <div className="flex-shrink-0">
+                          <div className="w-10 h-10 bg-blue-100 dark:bg-blue-900/30 rounded-full flex items-center justify-center">
+                            {invitation.from_pastor?.avatar_url ? (
+                              <img
+                                src={invitation.from_pastor.avatar_url}
+                                alt={invitation.from_pastor.full_name || invitation.from_pastor.alias}
+                                className="w-10 h-10 rounded-full object-cover"
+                              />
+                            ) : (
+                              <span className="text-blue-600 dark:text-blue-400 font-medium text-sm">
+                                {(invitation.from_pastor?.full_name || invitation.from_pastor?.alias || 'U').charAt(0).toUpperCase()}
+                              </span>
+                            )}
+                          </div>
+                        </div>
+                        
+                        {/* Content */}
+                        <div className="flex-1 min-w-0">
+                          <h3 className="text-sm font-semibold text-gray-900 dark:text-white truncate">
+                            {t('masterDashboard.invitationFrom').replace('{name}', invitation.from_pastor?.full_name || invitation.from_pastor?.alias || 'Unknown Pastor')}
+                          </h3>
+                          
+                          <div className="mt-1 space-y-1">
+                            <div className="flex items-center text-xs text-gray-500 dark:text-gray-400">
+                              <Mail className="w-3 h-3 mr-1.5 flex-shrink-0" />
+                              <span className="truncate">{invitation.from_pastor?.email || 'Unknown email'}</span>
+                            </div>
+                            
+                            <div className="flex items-center text-xs text-gray-500 dark:text-gray-400">
+                              <User className="w-3 h-3 mr-1.5 flex-shrink-0" />
+                              <span className="truncate">{invitation.to_email}</span>
+                            </div>
+                            
+                            <div className="flex items-center text-xs text-gray-400 dark:text-gray-500">
+                              <Calendar className="w-3 h-3 mr-1.5 flex-shrink-0" />
+                              <span>{new Date(invitation.created_at).toLocaleDateString()}</span>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
                     </div>
 
-                    <div className="flex items-center space-x-2">
+                    {/* Action Buttons */}
+                    <div className="flex flex-col sm:flex-row gap-2 sm:gap-3">
                       <button
                         onClick={() => handleAcceptInvitation(invitation.id, invitation.from_pastor_id)}
-                        className="inline-flex items-center px-3 py-1 border border-transparent text-xs font-medium rounded text-white bg-green-600 hover:bg-green-700"
+                        className="inline-flex items-center justify-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition-colors duration-200"
                       >
-                        <CheckCircle className="w-3 h-3 mr-1" />
+                        <CheckCircle className="w-4 h-4 mr-2" />
                         {t('masterDashboard.accept')}
                       </button>
                       <button
                         onClick={() => handleDeclineInvitation(invitation.id)}
-                        className="inline-flex items-center px-3 py-1 border border-gray-300 dark:border-gray-600 text-xs font-medium rounded text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600"
+                        className="inline-flex items-center justify-center px-4 py-2 border border-gray-300 dark:border-gray-600 text-sm font-medium rounded-md text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500 transition-colors duration-200"
                       >
-                        <XCircle className="w-3 h-3 mr-1" />
+                        <XCircle className="w-4 h-4 mr-2" />
                         {t('masterDashboard.decline')}
                       </button>
                     </div>
                   </div>
                 </div>
-              ))}
+                )
+              })}
+            </div>
+          </div>
+        )}
+
+        {/* Bookings Section */}
+        {followedPastors.length > 0 && (
+          <div className="bg-white dark:bg-gray-800 rounded-lg shadow border border-gray-200 dark:border-gray-700">
+            <div className="px-4 sm:px-6 py-4 border-b border-gray-200 dark:border-gray-700">
+              <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">
+                <h2 className="text-lg font-semibold text-gray-900 dark:text-white">
+                  {t('masterDashboard.allBookings')}
+                </h2>
+                
+                {/* Pastor Filter */}
+                <div className="flex items-center space-x-2">
+                  <label className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                    {t('masterDashboard.filterByPastor')}:
+                  </label>
+                  <select
+                    value={selectedPastorId}
+                    onChange={(e) => setSelectedPastorId(e.target.value)}
+                    className="px-3 py-1 border border-gray-300 dark:border-gray-600 rounded-md text-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  >
+                    <option value="all">{t('masterDashboard.allPastors')}</option>
+                    {followedPastors.map((pastor) => (
+                      <option key={pastor.followed_pastor.id} value={pastor.followed_pastor.id}>
+                        {pastor.followed_pastor.full_name || pastor.followed_pastor.alias}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              </div>
+            </div>
+
+            <div className="divide-y divide-gray-200 dark:divide-gray-700">
+              {bookings.length === 0 ? (
+                <div className="px-4 sm:px-6 py-8 sm:py-12 text-center">
+                  <Calendar className="w-12 h-12 text-gray-400 dark:text-gray-500 mx-auto mb-4" />
+                  <p className="text-sm sm:text-base text-gray-500 dark:text-gray-400">
+                    {selectedPastorId === 'all' 
+                      ? t('masterDashboard.noBookings')
+                      : t('masterDashboard.noBookingsForPastor')
+                    }
+                  </p>
+                </div>
+              ) : (
+                bookings.map((booking) => (
+                  <div key={booking.id} className="p-4 sm:p-6">
+                    <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
+                      {/* Booking Details */}
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-start space-x-3">
+                          {/* Status Badge */}
+                          <div className="flex-shrink-0">
+                            <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${
+                              booking.status === 'confirmed' 
+                                ? 'bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-400'
+                                : 'bg-red-100 text-red-800 dark:bg-red-900/20 dark:text-red-400'
+                            }`}>
+                              {booking.status === 'confirmed' ? (
+                                <>
+                                  <CheckCircle className="w-3 h-3 mr-1" />
+                                  {t('masterDashboard.confirmed')}
+                                </>
+                              ) : (
+                                <>
+                                  <XCircle className="w-3 h-3 mr-1" />
+                                  {t('masterDashboard.cancelled')}
+                                </>
+                              )}
+                            </span>
+                          </div>
+                          
+                          {/* Booking Info */}
+                          <div className="flex-1 min-w-0">
+                            <h3 className="text-sm font-semibold text-gray-900 dark:text-white truncate">
+                              {booking.event_type?.title || t('masterDashboard.appointment')}
+                            </h3>
+                            
+                            <div className="mt-2 space-y-1">
+                              <div className="flex items-center text-xs text-gray-500 dark:text-gray-400">
+                                <Calendar className="w-3 h-3 mr-1.5 flex-shrink-0" />
+                                <span>{new Date(booking.start_time).toLocaleDateString('en-US', { 
+                                  weekday: 'long', 
+                                  year: 'numeric', 
+                                  month: 'long', 
+                                  day: 'numeric' 
+                                })}</span>
+                              </div>
+                              
+                              <div className="flex items-center text-xs text-gray-500 dark:text-gray-400">
+                                <Clock className="w-3 h-3 mr-1.5 flex-shrink-0" />
+                                <span>
+                                  {new Date(booking.start_time).toLocaleTimeString('en-US', { 
+                                    hour: 'numeric', 
+                                    minute: '2-digit',
+                                    hour12: true 
+                                  })} - {new Date(booking.end_time).toLocaleTimeString('en-US', { 
+                                    hour: 'numeric', 
+                                    minute: '2-digit',
+                                    hour12: true 
+                                  })} ({Math.round((new Date(booking.end_time).getTime() - new Date(booking.start_time).getTime()) / (1000 * 60))} {t('common.min')})
+                                </span>
+                              </div>
+                              
+                              <div className="flex items-center text-xs text-gray-500 dark:text-gray-400">
+                                <User className="w-3 h-3 mr-1.5 flex-shrink-0" />
+                                <span className="truncate">{booking.booker_name}</span>
+                              </div>
+                              
+                              <div className="flex items-center text-xs text-gray-500 dark:text-gray-400">
+                                <Mail className="w-3 h-3 mr-1.5 flex-shrink-0" />
+                                <span className="truncate">{booking.booker_email}</span>
+                              </div>
+                              
+                              {booking.booker_phone && (
+                                <div className="flex items-center text-xs text-gray-500 dark:text-gray-400">
+                                  <Phone className="w-3 h-3 mr-1.5 flex-shrink-0" />
+                                  <span>{booking.booker_phone}</span>
+                                </div>
+                              )}
+                              
+                              {/* Pastor Name */}
+                              <div className="flex items-center text-xs text-blue-600 dark:text-blue-400">
+                                <Users className="w-3 h-3 mr-1.5 flex-shrink-0" />
+                                <span className="font-medium">{booking.pastor_name}</span>
+                              </div>
+                            </div>
+                            
+                            {/* Description */}
+                            {booking.booker_description && (
+                              <div className="mt-3 p-3 bg-gray-50 dark:bg-gray-700 rounded-lg">
+                                <div className="flex items-start">
+                                  <div className="flex-shrink-0">
+                                    <div className="w-6 h-6 bg-gray-200 dark:bg-gray-600 rounded-full flex items-center justify-center">
+                                      <span className="text-xs text-gray-600 dark:text-gray-300">💬</span>
+                                    </div>
+                                  </div>
+                                  <div className="ml-3">
+                                    <h4 className="text-xs font-medium text-gray-900 dark:text-white mb-1">
+                                      {t('masterDashboard.description')}
+                                    </h4>
+                                    <p className="text-xs text-gray-600 dark:text-gray-300">
+                                      {booking.booker_description}
+                                    </p>
+                                  </div>
+                                </div>
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                    
+                    {/* Booking Date */}
+                    <div className="mt-3 text-xs text-gray-400 dark:text-gray-500">
+                      {t('masterDashboard.bookedOn')} {new Date(booking.created_at).toLocaleDateString('en-US', { 
+                        weekday: 'long', 
+                        year: 'numeric', 
+                        month: 'long', 
+                        day: 'numeric' 
+                      })}
+                    </div>
+                  </div>
+                ))
+              )}
             </div>
           </div>
         )}

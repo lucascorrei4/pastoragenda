@@ -318,12 +318,58 @@ serve(async (req) => {
     const path = url.pathname.split('/').pop();
 
     // GET requests
+    if (req.method === 'GET' && path === 'followed-pastors') {
+      // Fetch followed pastors for the master pastor
+      const { data: follows, error: followsError } = await supabase
+        .from('master_pastor_follows')
+        .select(`
+          *,
+          followed_pastor:profiles!master_pastor_follows_followed_pastor_id_fkey(
+            id,
+            alias,
+            full_name,
+            email,
+            avatar_url
+          )
+        `)
+        .eq('master_pastor_id', user.id)
+        .order('created_at', { ascending: false });
+
+      if (followsError) {
+        console.error('Error fetching followed pastors:', followsError);
+        throw followsError;
+      }
+
+      console.log('Raw follows data:', JSON.stringify(follows, null, 2));
+
+      // Fetch sharing settings for each followed pastor
+      const followsWithSettings = await Promise.all(
+        (follows || []).map(async (follow) => {
+          const { data: settings } = await supabase
+            .from('pastor_sharing_settings')
+            .select('*')
+            .eq('pastor_id', follow.followed_pastor_id)
+            .single();
+
+          return {
+            ...follow,
+            sharing_settings: settings
+          };
+        })
+      );
+
+      console.log('Follows with settings:', JSON.stringify(followsWithSettings, null, 2));
+      
+      return new Response(JSON.stringify({ data: followsWithSettings }), { headers: corsHeaders });
+    }
+
     if (req.method === 'GET' && path === 'received') {
-      // First, let's try a simpler query to debug
+      // Fetch only pending invitations
       const { data: invitations, error: invitationsError } = await supabase
         .from('pastor_invitations')
         .select('*')
         .eq('to_email', user.email)
+        .eq('status', 'pending')
         .order('created_at', { ascending: false });
 
       if (invitationsError) {
@@ -338,7 +384,7 @@ serve(async (req) => {
         invitations.map(async (invitation) => {
           const { data: pastor, error: pastorError } = await supabase
             .from('profiles')
-            .select('id, alias, full_name')
+            .select('id, alias, full_name, email')
             .eq('id', invitation.from_pastor_id)
             .single();
 
@@ -378,6 +424,89 @@ serve(async (req) => {
     // POST requests
     if (req.method === 'POST') {
       const body = await req.json();
+
+      if (path === 'bookings') {
+        console.log('=== FETCHING BOOKINGS ===');
+        console.log('Master pastor ID:', user.id);
+        console.log('Request body:', body);
+        
+        // First get the followed pastors
+        const { data: follows, error: followsError } = await supabase
+          .from('master_pastor_follows')
+          .select('followed_pastor_id')
+          .eq('master_pastor_id', user.id)
+          .eq('invitation_status', 'accepted');
+
+        if (followsError) {
+          console.error('Error fetching followed pastors:', followsError);
+          throw followsError;
+        }
+
+        console.log('Followed pastors:', follows);
+
+        const followedPastorIds = follows?.map(f => f.followed_pastor_id) || [];
+        
+        if (followedPastorIds.length === 0) {
+          console.log('No followed pastors found');
+          return new Response(JSON.stringify({ data: [] }), { headers: corsHeaders });
+        }
+
+        console.log('Followed pastor IDs:', followedPastorIds);
+
+        // Fetch bookings for followed pastors using service role
+        const pastorId = body.pastor_id;
+        
+        // Use service role to bypass RLS
+        const { createClient } = await import('https://esm.sh/@supabase/supabase-js@2.38.4');
+        const serviceSupabase = createClient(
+          Deno.env.get('SUPABASE_URL') ?? '',
+          Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
+        );
+        
+        let bookingsQuery = serviceSupabase
+          .from('bookings')
+          .select(`
+            *,
+            event_type:event_types!bookings_event_type_id_fkey(
+              id,
+              title,
+              duration,
+              user_id,
+              pastor:profiles!event_types_user_id_fkey(
+                id,
+                full_name,
+                alias
+              )
+            )
+          `)
+          .in('event_type.user_id', followedPastorIds)
+          .order('start_time', { ascending: false });
+
+        // Filter by specific pastor if requested
+        if (pastorId && pastorId !== 'all') {
+          console.log('Filtering by pastor ID:', pastorId);
+          bookingsQuery = bookingsQuery.eq('event_type.user_id', pastorId);
+        }
+
+        const { data: bookings, error: bookingsError } = await bookingsQuery;
+
+        if (bookingsError) {
+          console.error('Error fetching bookings:', bookingsError);
+          throw bookingsError;
+        }
+
+        console.log('Raw bookings data:', JSON.stringify(bookings, null, 2));
+
+        // Transform the data to include pastor name
+        const transformedBookings = (bookings || []).map(booking => ({
+          ...booking,
+          pastor_name: booking.event_type?.pastor?.full_name || booking.event_type?.pastor?.alias || 'Unknown Pastor'
+        }));
+
+        console.log('Transformed bookings data:', JSON.stringify(transformedBookings, null, 2));
+        
+        return new Response(JSON.stringify({ data: transformedBookings }), { headers: corsHeaders });
+      }
 
       if (path === 'invite') {
         // Generate a unique invitation token
@@ -430,15 +559,81 @@ serve(async (req) => {
       }
 
       if (path === 'respond') {
-        const { data, error } = await supabase
+        console.log('=== PROCESSING INVITATION RESPONSE ===');
+        console.log('User ID:', user.id);
+        console.log('User email:', user.email);
+        console.log('Invitation ID:', body.invitation_id);
+        console.log('Response:', body.response);
+
+        // First, get the invitation details
+        const { data: invitation, error: invitationError } = await supabase
           .from('pastor_invitations')
-          .update({ status: body.response, accepted_by: body.response === 'accepted' ? user.id : null })
+          .select('*')
+          .eq('id', body.invitation_id)
+          .eq('to_email', user.email)
+          .single();
+
+        console.log('Invitation query result:', { invitation, invitationError });
+
+        if (invitationError || !invitation) {
+          console.error('Invitation not found:', invitationError);
+          throw new Error('Invitation not found');
+        }
+
+        console.log('Found invitation:', invitation);
+
+        // Update the invitation status
+        const { data: updatedInvitation, error: updateError } = await supabase
+          .from('pastor_invitations')
+          .update({ 
+            status: body.response, 
+            accepted_by: body.response === 'accepted' ? user.id : null,
+            responded_at: new Date().toISOString()
+          })
           .eq('id', body.invitation_id)
           .eq('to_email', user.email)
           .select().single();
 
-        if (error) throw error;
-        return new Response(JSON.stringify({ data }), { headers: corsHeaders });
+        console.log('Invitation update result:', { updatedInvitation, updateError });
+
+        if (updateError) {
+          console.error('Error updating invitation:', updateError);
+          throw updateError;
+        }
+
+        // If accepted, create the follow relationship in master_pastor_follows
+        if (body.response === 'accepted') {
+          console.log('Creating follow relationship...');
+          console.log('Master pastor ID:', user.id);
+          console.log('Followed pastor ID:', invitation.from_pastor_id);
+          
+          const followData = {
+            master_pastor_id: user.id,
+            followed_pastor_id: invitation.from_pastor_id,
+            invitation_status: 'accepted',
+            invited_by: invitation.from_pastor_id,
+            invitation_token: invitation.invitation_token,
+            responded_at: new Date().toISOString()
+          };
+          
+          console.log('Follow data to insert:', followData);
+
+          const { data: followResult, error: followError } = await supabase
+            .from('master_pastor_follows')
+            .insert(followData)
+            .select();
+
+          console.log('Follow creation result:', { followResult, followError });
+
+          if (followError) {
+            console.error('Error creating follow relationship:', followError);
+            // Don't fail the request if follow creation fails, but log it
+          } else {
+            console.log('Follow relationship created successfully:', followResult);
+          }
+        }
+
+        return new Response(JSON.stringify({ data: updatedInvitation }), { headers: corsHeaders });
       }
     }
 
