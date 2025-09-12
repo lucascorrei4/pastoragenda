@@ -7,12 +7,15 @@
 export function translateDefaultEventType(eventType: any, t: (key: string) => string) {
   // Check if this is a default event type by checking if title starts with 'defaultEventTypes.'
   if (eventType.title?.startsWith('defaultEventTypes.')) {
+    const translatedTitle = t(eventType.title)
+    const translatedDescription = eventType.description?.startsWith('defaultEventTypes.') 
+      ? t(eventType.description) 
+      : eventType.description
+    
     return {
       ...eventType,
-      title: t(eventType.title),
-      description: eventType.description?.startsWith('defaultEventTypes.') 
-        ? t(eventType.description) 
-        : eventType.description
+      title: translatedTitle,
+      description: translatedDescription
     }
   }
   

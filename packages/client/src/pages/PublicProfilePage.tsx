@@ -1,26 +1,40 @@
 import { useState, useEffect } from 'react'
-import { useParams, Link } from 'react-router-dom'
+import { useParams, Link, useSearchParams } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { Helmet } from 'react-helmet-async'
 import { supabase } from '../lib/supabase'
 import { QRCodeSVG } from 'qrcode.react'
-import { Calendar, Clock, User, Share2 } from 'lucide-react'
-import type { Profile, EventType } from '../lib/supabase'
+import { Calendar, Clock, User, Share2, QrCode, X } from 'lucide-react'
+import type { Profile, EventType, PastorSharingSettings } from '../lib/supabase'
 import LanguageSwitcher from '../components/LanguageSwitcher'
 import { translateDefaultEventTypes } from '../lib/eventTypeTranslations'
 
-function PublicProfilePage() {
-  const { alias } = useParams<{ alias: string }>()
+interface PublicProfilePageProps {
+  alias?: string
+  pastorId?: string
+  isPreview?: boolean
+}
+
+function PublicProfilePage({ alias: propAlias, pastorId, isPreview = false }: PublicProfilePageProps = {}) {
+  const { alias: urlAlias } = useParams<{ alias: string }>()
+  const [searchParams] = useSearchParams()
   const { t } = useTranslation()
+  
+  // Use prop alias first, then fall back to URL alias
+  const alias = propAlias || urlAlias
+  const token = searchParams.get('token')
   const [profile, setProfile] = useState<Profile | null>(null)
   const [eventTypes, setEventTypes] = useState<EventType[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+  const [timeRemaining, setTimeRemaining] = useState<string | null>(null)
+  const [sharingSettings, setSharingSettings] = useState<PastorSharingSettings | null>(null)
+  const [showQRModal, setShowQRModal] = useState(false)
 
   useEffect(() => {
     let mounted = true
     
-    if (alias) {
+    if (alias || pastorId) {
       if (!supabase || !supabase.auth) {
         console.error('PublicProfilePage: Supabase client is not properly initialized!')
         if (mounted) {
@@ -36,7 +50,7 @@ function PublicProfilePage() {
     return () => {
       mounted = false
     }
-  }, [alias]) // Only depend on alias changes
+  }, [alias, pastorId]) // Depend on both alias and pastorId changes
 
   // Re-translate event types when language changes
   useEffect(() => {
@@ -46,6 +60,43 @@ function PublicProfilePage() {
     }
   }, [t])
 
+  // Timer for time-limited links
+  useEffect(() => {
+    if (!sharingSettings?.token_expires_at) return
+
+    const updateTimeRemaining = () => {
+      const expiresAt = new Date(sharingSettings.token_expires_at!)
+      const now = new Date()
+      const diff = expiresAt.getTime() - now.getTime()
+
+      if (diff <= 0) {
+        setTimeRemaining('Expired')
+        // Redirect to home page instead of reloading to avoid service worker issues
+        setTimeout(() => {
+          window.location.href = '/'
+        }, 2000) // Wait 2 seconds to show "Expired" message
+        return
+      }
+
+      const hours = Math.floor(diff / (1000 * 60 * 60))
+      const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60))
+      const seconds = Math.floor((diff % (1000 * 60)) / 1000)
+
+                if (hours > 0) {
+                  setTimeRemaining(`${hours}h ${minutes}m`)
+                } else if (minutes > 0) {
+                  setTimeRemaining(`${minutes}m ${seconds}s`)
+                } else {
+                  setTimeRemaining(`${seconds}s`)
+                }
+    }
+
+    updateTimeRemaining()
+    const interval = setInterval(updateTimeRemaining, 1000)
+
+    return () => clearInterval(interval)
+  }, [sharingSettings?.token_expires_at])
+
   const fetchProfileData = async () => {
     let mounted = true
     
@@ -53,31 +104,139 @@ function PublicProfilePage() {
       setLoading(true)
       setError(null)
 
-      // Fetch profile by alias
-      const { data: profileData, error: profileError } = await supabase
-        .from('profiles')
-        .select('*')
-        .eq('alias', alias)
-        .single()
+      let profileData: Profile | null = null
+      let sharingSettings: PastorSharingSettings | null = null
 
-      if (!mounted) return
+      // Check if this is an anonymous link (starts with 'anon-')
+      if (alias && alias.startsWith('anon-')) {
+        // Look up sharing settings by anonymous_id first
+        const { data: settingsData, error: settingsError } = await supabase
+          .from('pastor_sharing_settings')
+          .select('*')
+          .eq('anonymous_id', alias)
+          .single()
 
-      if (profileError) {
-        console.error('PublicProfilePage: Profile fetch error:', profileError)
-        if (profileError.code === 'PGRST116') {
+        if (settingsError || !settingsData) {
+          console.error('PublicProfilePage: Anonymous ID not found:', settingsError)
           setError(t('publicProfile.notFound'))
-        } else {
-          setError(t('publicProfile.loadError'))
+          setLoading(false)
+          return
         }
-        setLoading(false) // Make sure to set loading to false on error
-        return
+
+        sharingSettings = settingsData
+        setSharingSettings(settingsData)
+
+        // For anonymous links, token is REQUIRED
+        if (!token) {
+          setError('Access token required for this link')
+          setLoading(false)
+          return
+        }
+
+        // Validate token
+        if (sharingSettings) {
+          if (sharingSettings.sharing_token && sharingSettings.sharing_token !== token) {
+            setError('Invalid access token')
+            setLoading(false)
+            return
+          }
+          
+          if (sharingSettings.token_expires_at) {
+            const expiresAt = new Date(sharingSettings.token_expires_at)
+            const now = new Date()
+            if (now > expiresAt) {
+              setError('Access token has expired')
+              setLoading(false)
+              return
+            }
+          }
+        }
+
+        // Now fetch the pastor's profile using the pastor_id from sharing settings
+        if (!sharingSettings || !sharingSettings.pastor_id) {
+          setError(t('publicProfile.notFound'))
+          setLoading(false)
+          return
+        }
+
+        const { data: profileDataResult, error: profileError } = await supabase
+          .from('profiles')
+          .select('*')
+          .eq('id', sharingSettings.pastor_id)
+          .single()
+
+        if (profileError || !profileDataResult) {
+          console.error('PublicProfilePage: Profile not found for pastor_id:', profileError)
+          setError(t('publicProfile.notFound'))
+          setLoading(false)
+          return
+        }
+
+        profileData = profileDataResult
+      } else {
+        // Regular profile lookup by alias or pastorId
+        let query = supabase.from('profiles').select('*')
+        
+        if (pastorId) {
+          query = query.eq('id', pastorId)
+        } else if (alias) {
+          query = query.eq('alias', alias)
+        } else {
+          throw new Error('Either alias or pastorId must be provided')
+        }
+
+        const { data: profileDataResult, error: profileError } = await query.single()
+
+        if (!mounted) return
+
+        if (profileError) {
+          console.error('PublicProfilePage: Profile fetch error:', profileError)
+          if (profileError.code === 'PGRST116') {
+            setError(t('publicProfile.notFound'))
+          } else {
+            setError(t('publicProfile.loadError'))
+          }
+          setLoading(false)
+          return
+        }
+
+        if (!profileDataResult) {
+          setError(t('publicProfile.notFound'))
+          setLoading(false)
+          return
+        }
+
+        profileData = profileDataResult
+
+        // Check for time-limited sharing if token is provided
+        if (token && profileData) {
+          const { data: settingsData } = await supabase
+            .from('pastor_sharing_settings')
+            .select('*')
+            .eq('pastor_id', profileData.id)
+            .single()
+
+          if (settingsData?.sharing_type === 'time_limited') {
+            if (settingsData.sharing_token !== token) {
+              setError('Invalid access token')
+              setLoading(false)
+              return
+            }
+            
+            if (settingsData.token_expires_at) {
+              const expiresAt = new Date(settingsData.token_expires_at)
+              const now = new Date()
+              if (now > expiresAt) {
+                setError('Access token has expired')
+                setLoading(false)
+                return
+              }
+            }
+          }
+        }
       }
 
-      if (!profileData) {
-        setError(t('publicProfile.notFound'))
-        setLoading(false) // Make sure to set loading to false when no data
-        return
-      }
+      if (!mounted || !profileData) return
 
       setProfile(profileData)
 
@@ -85,7 +244,7 @@ function PublicProfilePage() {
       const { data: eventTypesData, error: eventTypesError } = await supabase
         .from('event_types')
         .select('*')
-        .eq('user_id', profileData.id)
+        .eq('user_id', profileData?.id || '')
 
       if (!mounted) return
 
@@ -227,9 +386,9 @@ function PublicProfilePage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
+    <div className={`${isPreview ? 'bg-white dark:bg-gray-800 rounded-2xl shadow-lg overflow-hidden' : 'min-h-screen bg-gray-50 dark:bg-gray-900'}`}>
       {/* SEO Meta Tags */}
-      {profile && (
+      {profile && !isPreview && (
         <Helmet>
           <title>{getPastorTitle(profile.full_name)}</title>
           <meta name="description" content={getPastorDescription(profile, eventTypes)} />
@@ -275,28 +434,73 @@ function PublicProfilePage() {
       )}
 
       {/* Header */}
-      <div className="bg-white dark:bg-gray-800 shadow-sm">
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-          <div className="flex items-center justify-between">
-            <Link to="/" className="flex items-center">
-              <img src="/logo.png" alt="PastorAgenda" className="h-16 w-auto" />
-            </Link>
-            <div className="flex items-center space-x-4">
-              <LanguageSwitcher />
-              <button
-                onClick={shareProfile}
-                className="btn-secondary flex items-center"
-              >
-                <Share2 className="w-4 h-4 mr-2" />
-                {t('common.share')}
-              </button>
+      {!isPreview && (
+        <div className="bg-white dark:bg-gray-800 shadow-sm">
+          <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+            <div className="flex items-center justify-between">
+              <Link to="/" className="flex items-center">
+                <img src="/logo.png" alt="PastorAgenda" className="h-16 w-auto" />
+              </Link>
+              <div className="flex items-center space-x-4">
+                <LanguageSwitcher />
+                <button
+                  onClick={shareProfile}
+                  className="btn-secondary flex items-center"
+                >
+                  <Share2 className="w-4 h-4 mr-2" />
+                  {t('common.share')}
+                </button>
+              </div>
             </div>
           </div>
         </div>
-      </div>
+      )}
+
+      {/* Time Remaining Warning */}
+      {!isPreview && sharingSettings?.sharing_type === 'time_limited' && timeRemaining && (
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+          <div className={`border-l-4 p-4 rounded-r-lg ${
+            timeRemaining === 'Expired' 
+              ? 'bg-red-100 dark:bg-red-900/20 border-red-500' 
+              : 'bg-yellow-100 dark:bg-yellow-900/20 border-yellow-500'
+          }`}>
+            <div className="flex items-center">
+              <div className="flex-shrink-0">
+                {timeRemaining === 'Expired' ? (
+                  <svg className="h-5 w-5 text-red-400" viewBox="0 0 20 20" fill="currentColor">
+                    <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
+                  </svg>
+                ) : (
+                  <svg className="h-5 w-5 text-yellow-400" viewBox="0 0 20 20" fill="currentColor">
+                    <path fillRule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+                  </svg>
+                )}
+              </div>
+              <div className="ml-3">
+                <p className={`text-sm ${
+                  timeRemaining === 'Expired' 
+                    ? 'text-red-800 dark:text-red-200' 
+                    : 'text-yellow-800 dark:text-yellow-200'
+                }`}>
+                  <strong>
+                    {timeRemaining === 'Expired' ? 'Access Expired!' : 'Time-Limited Access:'}
+                  </strong> 
+                  {timeRemaining === 'Expired' 
+                    ? ' This link has expired and will redirect to home page.' 
+                    : ` This link will expire in `}
+                  {timeRemaining !== 'Expired' && (
+                    <span className="font-mono font-bold">{timeRemaining}</span>
+                  )}
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Breadcrumbs */}
-      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+      {!isPreview && (
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
         <nav aria-label="Breadcrumb" className="text-sm text-gray-600 dark:text-gray-400">
           <ol className="flex items-center space-x-2">
             <li><Link to="/" className="hover:text-primary-600">Home</Link></li>
@@ -306,11 +510,12 @@ function PublicProfilePage() {
             </li>
           </ol>
         </nav>
-      </div>
+        </div>
+      )}
 
       {/* Profile Section */}
-      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg overflow-hidden" itemScope itemType="https://schema.org/Person">
+      <div className={`${isPreview ? '' : 'max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8'}`}>
+        <div className={`${isPreview ? 'bg-white dark:bg-gray-800 rounded-lg shadow-lg overflow-hidden' : 'bg-white dark:bg-gray-800 rounded-lg shadow-lg overflow-hidden'}`} itemScope itemType="https://schema.org/Person">
           {/* Profile Header */}
           <div className="bg-gradient-to-r from-primary-600 to-primary-700 px-6 py-8 text-white">
             <div className="flex items-center space-x-6">
@@ -347,16 +552,31 @@ function PublicProfilePage() {
                   <p className="text-primary-100 mt-2 text-lg" itemProp="description">{profile.bio}</p>
                 )}
               </div>
-              <div className="hidden md:block">
-                <div className="bg-white/10 rounded-lg p-4 text-center">
-                  <QRCodeSVG 
-                    value={window.location.href} 
-                    size={80}
-                    className="mx-auto"
-                  />
-                  <p className="text-xs text-primary-100 mt-2">{t('publicProfile.qrDescription')}</p>
+              {!isPreview && (
+                <div className="flex items-center space-x-4">
+                  <div className="hidden md:block">
+                    <div className="bg-white/10 rounded-lg p-4 text-center">
+                      <QRCodeSVG 
+                        value={window.location.href} 
+                        size={80}
+                        className="mx-auto"
+                      />
+                      <p className="text-xs text-primary-100 mt-2">{t('publicProfile.qrDescription')}</p>
+                    </div>
+                  </div>
+                  <div className="flex flex-col items-center space-y-2">
+                    <p className="text-xs text-primary-100">{t('publicProfile.qrCode')}</p>
+                    <button
+                      onClick={() => setShowQRModal(true)}
+                      className="bg-white/20 hover:bg-white/30 rounded-lg p-2 transition-colors flex items-center space-x-1"
+                      aria-label={t('publicProfile.qrModal.openQRCode')}
+                    >
+                      <QrCode className="w-4 h-4" />
+                      <span className="text-xs font-medium">{t('publicProfile.qrModal.expand')}</span>
+                    </button>
+                  </div>
                 </div>
-              </div>
+              )}
             </div>
           </div>
 
@@ -385,7 +605,7 @@ function PublicProfilePage() {
                     )}
                     
                     <Link
-                      to={`/${alias}/${eventType.id}`}
+                      to={`/${profile.alias}/${eventType.id}`}
                       className="btn-primary w-full text-center"
                       aria-label={`Book ${eventType.title} appointment with ${profile.full_name}`}
                     >
@@ -408,19 +628,22 @@ function PublicProfilePage() {
         </div>
 
         {/* Mobile QR Code */}
-        <div className="md:hidden mt-6 bg-white dark:bg-gray-800 rounded-lg shadow p-6 text-center">
-          <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-4">{t('publicProfile.mobileQrTitle')}</h3>
-          <QRCodeSVG 
-            value={window.location.href} 
-            size={120}
-            className="mx-auto"
-          />
-          <p className="text-sm text-gray-500 dark:text-gray-400 mt-2">{t('publicProfile.mobileQrDescription')}</p>
-        </div>
+        {!isPreview && (
+          <div className="md:hidden mt-6 bg-white dark:bg-gray-800 rounded-lg shadow p-6 text-center">
+            <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-4">{t('publicProfile.mobileQrTitle')}</h3>
+            <QRCodeSVG 
+              value={window.location.href} 
+              size={120}
+              className="mx-auto"
+            />
+            <p className="text-sm text-gray-500 dark:text-gray-400 mt-2">{t('publicProfile.mobileQrDescription')}</p>
+          </div>
+        )}
       </div>
 
       {/* Footer */}
-      <footer className="bg-gray-800 mt-16">
+      {!isPreview && (
+        <footer className="bg-gray-800 mt-16">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           <div className="text-center">
             <img src="/logo.png" alt="PastorAgenda" className="h-16 w-auto mx-auto mb-2" />
@@ -432,7 +655,80 @@ function PublicProfilePage() {
             </p>
           </div>
         </div>
-      </footer>
+        </footer>
+      )}
+
+      {/* QR Code Modal */}
+      {showQRModal && profile && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm">
+          <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-2xl max-w-md w-full mx-4 overflow-hidden">
+            {/* Modal Header */}
+            <div className="bg-gradient-to-r from-primary-600 to-primary-700 px-6 py-4 text-white flex items-center justify-between">
+              <h3 className="text-lg font-semibold">{t('publicProfile.qrModal.title')}</h3>
+              <button
+                onClick={() => setShowQRModal(false)}
+                className="p-2 hover:bg-white/20 rounded-lg transition-colors"
+                aria-label="Close QR Code modal"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+            
+            {/* Modal Content */}
+            <div className="p-8 text-center">
+              {/* Pastor Avatar and Name */}
+              <div className="mb-6">
+                <div className="w-20 h-20 rounded-full bg-gray-100 dark:bg-gray-700 flex items-center justify-center overflow-hidden mx-auto mb-4">
+                  {profile.avatar_url ? (
+                    <img 
+                      src={profile.avatar_url} 
+                      alt={`${profile.full_name} - Pastor Profile Picture`}
+                      className="w-full h-full object-cover rounded-full"
+                      width="80"
+                      height="80"
+                    />
+                  ) : (
+                    <img 
+                      src="/default-pastor-avatar.svg" 
+                      alt={`${profile.full_name} - Pastor Profile Picture`}
+                      className="w-full h-full object-cover rounded-full"
+                      width="80"
+                      height="80"
+                    />
+                  )}
+                </div>
+                <h2 className="text-xl font-bold text-gray-900 dark:text-white">{profile.full_name}</h2>
+                {profile.bio && (
+                  <p className="text-gray-600 dark:text-gray-400 mt-1">{profile.bio}</p>
+                )}
+              </div>
+              
+              {/* Large QR Code */}
+              <div className="bg-gray-50 dark:bg-gray-700 rounded-xl p-6 mb-6">
+                <QRCodeSVG 
+                  value={window.location.href} 
+                  size={200}
+                  className="mx-auto"
+                />
+              </div>
+              
+              {/* Instructions */}
+              <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">
+                {t('publicProfile.qrModal.instructions', { name: profile.full_name })}
+              </p>
+              
+              {/* Share Button */}
+              <button
+                onClick={shareProfile}
+                className="btn-primary w-full flex items-center justify-center space-x-2"
+              >
+                <Share2 className="w-4 h-4" />
+                <span>{t('publicProfile.qrModal.shareProfile')}</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }

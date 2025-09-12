@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import { useAuth } from '../contexts/AuthContext'
 import { useTranslation } from 'react-i18next'
 import { supabase } from '../lib/supabase'
+import { customAuth } from '../lib/custom-auth'
 import { toast } from 'react-hot-toast'
 import { Share2, Copy, Eye, EyeOff, User, Mail, Settings, Link, CheckCircle, Calendar } from 'lucide-react'
 import type { PastorSharingSettings } from '../lib/supabase'
@@ -16,6 +17,50 @@ function AgendaSharingSettings({ onClose }: AgendaSharingSettingsProps) {
   const [sharingSettings, setSharingSettings] = useState<PastorSharingSettings | null>(null)
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
+  const [sharingType, setSharingType] = useState<'public' | 'time_limited'>('time_limited')
+  const [expirationHours, setExpirationHours] = useState<number>(0.5) // 30 minutes default
+  const [generatedToken, setGeneratedToken] = useState<string>('')
+  const [anonymousId, setAnonymousId] = useState<string>('')
+  const [hasSaved, setHasSaved] = useState<boolean>(false)
+
+  // Generate a unique sharing token
+  const generateSharingToken = () => {
+    const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789'
+    let result = ''
+    for (let i = 0; i < 12; i++) {
+      result += chars.charAt(Math.floor(Math.random() * chars.length))
+    }
+    return result
+  }
+
+  // Generate anonymous ID
+  const generateAnonymousId = () => {
+    return `anon-${Math.random().toString(36).substring(2, 15)}`
+  }
+
+  // Get the sharing URL based on type - show preview or saved link
+  const getSharingUrl = () => {
+    if (!sharingSettings) return ''
+    
+    // Remove "-agenda" suffix if it exists (for backward compatibility)
+    const cleanSlug = sharingSettings.public_slug?.replace(/-agenda$/, '') || ''
+    
+    if (sharingType === 'time_limited') {
+      // Always use current state values for time_limited links (never saved values for security)
+      if (!anonymousId || !generatedToken) {
+        return 'Generating link...'
+      }
+      
+      if (!hasSaved) {
+        return `${window.location.origin}/${anonymousId}?token=${generatedToken} (Preview - Click Save to activate)`
+      }
+      
+      return `${window.location.origin}/${anonymousId}?token=${generatedToken}`
+    } else {
+      // Public links use the pastor's alias
+      return `${window.location.origin}/${cleanSlug}`
+    }
+  }
 
   useEffect(() => {
     if (user) {
@@ -28,18 +73,27 @@ function AgendaSharingSettings({ onClose }: AgendaSharingSettingsProps) {
     }
   }, [user])
 
+  // Generate new random values when modal opens or settings change
+  useEffect(() => {
+    if (sharingType === 'time_limited') {
+      setGeneratedToken(generateSharingToken())
+      setAnonymousId(generateAnonymousId())
+      setHasSaved(false) // Mark as not saved when new values are generated
+    }
+  }, [sharingType, expirationHours]) // Generate new values when type or time changes
+
   const fetchSharingSettings = async () => {
     try {
       setLoading(true)
       
       // Try edge function first, fallback to direct Supabase call
       try {
-        const { data: { session } } = await supabase.auth.getSession()
-        if (session) {
-          const response = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/pastor-sharing-settings/settings`, {
+        const token = await customAuth.getToken()
+        if (token) {
+          const response = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/pastor-sharing-settings`, {
             method: 'GET',
             headers: {
-              'Authorization': `Bearer ${session.access_token}`,
+              'Authorization': `Bearer ${token}`,
               'Content-Type': 'application/json'
             }
           })
@@ -47,6 +101,20 @@ function AgendaSharingSettings({ onClose }: AgendaSharingSettingsProps) {
           if (response.ok) {
             const { data } = await response.json()
             setSharingSettings(data)
+            // Initialize sharing type from existing settings
+            if (data) {
+              setSharingType(data.sharing_type || 'time_limited')
+              setHasSaved(true) // Mark as saved if we have existing data
+              if (data.token_expires_at) {
+                const expiresAt = new Date(data.token_expires_at)
+                const now = new Date()
+                const hoursUntilExpiry = (expiresAt.getTime() - now.getTime()) / (1000 * 60 * 60)
+                if (hoursUntilExpiry > 0) {
+                  setExpirationHours(hoursUntilExpiry)
+                }
+              }
+              // Don't load existing token/anonymous_id - generate new ones for security
+            }
             return
           }
         }
@@ -75,9 +143,10 @@ function AgendaSharingSettings({ onClose }: AgendaSharingSettingsProps) {
             is_public_enabled: false,
             public_slug: slug,
             allow_booking_view: true,
-            allow_event_types_view: false,
+            allow_event_types_view: true,
             show_pastor_name: true,
             show_pastor_contact: false,
+            sharing_type: 'time_limited' as const,
             created_at: new Date().toISOString(),
             updated_at: new Date().toISOString()
           }
@@ -93,9 +162,10 @@ function AgendaSharingSettings({ onClose }: AgendaSharingSettingsProps) {
             is_public_enabled: false,
             public_slug: slug,
             allow_booking_view: true,
-            allow_event_types_view: false,
+            allow_event_types_view: true,
             show_pastor_name: true,
             show_pastor_contact: false,
+            sharing_type: 'time_limited' as const,
             created_at: new Date().toISOString(),
             updated_at: new Date().toISOString()
           }
@@ -117,6 +187,7 @@ function AgendaSharingSettings({ onClose }: AgendaSharingSettingsProps) {
           allow_event_types_view: false,
           show_pastor_name: true,
           show_pastor_contact: false,
+          sharing_type: 'time_limited' as const,
           created_at: new Date().toISOString(),
           updated_at: new Date().toISOString()
         }
@@ -140,12 +211,12 @@ function AgendaSharingSettings({ onClose }: AgendaSharingSettingsProps) {
       
       // Try edge function first, fallback to direct Supabase call
       try {
-        const { data: { session } } = await supabase.auth.getSession()
-        if (session) {
-          const response = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/pastor-sharing-settings/settings`, {
+        const token = await customAuth.getToken()
+        if (token) {
+          const response = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/pastor-sharing-settings`, {
             method: 'POST',
             headers: {
-              'Authorization': `Bearer ${session.access_token}`,
+              'Authorization': `Bearer ${token}`,
               'Content-Type': 'application/json'
             },
             body: JSON.stringify({
@@ -154,13 +225,19 @@ function AgendaSharingSettings({ onClose }: AgendaSharingSettingsProps) {
               allow_event_types_view: sharingSettings.allow_event_types_view,
               show_pastor_name: sharingSettings.show_pastor_name,
               show_pastor_contact: sharingSettings.show_pastor_contact,
-              public_slug: sharingSettings.public_slug || await generateSlug()
+              public_slug: sharingSettings.public_slug || await generateSlug(),
+              sharing_type: sharingType,
+              sharing_token: sharingType === 'time_limited' ? (generatedToken || generateSharingToken()) : null,
+              token_expires_at: sharingType === 'time_limited' ? new Date(Date.now() + expirationHours * 60 * 60 * 1000).toISOString() : null,
+              anonymous_id: sharingType === 'time_limited' ? (anonymousId || generateAnonymousId()) : null
             })
           })
 
           if (response.ok) {
             const { data } = await response.json()
+            console.log('Edge function save response:', data)
             setSharingSettings(data)
+            setHasSaved(true) // Mark as saved after successful save
             toast.success(t('sharing.saveSuccess'))
             return
           }
@@ -182,6 +259,10 @@ function AgendaSharingSettings({ onClose }: AgendaSharingSettingsProps) {
             allow_event_types_view: sharingSettings.allow_event_types_view,
             show_pastor_name: sharingSettings.show_pastor_name,
             show_pastor_contact: sharingSettings.show_pastor_contact,
+            sharing_type: sharingType,
+            sharing_token: sharingType === 'time_limited' ? (generatedToken || generateSharingToken()) : null,
+            token_expires_at: sharingType === 'time_limited' ? new Date(Date.now() + expirationHours * 60 * 60 * 1000).toISOString() : null,
+            anonymous_id: sharingType === 'time_limited' ? (anonymousId || generateAnonymousId()) : null,
             public_slug: sharingSettings.public_slug || await generateSlug()
           })
           .eq('id', sharingSettings.id)
@@ -201,7 +282,11 @@ function AgendaSharingSettings({ onClose }: AgendaSharingSettingsProps) {
             allow_event_types_view: sharingSettings.allow_event_types_view,
             show_pastor_name: sharingSettings.show_pastor_name,
             show_pastor_contact: sharingSettings.show_pastor_contact,
-            public_slug: sharingSettings.public_slug || await generateSlug()
+            public_slug: sharingSettings.public_slug || await generateSlug(),
+            sharing_type: sharingType,
+            sharing_token: sharingType === 'time_limited' ? (generatedToken || generateSharingToken()) : null,
+            token_expires_at: sharingType === 'time_limited' ? new Date(Date.now() + expirationHours * 60 * 60 * 1000).toISOString() : null,
+            anonymous_id: sharingType === 'time_limited' ? (anonymousId || generateAnonymousId()) : null
           })
           .select()
           .single()
@@ -219,7 +304,9 @@ function AgendaSharingSettings({ onClose }: AgendaSharingSettingsProps) {
         throw error
       }
 
+      console.log('Direct Supabase save response:', data)
       setSharingSettings(data)
+      setHasSaved(true) // Mark as saved after successful save
       toast.success(t('sharing.saveSuccess'))
     } catch (error) {
       console.error('Error saving sharing settings:', error)
@@ -241,20 +328,20 @@ function AgendaSharingSettings({ onClose }: AgendaSharingSettingsProps) {
         .single()
       
       if (profile?.alias) {
-        return `${profile.alias.toLowerCase().replace(/\s+/g, '-')}-agenda`
+        return profile.alias.toLowerCase().replace(/\s+/g, '-')
       }
     } catch (error) {
       console.warn('Could not fetch profile for slug generation:', error)
     }
     
     // Fallback to user ID
-    return `pastor-${user.id.slice(0, 8)}-agenda`
+    return `pastor-${user.id.slice(0, 8)}`
   }
 
   const copyAgendaLink = () => {
-    if (!sharingSettings?.public_slug) return
+    const url = getSharingUrl()
+    if (!url || url === 'Generating link...') return
     
-    const url = `${window.location.origin}/agenda/${sharingSettings.public_slug}`
     navigator.clipboard.writeText(url).then(() => {
       toast.success(t('sharing.linkCopied'))
     }).catch(() => {
@@ -304,162 +391,128 @@ function AgendaSharingSettings({ onClose }: AgendaSharingSettingsProps) {
         <div className="space-y-6">
           {/* Public Access Toggle */}
           <div className="bg-gray-50 dark:bg-gray-700 rounded-lg p-4">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center space-x-3">
-                <div className="flex items-center">
-                  {sharingSettings.is_public_enabled ? (
-                    <Eye className="w-5 h-5 text-green-500" />
-                  ) : (
-                    <EyeOff className="w-5 h-5 text-gray-400" />
-                  )}
+              <div className="flex items-center justify-between">
+                <div className="flex items-center space-x-3">
+                  <div className="flex items-center">
+                    {sharingSettings.is_public_enabled ? (
+                      <Eye className="w-5 h-5 text-green-500" />
+                    ) : (
+                      <EyeOff className="w-5 h-5 text-red-500" />
+                    )}
+                  </div>
+                  <div>
+                    <h4 className="text-lg font-medium text-gray-900 dark:text-white">
+                      {t('sharing.publicAccess')}
+                    </h4>
+                    <p className="text-sm text-gray-500 dark:text-gray-400">
+                      {sharingSettings.is_public_enabled 
+                        ? "Your agenda is publicly accessible via the link below"
+                        : "Your agenda is private and not accessible to others"
+                      }
+                    </p>
+                  </div>
                 </div>
-                <div>
-                  <h4 className="text-lg font-medium text-gray-900 dark:text-white">
-                    {t('sharing.publicAccess')}
-                  </h4>
-                  <p className="text-sm text-gray-500 dark:text-gray-400">
-                    {t('sharing.publicAccessDesc')}
-                  </p>
-                </div>
+                <label className="relative inline-flex items-center cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={sharingSettings.is_public_enabled}
+                    onChange={(e) => updateSetting('is_public_enabled', e.target.checked)}
+                    className="sr-only peer"
+                  />
+                  <div className={`w-11 h-6 rounded-full peer transition-all duration-200 ${
+                    sharingSettings.is_public_enabled 
+                      ? 'bg-green-500 peer-focus:ring-4 peer-focus:ring-green-300 dark:peer-focus:ring-green-800' 
+                      : 'bg-red-500 peer-focus:ring-4 peer-focus:ring-red-300 dark:peer-focus:ring-red-800'
+                  }`}>
+                    <div className={`absolute top-[2px] left-[2px] bg-white rounded-full h-5 w-5 transition-all duration-200 ${
+                      sharingSettings.is_public_enabled 
+                        ? 'translate-x-full' 
+                        : 'translate-x-0'
+                    }`}></div>
+                  </div>
+                </label>
               </div>
-              <label className="relative inline-flex items-center cursor-pointer">
-                <input
-                  type="checkbox"
-                  checked={sharingSettings.is_public_enabled}
-                  onChange={(e) => updateSetting('is_public_enabled', e.target.checked)}
-                  className="sr-only peer"
-                />
-                <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-primary-300 dark:peer-focus:ring-primary-800 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-primary-600"></div>
-              </label>
-            </div>
           </div>
 
-          {/* Public Link */}
+          {/* Sharing Type Selection */}
           {sharingSettings.is_public_enabled && (
-            <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-4">
-              <div className="flex items-center justify-between mb-3">
-                <h4 className="text-lg font-medium text-blue-900 dark:text-blue-100 flex items-center">
-                  <Link className="w-5 h-5 mr-2" />
-                  {t('sharing.publicLink')}
-                </h4>
-                <button
-                  onClick={copyAgendaLink}
-                  className="btn-secondary flex items-center space-x-2 text-sm"
-                >
-                  <Copy className="w-4 h-4" />
-                  <span>{t('sharing.copyLink')}</span>
-                </button>
-              </div>
-              <div className="bg-white dark:bg-gray-800 rounded border p-3 font-mono text-sm text-gray-700 dark:text-gray-300 break-all">
-                {window.location.origin}/agenda/{sharingSettings.public_slug}
-              </div>
-              <p className="text-xs text-blue-700 dark:text-blue-300 mt-2">
-                {t('sharing.linkDescription')}
-              </p>
-            </div>
-          )}
-
-          {/* Privacy Settings */}
-          {sharingSettings.is_public_enabled && (
-            <div className="space-y-4">
-              <h4 className="text-lg font-medium text-gray-900 dark:text-white flex items-center">
-                <Settings className="w-5 h-5 mr-2" />
-                {t('sharing.privacySettings')}
+            <div className="bg-gray-50 dark:bg-gray-700 rounded-lg p-4">
+              <h4 className="text-lg font-medium text-gray-900 dark:text-white mb-4">
+                {t('sharing.sharingType')}
               </h4>
-
-              <div className="space-y-3">
-                <label className="flex items-center justify-between">
-                  <div className="flex items-center space-x-3">
-                    <Calendar className="w-5 h-5 text-gray-500" />
-                    <div>
-                      <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
-                        {t('sharing.showBookings')}
-                      </span>
-                      <p className="text-xs text-gray-500 dark:text-gray-400">
-                        {t('sharing.showBookingsDesc')}
-                      </p>
+              
+              <div className="space-y-4">
+                {/* Public (No Expiration) */}
+                <label className="flex items-center space-x-3 cursor-pointer">
+                  <input
+                    type="radio"
+                    name="sharingType"
+                    value="public"
+                    checked={sharingType === 'public'}
+                    onChange={(e) => setSharingType(e.target.value as 'public' | 'time_limited')}
+                    className="w-4 h-4 text-primary-600"
+                  />
+                  <div>
+                    <div className="font-medium text-gray-900 dark:text-white">
+                      {t('sharing.publicPermanent')}
+                    </div>
+                    <div className="text-sm text-gray-500 dark:text-gray-400">
+                      {t('sharing.publicPermanentDesc')}
                     </div>
                   </div>
-                  <label className="relative inline-flex items-center cursor-pointer">
-                    <input
-                      type="checkbox"
-                      checked={sharingSettings.allow_booking_view}
-                      onChange={(e) => updateSetting('allow_booking_view', e.target.checked)}
-                      className="sr-only peer"
-                    />
-                    <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-primary-300 dark:peer-focus:ring-primary-800 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-primary-600"></div>
-                  </label>
                 </label>
 
-                <label className="flex items-center justify-between">
-                  <div className="flex items-center space-x-3">
-                    <Settings className="w-5 h-5 text-gray-500" />
-                    <div>
-                      <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
-                        {t('sharing.showEventTypes')}
-                      </span>
-                      <p className="text-xs text-gray-500 dark:text-gray-400">
-                        {t('sharing.showEventTypesDesc')}
-                      </p>
+                {/* Time Limited */}
+                <label className="flex items-center space-x-3 cursor-pointer">
+                  <input
+                    type="radio"
+                    name="sharingType"
+                    value="time_limited"
+                    checked={sharingType === 'time_limited'}
+                    onChange={(e) => setSharingType(e.target.value as 'public' | 'time_limited')}
+                    className="w-4 h-4 text-primary-600"
+                  />
+                  <div>
+                    <div className="font-medium text-gray-900 dark:text-white">
+                      {t('sharing.timeLimited')}
+                    </div>
+                    <div className="text-sm text-gray-500 dark:text-gray-400">
+                      {t('sharing.timeLimitedDesc')} Anonymous links are generated automatically.
                     </div>
                   </div>
-                  <label className="relative inline-flex items-center cursor-pointer">
-                    <input
-                      type="checkbox"
-                      checked={sharingSettings.allow_event_types_view}
-                      onChange={(e) => updateSetting('allow_event_types_view', e.target.checked)}
-                      className="sr-only peer"
-                    />
-                    <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-primary-300 dark:peer-focus:ring-primary-800 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-primary-600"></div>
-                  </label>
-                </label>
-
-                <label className="flex items-center justify-between">
-                  <div className="flex items-center space-x-3">
-                    <User className="w-5 h-5 text-gray-500" />
-                    <div>
-                      <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
-                        {t('sharing.showPastorName')}
-                      </span>
-                      <p className="text-xs text-gray-500 dark:text-gray-400">
-                        {t('sharing.showPastorNameDesc')}
-                      </p>
-                    </div>
-                  </div>
-                  <label className="relative inline-flex items-center cursor-pointer">
-                    <input
-                      type="checkbox"
-                      checked={sharingSettings.show_pastor_name}
-                      onChange={(e) => updateSetting('show_pastor_name', e.target.checked)}
-                      className="sr-only peer"
-                    />
-                    <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-primary-300 dark:peer-focus:ring-primary-800 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-primary-600"></div>
-                  </label>
-                </label>
-
-                <label className="flex items-center justify-between">
-                  <div className="flex items-center space-x-3">
-                    <Mail className="w-5 h-5 text-gray-500" />
-                    <div>
-                      <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
-                        {t('sharing.showContact')}
-                      </span>
-                      <p className="text-xs text-gray-500 dark:text-gray-400">
-                        {t('sharing.showContactDesc')}
-                      </p>
-                    </div>
-                  </div>
-                  <label className="relative inline-flex items-center cursor-pointer">
-                    <input
-                      type="checkbox"
-                      checked={sharingSettings.show_pastor_contact}
-                      onChange={(e) => updateSetting('show_pastor_contact', e.target.checked)}
-                      className="sr-only peer"
-                    />
-                    <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-primary-300 dark:peer-focus:ring-primary-800 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-primary-600"></div>
-                  </label>
                 </label>
               </div>
+
+              {/* Expiration Options */}
+              {sharingType === 'time_limited' && (
+                <div className="mt-4">
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                    {t('sharing.expirationTime')}
+                  </label>
+                  <div className="grid grid-cols-2 gap-2">
+                    {[
+                      { value: 0.5, label: '30 min' },
+                      { value: 1, label: '1 hr' },
+                      { value: 4, label: '4 hrs' },
+                      { value: 8, label: '8 hrs' },
+                      { value: 24, label: '24 hrs' }
+                    ].map((option) => (
+                      <button
+                        key={option.value}
+                        onClick={() => setExpirationHours(option.value)}
+                        className={`px-3 py-2 text-sm rounded-md border transition-colors ${
+                          expirationHours === option.value
+                            ? 'bg-primary-600 text-white border-primary-600'
+                            : 'bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-700'
+                        }`}
+                      >
+                        {option.label}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )}
+
             </div>
           )}
 
@@ -489,6 +542,39 @@ function AgendaSharingSettings({ onClose }: AgendaSharingSettingsProps) {
               )}
             </button>
           </div>
+
+          {/* Public Link - Show after save/cancel buttons */}
+          {sharingSettings.is_public_enabled && (
+            <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-4 mt-6">
+              <div className="flex items-center justify-between mb-3">
+                <h4 className="text-lg font-medium text-blue-900 dark:text-blue-100 flex items-center">
+                  <Link className="w-5 h-5 mr-2" />
+                  {t('sharing.publicLink')}
+                </h4>
+                <button
+                  onClick={copyAgendaLink}
+                  className="btn-secondary flex items-center space-x-2 text-sm"
+                >
+                  <Copy className="w-4 h-4" />
+                  <span>{t('sharing.copyLink')}</span>
+                </button>
+              </div>
+              <div className="bg-white dark:bg-gray-800 rounded border p-3 font-mono text-sm text-gray-700 dark:text-gray-300 break-all">
+                {getSharingUrl()}
+              </div>
+              <p className="text-xs text-blue-700 dark:text-blue-300 mt-2">
+                {sharingType === 'time_limited' 
+                  ? `Share this time-limited link to give temporary access to book appointments. This link will work for ${expirationHours === 0.5 ? '30 minutes' : expirationHours === 1 ? '1 hour' : expirationHours === 4 ? '4 hours' : expirationHours === 8 ? '8 hours' : expirationHours === 24 ? '24 hours' : `${Math.round(expirationHours * 10) / 10} hours`} and then expire automatically.`
+                  : 'Share this link with your community to let them view your agenda and book appointments.'
+                }
+              </p>
+              {!hasSaved && (
+                <p className="text-xs text-yellow-700 dark:text-yellow-300 mt-1">
+                  ⚠️ This is a preview link. Click "Save Settings" to activate it and make it accessible.
+                </p>
+              )}
+            </div>
+          )}
         </div>
       </div>
     </div>

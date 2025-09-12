@@ -35,8 +35,32 @@ export function checkUnavailability(
         const periodStartTime = period.start_time
         const periodEndTime = period.end_time
         
-        // Handle time comparison (simple string comparison works for HH:MM format)
-        if (checkTime >= periodStartTime && checkTime <= periodEndTime) {
+        // Convert times to comparable format (minutes since midnight)
+        const timeToMinutes = (timeStr: string): number => {
+          // Handle both HH:MM and HH:MM:SS formats
+          const timeParts = timeStr.split(':')
+          const hours = parseInt(timeParts[0], 10)
+          const minutes = parseInt(timeParts[1], 10)
+          return hours * 60 + minutes
+        }
+        
+        const checkTimeMinutes = timeToMinutes(checkTime)
+        const startTimeMinutes = timeToMinutes(periodStartTime)
+        const endTimeMinutes = timeToMinutes(periodEndTime)
+        
+        // Debug logging
+        console.log('Unavailability check:', {
+          checkTime,
+          periodStartTime,
+          periodEndTime,
+          checkTimeMinutes,
+          startTimeMinutes,
+          endTimeMinutes,
+          isBlocked: checkTimeMinutes >= startTimeMinutes && checkTimeMinutes < endTimeMinutes
+        })
+        
+        // Check if the time falls within the blocked period
+        if (checkTimeMinutes >= startTimeMinutes && checkTimeMinutes < endTimeMinutes) {
           return {
             isUnavailable: true,
             period,

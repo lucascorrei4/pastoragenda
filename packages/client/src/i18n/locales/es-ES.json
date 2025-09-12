@@ -63,7 +63,11 @@
     "dashboard": "Panel",
     "profile": "Perfil",
     "eventTypes": "Agendas",
+    "agendaSharing": "Compartir Agenda",
     "bookings": "Reservas",
+    "followAgendas": "Seguir Agendas",
+    "unavailability": "No Disponibilidad",
+    "publicPage": "Página Pública",
     "settings": "Configuración",
     "signIn": "Iniciar Sesión",
     "signUp": "Registrarse",
@@ -280,6 +284,11 @@
         "subtitle": "Seguro y Privado",
         "description": "La consejería es un momento sagrado. Nuestra plataforma fue construida con seguridad y privacidad en mente, garantizando que los datos y la naturaleza de los compromisos se mantengan en total sigilo."
       }
+    },
+    "preview": {
+      "title": "Ve Cómo Se Verá Tu Página de Citas",
+      "description": "Así es exactamente como tu comunidad verá e interactuará con tu página de citas. Una interfaz limpia y profesional que hace que reservar citas sea simple y respetuoso.",
+      "subtitle": "Tus miembros pueden ver fácilmente tu disponibilidad, reservar citas, y recibirás todos los detalles automáticamente."
     },
     "cta": {
       "title": "¿Listo para enfocarte en lo que realmente importa?",
@@ -580,6 +589,13 @@
     "noEventTypesDesc": "{{name}} aún no ha configurado ningún tipo de cita.",
     "qrCode": "Código QR",
     "qrDescription": "Escanear para compartir",
+    "qrModal": {
+      "title": "Código QR",
+      "instructions": "Escanea este código QR para acceder a la agenda de {name}",
+      "shareProfile": "Compartir Perfil",
+      "openQRCode": "Abrir código QR en pantalla completa",
+      "expand": "Expandir"
+    },
     "mobileQrTitle": "Compartir este perfil",
     "mobileQrDescription": "Escanear para compartir con otros",
     "footer": "Desarrollado por PastorAgenda",
@@ -668,11 +684,41 @@
     "saveSuccess": "Configuración de compartir guardada exitosamente",
     "saveError": "Error al guardar la configuración de compartir",
     "linkCopied": "¡Enlace de agenda copiado al portapapeles!",
-    "linkCopyError": "Error al copiar el enlace al portapapeles"
+    "linkCopyError": "Error al copiar el enlace al portapapeles",
+    "sharingType": "Tipo de Compartir",
+    "publicPermanent": "Público (Sin Expiración)",
+    "publicPermanentDesc": "El enlace funciona permanentemente hasta que desactives el acceso público",
+    "timeLimited": "Tiempo Limitado",
+    "timeLimitedDesc": "El enlace expira después de un tiempo establecido - perfecto para dar acceso temporal a reservar citas",
+    "expirationTime": "Tiempo de Expiración",
+    "anonymousLink": "Enlace Anónimo",
+    "anonymousLinkDesc": "Generar un enlace que no revele tu identidad (ej., anon-abc123 en lugar de tu-apodo)",
+    "page": {
+      "subtitle": "Comparte tu agenda con tu comunidad y gestiona la configuración de acceso",
+      "manageSharing": "Gestionar Compartir",
+      "sharingOverview": "Resumen de Compartir",
+      "publicAccess": "Acceso Público",
+      "publicAccessDesc": "Hacer tu agenda públicamente disponible",
+      "timeLimitedSharing": "Compartir con Tiempo Limitado",
+      "timeLimitedSharingDesc": "Generar enlaces de acceso temporal",
+      "notConfigured": "No Configurado",
+      "quickActions": "Acciones Rápidas",
+      "configureSharing": "Configurar Compartir",
+      "configureSharingDesc": "Configurar acceso público y enlaces con tiempo limitado",
+      "viewPublicLink": "Ver Enlace Público",
+      "viewPublicLinkDesc": "Ver tu enlace de compartir actual",
+      "needHelp": "¿Necesitas Ayuda?",
+      "helpDesc": "Aprende cómo compartir tu agenda con tu comunidad y gestionar la configuración de acceso.",
+      "publicAccessHelp": "Hacer tu agenda permanentemente disponible para cualquiera con el enlace",
+      "timeLimitedHelp": "Generar enlaces temporales que expiran después de un tiempo establecido",
+      "anonymousLinksHelp": "Compartir sin revelar tu alias personal"
+    }
   },
   "masterDashboard": {
     "title": "Panel de Pastor Principal",
     "subtitle": "Gestiona y sigue múltiples agendas de pastores",
+    "followAgendas": "Seguir Agendas",
+    "followAgendasSubtitle": "Sigue agendas de otros pastores y gestiona tu red pastoral",
     "totalFollowed": "Total Seguidos",
     "pendingInvitations": "Invitaciones Pendientes",
     "activeAgendas": "Agendas Activas",

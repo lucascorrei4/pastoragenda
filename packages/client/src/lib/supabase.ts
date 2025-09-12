@@ -152,6 +152,10 @@ export interface PastorSharingSettings {
   allow_event_types_view: boolean
   show_pastor_name: boolean
   show_pastor_contact: boolean
+  sharing_token?: string
+  token_expires_at?: string
+  sharing_type: 'public' | 'time_limited'
+  anonymous_id?: string
   created_at: string
   updated_at: string
 }

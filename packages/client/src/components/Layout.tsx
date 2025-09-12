@@ -4,6 +4,7 @@ import { useAuth } from '../contexts/AuthContext'
 import { useTheme } from '../contexts/ThemeContext'
 import { useTranslation } from 'react-i18next'
 import { notificationService } from '../lib/notification-service'
+import { supabase } from '../lib/supabase'
 import {
   Calendar,
   Settings,
@@ -13,7 +14,11 @@ import {
   Home,
   Clock,
   Sun,
-  Moon
+  Moon,
+  Users,
+  Ban,
+  ExternalLink,
+  Share2
 } from 'lucide-react'
 import LanguageSwitcher from './LanguageSwitcher'
 import packageJson from '../../package.json'
@@ -25,18 +30,55 @@ interface LayoutProps {
 function Layout({ children }: LayoutProps) {
   const [sidebarOpen, setSidebarOpen] = useState(false)
   const [welcomeSent, setWelcomeSent] = useState(false)
+  const [profile, setProfile] = useState<any>(null)
   const { user, signOut } = useAuth()
   const { theme, toggleTheme } = useTheme()
   const { t } = useTranslation()
   const location = useLocation()
   const navigate = useNavigate()
 
+  // Fetch user profile to get alias for public page link
+  useEffect(() => {
+    if (user) {
+      fetchProfile()
+    }
+  }, [user])
+
+  const fetchProfile = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('profiles')
+        .select('alias')
+        .eq('id', user?.id)
+        .single()
+
+      if (error) {
+        console.error('Error fetching profile:', error)
+      } else {
+        setProfile(data)
+      }
+    } catch (error) {
+      console.error('Error fetching profile:', error)
+    }
+  }
+
   const navigation = [
     { nameKey: 'navigation.dashboard', href: '/dashboard', icon: Home },
     { nameKey: 'navigation.eventTypes', href: '/dashboard/event-types', icon: Calendar },
+    { nameKey: 'navigation.agendaSharing', href: '/dashboard/agenda-sharing', icon: Share2 },
     { nameKey: 'navigation.bookings', href: '/dashboard/bookings', icon: Clock },
+    { nameKey: 'navigation.followAgendas', href: '/dashboard/master', icon: Users },
+    { nameKey: 'navigation.unavailability', href: '/dashboard/unavailability', icon: Ban },
     { nameKey: 'navigation.profile', href: '/dashboard/profile', icon: Settings },
   ]
+
+  // Add public page link if profile has alias
+  const publicPageLink = profile?.alias ? {
+    nameKey: 'navigation.publicPage',
+    href: `/${profile.alias}`,
+    icon: ExternalLink,
+    external: true
+  } : null
 
   // Send welcome notification when user first logs in
   useEffect(() => {
@@ -155,6 +197,19 @@ function Layout({ children }: LayoutProps) {
                 </Link>
               )
             })}
+            
+            {/* Public Page Link */}
+            {publicPageLink && (
+              <a
+                href={publicPageLink.href}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="group flex items-center px-2 py-2 text-sm font-medium rounded-md text-gray-600 hover:bg-gray-50 hover:text-gray-900 dark:text-gray-300 dark:hover:bg-gray-700 dark:hover:text-gray-100"
+              >
+                <publicPageLink.icon className="mr-3 h-5 w-5" />
+                {t(publicPageLink.nameKey)}
+              </a>
+            )}
           </nav>
           <div className="border-t border-gray-200 dark:border-gray-700 p-4">
             <LanguageSwitcher />

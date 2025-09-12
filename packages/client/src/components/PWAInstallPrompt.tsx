@@ -13,11 +13,7 @@ interface PWAInstallPromptProps {
 
 export function PWAInstallPrompt({ showOnPublicPages = true }: PWAInstallPromptProps) {
   const location = useLocation()
-  const [deferredPrompt, setDeferredPrompt] = useState<BeforeInstallPromptEvent | null>(null)
-  const [showPrompt, setShowPrompt] = useState(false)
-  const [isIOS, setIsIOS] = useState(false)
-  const [isStandalone, setIsStandalone] = useState(false)
-
+  
   // Check if we're on a public page (pastor profile, booking pages)
   const isPublicPage = location.pathname !== '/' && 
                       !location.pathname.startsWith('/dashboard') && 
@@ -28,6 +24,11 @@ export function PWAInstallPrompt({ showOnPublicPages = true }: PWAInstallPromptP
   if (isPublicPage && !showOnPublicPages) {
     return null
   }
+
+  const [deferredPrompt, setDeferredPrompt] = useState<BeforeInstallPromptEvent | null>(null)
+  const [showPrompt, setShowPrompt] = useState(false)
+  const [isIOS, setIsIOS] = useState(false)
+  const [isStandalone, setIsStandalone] = useState(false)
 
   useEffect(() => {
     // Check if running on iOS

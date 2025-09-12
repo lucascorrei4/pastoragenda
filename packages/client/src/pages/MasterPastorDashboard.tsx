@@ -14,7 +14,13 @@ import {
   ExternalLink,
   Settings,
   User,
-  Phone
+  Phone,
+  AlertCircle,
+  Edit3,
+  Image,
+  FileText,
+  Link,
+  ArrowRight
 } from 'lucide-react'
 import { supabase } from '../lib/supabase'
 import { useAuth } from '../contexts/AuthContext'
@@ -56,6 +62,8 @@ interface PastorInvitation {
   from_pastor?: {
     alias: string
     full_name: string
+    email: string
+    avatar_url?: string
   }
 }
 
@@ -66,7 +74,17 @@ const MasterPastorDashboard: React.FC = () => {
   const [invitations, setInvitations] = useState<PastorInvitation[]>([])
   const [bookings, setBookings] = useState<any[]>([])
   const [selectedPastorId, setSelectedPastorId] = useState<string>('all')
+  const [selectedTab, setSelectedTab] = useState<string>('all')
   const [loading, setLoading] = useState(true)
+  const [profile, setProfile] = useState<{
+    id: string
+    full_name?: string
+    avatar_url?: string
+    bio?: string
+    alias?: string
+    email?: string
+  } | null>(null)
+  const [showProfileAdvice, setShowProfileAdvice] = useState(false)
   const [showInviteModal, setShowInviteModal] = useState(false)
   const [inviteEmail, setInviteEmail] = useState('')
   const [invitePermissions, setInvitePermissions] = useState<string[]>(['view_bookings', 'view_event_types'])
@@ -81,11 +99,112 @@ const MasterPastorDashboard: React.FC = () => {
     return token
   }
 
+  // Filter bookings by status and date
+  const getFilteredBookings = () => {
+    let filtered = bookings
+
+    // Filter by pastor if not "all"
+    if (selectedPastorId !== 'all') {
+      filtered = filtered.filter(booking => 
+        booking.event_type?.pastor?.id === selectedPastorId
+      )
+    }
+
+    // Filter by tab status
+    const now = new Date()
+    switch (selectedTab) {
+      case 'upcoming':
+        return filtered.filter(booking => {
+          const startTime = new Date(booking.start_time)
+          return startTime > now && booking.status === 'confirmed'
+        })
+      case 'past':
+        return filtered.filter(booking => {
+          const startTime = new Date(booking.start_time)
+          return startTime <= now && booking.status === 'confirmed'
+        })
+      case 'cancelled':
+        return filtered.filter(booking => booking.status === 'cancelled')
+      case 'all':
+      default:
+        return filtered
+    }
+  }
+
+  // Get booking counts for tabs
+  const getBookingCounts = () => {
+    const now = new Date()
+    let filtered = bookings
+
+    // Filter by pastor if not "all"
+    if (selectedPastorId !== 'all') {
+      filtered = filtered.filter(booking => 
+        booking.event_type?.pastor?.id === selectedPastorId
+      )
+    }
+
+    return {
+      all: filtered.length,
+      upcoming: filtered.filter(booking => {
+        const startTime = new Date(booking.start_time)
+        return startTime > now && booking.status === 'confirmed'
+      }).length,
+      past: filtered.filter(booking => {
+        const startTime = new Date(booking.start_time)
+        return startTime <= now && booking.status === 'confirmed'
+      }).length,
+      cancelled: filtered.filter(booking => booking.status === 'cancelled').length
+    }
+  }
+
+  // Fetch profile data
+  const fetchProfile = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('profiles')
+        .select('*')
+        .eq('id', user?.id)
+        .single()
+
+      if (error) {
+        console.error('Error fetching profile:', error)
+        return
+      }
+
+      setProfile(data)
+      
+      // Check if profile needs completion
+      const missingFields: string[] = []
+      if (!data?.full_name) missingFields.push('full_name')
+      if (!data?.avatar_url) missingFields.push('avatar_url')
+      if (!data?.bio) missingFields.push('bio')
+      if (!data?.alias) missingFields.push('alias')
+      
+      setShowProfileAdvice(missingFields.length > 0)
+    } catch (error) {
+      console.error('Error fetching profile:', error)
+    }
+  }
+
+  // Get missing profile fields
+  const getMissingFields = () => {
+    if (!profile) return []
+    
+    const missing: Array<{ field: string; label: string; icon: any }> = []
+    if (!profile.full_name) missing.push({ field: 'full_name', label: 'Full Name', icon: User })
+    if (!profile.avatar_url) missing.push({ field: 'avatar_url', label: 'Profile Picture', icon: Image })
+    if (!profile.bio) missing.push({ field: 'bio', label: 'Bio/Description', icon: FileText })
+    if (!profile.alias) missing.push({ field: 'alias', label: 'Public URL Slug', icon: Link })
+    
+    return missing
+  }
+
   useEffect(() => {
     if (user) {
       fetchFollowedPastors()
       fetchInvitations()
       fetchBookings()
+      fetchProfile()
     }
   }, [user])
 
@@ -396,10 +515,10 @@ const MasterPastorDashboard: React.FC = () => {
         {/* Header */}
         <div className="mb-6 sm:mb-8">
           <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white mb-2">
-            {t('masterDashboard.title')}
+            {t('masterDashboard.followAgendas')}
           </h1>
           <p className="text-sm sm:text-base text-gray-600 dark:text-gray-400">
-            {t('masterDashboard.subtitle')}
+            {t('masterDashboard.followAgendasSubtitle')}
           </p>
         </div>
 
@@ -450,6 +569,61 @@ const MasterPastorDashboard: React.FC = () => {
             </div>
           </div>
         </div>
+
+        {/* Profile Advice */}
+        {showProfileAdvice && (
+          <div className="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 rounded-lg border border-blue-200 dark:border-blue-700 mb-6 sm:mb-8">
+            <div className="px-4 sm:px-6 py-4">
+              <div className="flex items-start">
+                <div className="flex-shrink-0">
+                  <AlertCircle className="w-6 h-6 text-blue-600 dark:text-blue-400" />
+                </div>
+                <div className="ml-3 flex-1">
+                  <h3 className="text-sm font-semibold text-blue-800 dark:text-blue-200 mb-2">
+                    Complete Your Profile
+                  </h3>
+                  <p className="text-sm text-blue-700 dark:text-blue-300 mb-4">
+                    Your profile is missing some important information that helps your community connect with you better.
+                  </p>
+                  
+                  <div className="space-y-2 mb-4">
+                    {getMissingFields().map((field, index) => {
+                      const IconComponent = field.icon
+                      return (
+                        <div key={index} className="flex items-center text-sm text-blue-700 dark:text-blue-300">
+                          <IconComponent className="w-4 h-4 mr-2 flex-shrink-0" />
+                          <span>{field.label}</span>
+                        </div>
+                      )
+                    })}
+                  </div>
+                  
+                  <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+                    <p className="text-xs text-blue-600 dark:text-blue-400 flex-1">
+                      Complete your profile to improve your public presence and help people find you.
+                    </p>
+                    <button
+                      onClick={() => window.location.href = '/dashboard/profile'}
+                      className="inline-flex items-center justify-center px-4 py-2.5 sm:px-3 sm:py-2 text-sm font-medium text-blue-700 dark:text-blue-300 bg-blue-100 dark:bg-blue-800/30 hover:bg-blue-200 dark:hover:bg-blue-800/50 rounded-md transition-colors duration-200 w-full sm:w-auto"
+                    >
+                      <Edit3 className="w-4 h-4 mr-2 flex-shrink-0" />
+                      <span className="truncate">Edit Profile</span>
+                      <ArrowRight className="w-4 h-4 ml-2 flex-shrink-0" />
+                    </button>
+                  </div>
+                </div>
+                <div className="flex-shrink-0 ml-2 sm:ml-4">
+                  <button
+                    onClick={() => setShowProfileAdvice(false)}
+                    className="text-blue-400 hover:text-blue-600 dark:text-blue-500 dark:hover:text-blue-300 transition-colors duration-200 p-1"
+                  >
+                    <XCircle className="w-5 h-5" />
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
 
         {/* Followed Pastors */}
         <div className="bg-white dark:bg-gray-800 rounded-lg shadow mb-6 sm:mb-8 border border-gray-200 dark:border-gray-700">
@@ -522,7 +696,7 @@ const MasterPastorDashboard: React.FC = () => {
                     <div className="flex flex-col sm:flex-row gap-2">
                       {pastor.invitation_status === 'accepted' ? (
                         <a
-                          href={`/agenda/${pastor.sharing_settings?.public_slug || pastor.followed_pastor.alias}`}
+                          href={`/dashboard/master/agenda/${pastor.followed_pastor.alias}`}
                           target="_blank"
                           rel="noopener noreferrer"
                           className="inline-flex items-center justify-center px-3 py-2 border border-blue-300 dark:border-blue-600 text-sm font-medium rounded-md text-blue-700 dark:text-blue-400 bg-blue-50 dark:bg-blue-900/20 hover:bg-blue-100 dark:hover:bg-blue-900/30 transition-colors duration-200"
@@ -673,8 +847,45 @@ const MasterPastorDashboard: React.FC = () => {
               </div>
             </div>
 
+            {/* Booking Status Tabs */}
+            <div className="px-4 sm:px-6 py-4 border-b border-gray-200 dark:border-gray-700">
+              <div className="flex gap-1 overflow-x-auto scrollbar-hide pb-1" style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
+                {[
+                  { key: 'all', label: t('bookings.filter.all') },
+                  { key: 'upcoming', label: t('bookings.filter.upcoming') },
+                  { key: 'past', label: t('bookings.filter.past') },
+                  { key: 'cancelled', label: t('bookings.filter.cancelled') }
+                ].map((tab) => {
+                  const counts = getBookingCounts()
+                  const count = counts[tab.key as keyof typeof counts]
+                  const isActive = selectedTab === tab.key
+                  
+                  return (
+                    <button
+                      key={tab.key}
+                      onClick={() => setSelectedTab(tab.key)}
+                      className={`px-2 sm:px-4 py-2 text-xs sm:text-sm font-medium rounded-md transition-colors duration-200 flex items-center space-x-1 sm:space-x-2 whitespace-nowrap flex-shrink-0 ${
+                        isActive
+                          ? 'bg-blue-100 dark:bg-blue-900/20 text-blue-700 dark:text-blue-400 border-b-2 border-blue-500'
+                          : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700'
+                      }`}
+                    >
+                      <span>{tab.label}</span>
+                      <span className={`inline-flex items-center justify-center px-1.5 sm:px-2 py-0.5 sm:py-1 text-xs font-semibold rounded-full min-w-[20px] ${
+                        isActive
+                          ? 'bg-blue-200 dark:bg-blue-800 text-blue-800 dark:text-blue-200'
+                          : 'bg-gray-200 dark:bg-gray-600 text-gray-700 dark:text-gray-300'
+                      }`}>
+                        {count}
+                      </span>
+                    </button>
+                  )
+                })}
+              </div>
+            </div>
+
             <div className="divide-y divide-gray-200 dark:divide-gray-700">
-              {bookings.length === 0 ? (
+              {getFilteredBookings().length === 0 ? (
                 <div className="px-4 sm:px-6 py-8 sm:py-12 text-center">
                   <Calendar className="w-12 h-12 text-gray-400 dark:text-gray-500 mx-auto mb-4" />
                   <p className="text-sm sm:text-base text-gray-500 dark:text-gray-400">
@@ -685,42 +896,42 @@ const MasterPastorDashboard: React.FC = () => {
                   </p>
                 </div>
               ) : (
-                bookings.map((booking) => (
+                getFilteredBookings().map((booking) => (
                   <div key={booking.id} className="p-4 sm:p-6">
                     <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
                       {/* Booking Details */}
                       <div className="flex-1 min-w-0">
-                        <div className="flex items-start space-x-3">
-                          {/* Status Badge */}
-                          <div className="flex-shrink-0">
-                            <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${
-                              booking.status === 'confirmed' 
-                                ? 'bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-400'
-                                : 'bg-red-100 text-red-800 dark:bg-red-900/20 dark:text-red-400'
-                            }`}>
-                              {booking.status === 'confirmed' ? (
-                                <>
-                                  <CheckCircle className="w-3 h-3 mr-1" />
-                                  {t('masterDashboard.confirmed')}
-                                </>
-                              ) : (
-                                <>
-                                  <XCircle className="w-3 h-3 mr-1" />
-                                  {t('masterDashboard.cancelled')}
-                                </>
-                              )}
-                            </span>
-                          </div>
-                          
-                          {/* Booking Info */}
-                          <div className="flex-1 min-w-0">
-                            <h3 className="text-sm font-semibold text-gray-900 dark:text-white truncate">
-                              {booking.event_type?.title || t('masterDashboard.appointment')}
-                            </h3>
+                        {/* Status Badge */}
+                        <div className="mb-2">
+                          <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${
+                            booking.status === 'confirmed' 
+                              ? 'bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-400'
+                              : 'bg-red-100 text-red-800 dark:bg-red-900/20 dark:text-red-400'
+                          }`}>
+                            {booking.status === 'confirmed' ? (
+                              <>
+                                <CheckCircle className="w-3 h-3 mr-1" />
+                                {t('masterDashboard.confirmed')}
+                              </>
+                            ) : (
+                              <>
+                                <XCircle className="w-3 h-3 mr-1" />
+                                {t('masterDashboard.cancelled')}
+                              </>
+                            )}
+                          </span>
+                        </div>
+                        
+                        {/* Booking Info */}
+                        <div className="flex-1 min-w-0">
+                          <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-3">
+                            {booking.event_type?.title || t('masterDashboard.appointment')}
+                          </h3>
                             
-                            <div className="mt-2 space-y-1">
-                              <div className="flex items-center text-xs text-gray-500 dark:text-gray-400">
-                                <Calendar className="w-3 h-3 mr-1.5 flex-shrink-0" />
+                          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                            <div className="space-y-2">
+                              <div className="flex items-center text-sm text-gray-600 dark:text-gray-300">
+                                <Calendar className="w-4 h-4 mr-2 flex-shrink-0" />
                                 <span>{new Date(booking.start_time).toLocaleDateString('en-US', { 
                                   weekday: 'long', 
                                   year: 'numeric', 
@@ -729,8 +940,8 @@ const MasterPastorDashboard: React.FC = () => {
                                 })}</span>
                               </div>
                               
-                              <div className="flex items-center text-xs text-gray-500 dark:text-gray-400">
-                                <Clock className="w-3 h-3 mr-1.5 flex-shrink-0" />
+                              <div className="flex items-center text-sm text-gray-600 dark:text-gray-300">
+                                <Clock className="w-4 h-4 mr-2 flex-shrink-0" />
                                 <span>
                                   {new Date(booking.start_time).toLocaleTimeString('en-US', { 
                                     hour: 'numeric', 
@@ -743,64 +954,63 @@ const MasterPastorDashboard: React.FC = () => {
                                   })} ({Math.round((new Date(booking.end_time).getTime() - new Date(booking.start_time).getTime()) / (1000 * 60))} {t('common.min')})
                                 </span>
                               </div>
-                              
-                              <div className="flex items-center text-xs text-gray-500 dark:text-gray-400">
-                                <User className="w-3 h-3 mr-1.5 flex-shrink-0" />
+                            </div>
+                            
+                            <div className="space-y-2">
+                              <div className="flex items-center text-sm text-gray-600 dark:text-gray-300">
+                                <User className="w-4 h-4 mr-2 flex-shrink-0" />
                                 <span className="truncate">{booking.booker_name}</span>
                               </div>
                               
-                              <div className="flex items-center text-xs text-gray-500 dark:text-gray-400">
-                                <Mail className="w-3 h-3 mr-1.5 flex-shrink-0" />
+                              <div className="flex items-center text-sm text-gray-600 dark:text-gray-300">
+                                <Mail className="w-4 h-4 mr-2 flex-shrink-0" />
                                 <span className="truncate">{booking.booker_email}</span>
                               </div>
                               
                               {booking.booker_phone && (
-                                <div className="flex items-center text-xs text-gray-500 dark:text-gray-400">
-                                  <Phone className="w-3 h-3 mr-1.5 flex-shrink-0" />
+                                <div className="flex items-center text-sm text-gray-600 dark:text-gray-300">
+                                  <Phone className="w-4 h-4 mr-2 flex-shrink-0" />
                                   <span>{booking.booker_phone}</span>
                                 </div>
                               )}
-                              
-                              {/* Pastor Name */}
-                              <div className="flex items-center text-xs text-blue-600 dark:text-blue-400">
-                                <Users className="w-3 h-3 mr-1.5 flex-shrink-0" />
-                                <span className="font-medium">{booking.pastor_name}</span>
-                              </div>
                             </div>
-                            
-                            {/* Description */}
-                            {booking.booker_description && (
-                              <div className="mt-3 p-3 bg-gray-50 dark:bg-gray-700 rounded-lg">
-                                <div className="flex items-start">
-                                  <div className="flex-shrink-0">
-                                    <div className="w-6 h-6 bg-gray-200 dark:bg-gray-600 rounded-full flex items-center justify-center">
-                                      <span className="text-xs text-gray-600 dark:text-gray-300">💬</span>
-                                    </div>
-                                  </div>
-                                  <div className="ml-3">
-                                    <h4 className="text-xs font-medium text-gray-900 dark:text-white mb-1">
-                                      {t('masterDashboard.description')}
-                                    </h4>
-                                    <p className="text-xs text-gray-600 dark:text-gray-300">
-                                      {booking.booker_description}
-                                    </p>
-                                  </div>
+                          </div>
+                          
+                        </div>
+                        
+                        {/* Description */}
+                        {booking.booker_description && (
+                          <div className="mt-4 p-4 bg-gray-50 dark:bg-gray-700 rounded-lg">
+                            <div className="flex items-start">
+                              <div className="flex-shrink-0">
+                                <div className="w-6 h-6 bg-gray-200 dark:bg-gray-600 rounded-full flex items-center justify-center">
+                                  <span className="text-xs text-gray-600 dark:text-gray-300">💬</span>
                                 </div>
                               </div>
-                            )}
+                              <div className="ml-3">
+                                <h4 className="text-sm font-medium text-gray-900 dark:text-white mb-1">
+                                  {t('masterDashboard.description')}
+                                </h4>
+                                <p className="text-sm text-gray-600 dark:text-gray-300">
+                                  {booking.booker_description}
+                                </p>
+                              </div>
+                            </div>
                           </div>
-                        </div>
+                        )}
                       </div>
                     </div>
                     
                     {/* Booking Date */}
-                    <div className="mt-3 text-xs text-gray-400 dark:text-gray-500">
-                      {t('masterDashboard.bookedOn')} {new Date(booking.created_at).toLocaleDateString('en-US', { 
-                        weekday: 'long', 
-                        year: 'numeric', 
-                        month: 'long', 
-                        day: 'numeric' 
-                      })}
+                    <div className="mt-4 pt-3 border-t border-gray-200 dark:border-gray-600">
+                      <div className="text-sm text-gray-500 dark:text-gray-400">
+                        {t('masterDashboard.bookedOn')} {new Date(booking.created_at).toLocaleDateString('en-US', { 
+                          weekday: 'long', 
+                          year: 'numeric', 
+                          month: 'long', 
+                          day: 'numeric' 
+                        })}
+                      </div>
                     </div>
                   </div>
                 ))

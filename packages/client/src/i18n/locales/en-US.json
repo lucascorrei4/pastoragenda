@@ -63,7 +63,11 @@
     "dashboard": "Dashboard",
     "profile": "Profile",
     "eventTypes": "Agendas",
+    "agendaSharing": "Agenda Sharing",
     "bookings": "Bookings",
+    "followAgendas": "Follow Agendas",
+    "unavailability": "Unavailability",
+    "publicPage": "Public Page",
     "settings": "Settings",
     "signIn": "Sign In",
     "signUp": "Sign Up",
@@ -281,6 +285,11 @@
         "subtitle": "Secure and Private",
         "description": "Counseling is a sacred moment. Our platform was built with security and privacy in mind, ensuring that data and the nature of appointments are kept in complete confidentiality."
       }
+    },
+    "preview": {
+      "title": "See How Your Appointment Page Will Look",
+      "description": "This is exactly how your community will see and interact with your appointment page. A clean, professional interface that makes booking appointments simple and respectful.",
+      "subtitle": "Your members can easily see your availability, book appointments, and you'll receive all the details automatically."
     },
     "cta": {
       "title": "Ready to focus on what really matters?",
@@ -581,6 +590,13 @@
     "noEventTypesDesc": "{{name}} hasn't set up any appointment types yet.",
     "qrCode": "QR Code",
     "qrDescription": "Scan to share",
+    "qrModal": {
+      "title": "QR Code",
+      "instructions": "Scan this QR code to access {name}'s agenda",
+      "shareProfile": "Share Profile",
+      "openQRCode": "Open QR Code in full screen",
+      "expand": "Expand"
+    },
     "mobileQrTitle": "Share this profile",
     "mobileQrDescription": "Scan to share with others",
     "footer": "Powered by PastorAgenda",
@@ -669,11 +685,41 @@
     "saveSuccess": "Sharing settings saved successfully",
     "saveError": "Failed to save sharing settings",
     "linkCopied": "Agenda link copied to clipboard!",
-    "linkCopyError": "Failed to copy link to clipboard"
+    "linkCopyError": "Failed to copy link to clipboard",
+    "sharingType": "Sharing Type",
+    "publicPermanent": "Public (No Expiration)",
+    "publicPermanentDesc": "Link works permanently until you disable public access",
+    "timeLimited": "Time Limited",
+    "timeLimitedDesc": "Link expires after a set time - perfect for giving someone temporary access to book appointments",
+    "expirationTime": "Expiration Time",
+    "anonymousLink": "Anonymous Link",
+    "anonymousLinkDesc": "Generate a link that doesn't reveal your identity (e.g., anon-abc123 instead of your-nickname)",
+    "page": {
+      "subtitle": "Share your agenda with your community and manage access settings",
+      "manageSharing": "Manage Sharing",
+      "sharingOverview": "Sharing Overview",
+      "publicAccess": "Public Access",
+      "publicAccessDesc": "Make your agenda publicly available",
+      "timeLimitedSharing": "Time-Limited Sharing",
+      "timeLimitedSharingDesc": "Generate temporary access links",
+      "notConfigured": "Not Configured",
+      "quickActions": "Quick Actions",
+      "configureSharing": "Configure Sharing",
+      "configureSharingDesc": "Set up public access and time-limited links",
+      "viewPublicLink": "View Public Link",
+      "viewPublicLinkDesc": "See your current sharing link",
+      "needHelp": "Need Help?",
+      "helpDesc": "Learn how to share your agenda with your community and manage access settings.",
+      "publicAccessHelp": "Make your agenda permanently available to anyone with the link",
+      "timeLimitedHelp": "Generate temporary links that expire after a set time",
+      "anonymousLinksHelp": "Share without revealing your personal alias"
+    }
   },
   "masterDashboard": {
     "title": "Master Pastor Dashboard",
     "subtitle": "Manage and follow multiple pastor agendas",
+    "followAgendas": "Follow Agendas",
+    "followAgendasSubtitle": "Follow other pastors' agendas and manage your pastoral network",
     "totalFollowed": "Total Followed",
     "pendingInvitations": "Pending Invitations",
     "activeAgendas": "Active Agendas",

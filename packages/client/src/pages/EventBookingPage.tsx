@@ -124,6 +124,7 @@ function EventBookingPage() {
         console.error('Error fetching unavailability periods:', unavailabilityError)
         setUnavailabilityPeriods([])
       } else {
+        console.log('Unavailability periods loaded:', unavailabilityData)
         setUnavailabilityPeriods(unavailabilityData || [])
       }
 
@@ -199,7 +200,24 @@ function EventBookingPage() {
             }) || false
 
             // Check if this slot is blocked by unavailability periods
-            const { isUnavailable: isBlocked } = checkUnavailability(slotDate, format(slotDate, 'HH:mm'), unavailabilityPeriods)
+            // Convert to 24-hour format for comparison with unavailability periods
+            const time24Hour = format(slotDate, 'HH:mm')
+            const { isUnavailable: isBlocked } = checkUnavailability(slotDate, time24Hour, unavailabilityPeriods)
+            
+            // Debug logging for blocked slots
+            if (isBlocked) {
+              console.log('Slot blocked by unavailability:', {
+                slotTime: time24Hour,
+                slotDate: format(slotDate, 'yyyy-MM-dd'),
+                unavailabilityPeriods: unavailabilityPeriods.map(p => ({
+                  title: p.title,
+                  start_time: p.start_time,
+                  end_time: p.end_time,
+                  start_date: p.start_date,
+                  end_date: p.end_date
+                }))
+              })
+            }
 
             // Add all slots (available, booked, and blocked)
             slots.push({

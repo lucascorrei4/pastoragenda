@@ -4,11 +4,10 @@ import { useTranslation } from 'react-i18next'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
 import { toast } from 'react-hot-toast'
-import { Calendar, Plus, Edit, Trash2, Clock, Settings, Ban, Share2, Mail, XCircle } from 'lucide-react'
+import { Calendar, Plus, Edit, Trash2, Clock, Settings, Ban, Share2, XCircle } from 'lucide-react'
 import type { EventType, AvailabilityRules, CustomQuestion } from '../lib/supabase'
 import { translateDefaultEventTypes } from '../lib/eventTypeTranslations'
 import AgendaSharingSettings from '../components/AgendaSharingSettings'
-import PastorInvitations from '../components/PastorInvitations'
 
 interface EventTypeFormData {
   title: string
@@ -30,7 +29,6 @@ function EventTypesPage() {
   const [saving, setSaving] = useState(false)
   const [deleting, setDeleting] = useState<string | null>(null)
   const [showSharingSettings, setShowSharingSettings] = useState(false)
-  const [showInvitations, setShowInvitations] = useState(false)
 
   // Helper function to safely parse time values
   const parseTime = (time: string | undefined) => {
@@ -377,13 +375,6 @@ function EventTypesPage() {
           >
             <Share2 className="w-4 h-4 mr-2 flex-shrink-0" />
             <span className="truncate">{t('sharing.title')}</span>
-          </button>
-          <button
-            onClick={() => setShowInvitations(true)}
-            className="btn-secondary flex items-center justify-center min-w-0 flex-shrink-0"
-          >
-            <Mail className="w-4 h-4 mr-2 flex-shrink-0" />
-            <span className="truncate">{t('invitations.title')}</span>
           </button>
           <button
             onClick={() => navigate('/dashboard/unavailability')}
@@ -920,27 +911,6 @@ function EventTypesPage() {
         <AgendaSharingSettings onClose={() => setShowSharingSettings(false)} />
       )}
 
-      {/* Invitations Modal */}
-      {showInvitations && (
-        <div className="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50">
-          <div className="relative top-4 mx-auto p-5 border w-11/12 max-w-4xl shadow-lg rounded-md bg-white dark:bg-gray-800">
-            <div className="mt-3">
-              <div className="flex items-center justify-between mb-4">
-                <h3 className="text-lg font-medium text-gray-900 dark:text-white">
-                  {t('invitations.title')}
-                </h3>
-                <button
-                  onClick={() => setShowInvitations(false)}
-                  className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
-                >
-                  <XCircle className="w-6 h-6" />
-                </button>
-              </div>
-              <PastorInvitations />
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   )
 }

@@ -3,11 +3,11 @@ import { Link } from 'react-router-dom'
 import { useAuth } from '../contexts/AuthContext'
 import { useTranslation } from 'react-i18next'
 import { supabase } from '../lib/supabase'
-import { Calendar, Clock, Users, TrendingUp, MessageSquare, ExternalLink, Edit, Globe, Plus, Settings, Ban, Bell, Share2 } from 'lucide-react'
+import { Calendar, Clock, Users, TrendingUp, MessageSquare, ExternalLink, Edit, Globe, Plus, Settings, Ban, Share2, AlertCircle, User, Image, FileText, ArrowRight, XCircle } from 'lucide-react'
 import type { Profile, BookingWithDetails, EventType } from '../lib/supabase'
 import { translateDefaultEventTypes } from '../lib/eventTypeTranslations'
 import WelcomeMessage from '../components/WelcomeMessage'
-import NotificationSettings from '../components/NotificationSettings'
+// import NotificationSettings from '../components/NotificationSettings' // Hidden for now
 
 function DashboardPage() {
   const { user } = useAuth()
@@ -21,7 +21,8 @@ function DashboardPage() {
     totalEventTypes: 0
   })
   const [loading, setLoading] = useState(true)
-  const [showNotificationSettings, setShowNotificationSettings] = useState(false)
+  const [showProfileAdvice, setShowProfileAdvice] = useState(false)
+  // const [showNotificationSettings, setShowNotificationSettings] = useState(false) // Hidden for now
 
   useEffect(() => {
     if (user) {
@@ -37,10 +38,23 @@ function DashboardPage() {
     }
   }, [t])
 
+  // Get missing profile fields
+  const getMissingFields = () => {
+    if (!profile) return []
+    
+    const missing: Array<{ field: string; label: string; icon: any }> = []
+    if (!profile.full_name) missing.push({ field: 'full_name', label: 'Full Name', icon: User })
+    if (!profile.avatar_url) missing.push({ field: 'avatar_url', label: 'Profile Picture', icon: Image })
+    if (!profile.bio) missing.push({ field: 'bio', label: 'Bio/Description', icon: FileText })
+    if (!profile.alias) missing.push({ field: 'alias', label: 'Public URL Slug', icon: Link })
+    
+    return missing
+  }
+
   const fetchDashboardData = async () => {
     try {
       setLoading(true)
-      
+
       // Fetch profile
       const { data: profileData } = await supabase
         .from('profiles')
@@ -50,6 +64,15 @@ function DashboardPage() {
 
       if (profileData) {
         setProfile(profileData)
+        
+        // Check if profile needs completion
+        const missingFields: string[] = []
+        if (!profileData?.full_name) missingFields.push('full_name')
+        if (!profileData?.avatar_url) missingFields.push('avatar_url')
+        if (!profileData?.bio) missingFields.push('bio')
+        if (!profileData?.alias) missingFields.push('alias')
+        
+        setShowProfileAdvice(missingFields.length > 0)
       }
 
       // Fetch agendas
@@ -71,9 +94,9 @@ function DashboardPage() {
         .select('id')
         .eq('user_id', user?.id)
 
-              if (userEventTypes && userEventTypes.length > 0) {
-          const eventTypeIds = userEventTypes.map((et: { id: string }) => et.id)
-        
+      if (userEventTypes && userEventTypes.length > 0) {
+        const eventTypeIds = userEventTypes.map((et: { id: string }) => et.id)
+
         // Fetch recent bookings for user's agendas
         const { data: bookingsData } = await supabase
           .from('bookings')
@@ -142,7 +165,7 @@ function DashboardPage() {
     <div className="space-y-6">
       {/* Welcome Message */}
       <WelcomeMessage userName={profile?.full_name || user?.alias || user?.email} />
-      
+
       {/* Welcome Section */}
       <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
         <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
@@ -192,6 +215,136 @@ function DashboardPage() {
         </div>
       </div>
 
+      {/* Profile Advice */}
+      {showProfileAdvice && (
+        <div className="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 rounded-lg border border-blue-200 dark:border-blue-700 mb-6">
+          <div className="px-4 sm:px-6 py-4">
+            <div className="flex items-start">
+              <div className="flex-shrink-0">
+                <AlertCircle className="w-6 h-6 text-blue-600 dark:text-blue-400" />
+              </div>
+              <div className="ml-3 flex-1 min-w-0">
+                <h3 className="text-sm font-semibold text-blue-800 dark:text-blue-200 mb-2">
+                  Complete Your Profile
+                </h3>
+                <p className="text-sm text-blue-700 dark:text-blue-300 mb-4">
+                  Your profile is missing some important information that helps your community connect with you better.
+                </p>
+                
+                <div className="space-y-2 mb-4">
+                  {getMissingFields().map((field, index) => {
+                    const IconComponent = field.icon
+                    return (
+                      <div key={index} className="flex items-center text-sm text-blue-700 dark:text-blue-300">
+                        <IconComponent className="w-4 h-4 mr-2 flex-shrink-0" />
+                        <span>{field.label}</span>
+                      </div>
+                    )
+                  })}
+                </div>
+                
+                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+                  <p className="text-xs text-blue-600 dark:text-blue-400 flex-1">
+                    Complete your profile to improve your public presence and help people find you.
+                  </p>
+                  <Link
+                    to="/dashboard/profile"
+                    className="inline-flex items-center justify-center px-4 py-2.5 sm:px-3 sm:py-2 text-sm font-medium text-blue-700 dark:text-blue-300 bg-blue-100 dark:bg-blue-800/30 hover:bg-blue-200 dark:hover:bg-blue-800/50 rounded-md transition-colors duration-200 w-full sm:w-auto"
+                  >
+                    <Edit className="w-4 h-4 mr-2 flex-shrink-0" />
+                    <span className="truncate">Edit Profile</span>
+                    <ArrowRight className="w-4 h-4 ml-2 flex-shrink-0" />
+                  </Link>
+                </div>
+              </div>
+              <div className="flex-shrink-0 ml-2 sm:ml-4">
+                <button
+                  onClick={() => setShowProfileAdvice(false)}
+                  className="text-blue-400 hover:text-blue-600 dark:text-blue-500 dark:hover:text-blue-300 transition-colors duration-200 p-1"
+                >
+                  <XCircle className="w-5 h-5" />
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Public Profile Preview */}
+      {profile?.alias && (
+        <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-lg font-medium text-gray-900 dark:text-white flex items-center">
+              <Users className="h-5 w-5 text-primary-600 mr-2" />
+              {t('dashboard.publicProfile.title')}
+            </h2>
+            <div className="flex space-x-2">
+              <Link
+                to="/dashboard/profile"
+                className="inline-flex items-center px-3 py-1.5 text-sm font-medium text-gray-700 dark:text-gray-300 bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-md hover:bg-gray-100 dark:hover:bg-gray-600 transition-colors"
+              >
+                <Edit className="w-4 h-4 mr-1.5" />
+                {t('dashboard.publicProfile.edit')}
+              </Link>
+            </div>
+          </div>
+
+          <div className="bg-gradient-to-r from-primary-50 to-blue-50 dark:from-primary-900/10 dark:to-blue-900/10 border border-primary-200 dark:border-primary-800 rounded-lg p-4">
+            <div className="flex items-start space-x-4">
+              <div className="flex-shrink-0">
+                <div className="w-16 h-16 rounded-full bg-primary-100 dark:bg-primary-900/30 flex items-center justify-center overflow-hidden" style={{ aspectRatio: '1/1' }}>
+                  {profile.avatar_url ? (
+                    <img
+                      src={profile.avatar_url}
+                      alt="Profile"
+                      className="w-full h-full object-cover rounded-full"
+                      style={{ aspectRatio: '1/1' }}
+                    />
+                  ) : (
+                    <Users className="w-8 h-8 text-primary-600 dark:text-primary-400" />
+                  )}
+                </div>
+              </div>
+
+              <div className="flex-1 min-w-0">
+                <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-1">
+                  {profile.full_name || t('common.pastor')}
+                </h3>
+                {profile.bio && (
+                  <p className="text-sm text-gray-600 dark:text-gray-300 mb-3 line-clamp-2">
+                    {profile.bio}
+                  </p>
+                )}
+
+                <div className="flex items-center space-x-4 text-sm text-gray-500 dark:text-gray-400">
+                  <div className="flex items-center">
+                    <Globe className="w-4 h-4 mr-1.5" />
+                    <a
+                      href={`${window.location.origin}/${profile.alias}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="font-mono text-primary-600 dark:text-primary-400 hover:text-primary-700 dark:hover:text-primary-300 underline transition-colors"
+                    >
+                      /{profile.alias}
+                    </a>
+                  </div>
+                  <div className="flex items-center">
+                    <Calendar className="w-4 h-4 mr-1.5" />
+                    <span>{stats.totalEventTypes} {t('dashboard.publicProfile.eventTypes')}</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div className="mt-4 pt-4 border-t border-primary-200 dark:border-primary-800">
+              <p className="text-xs text-gray-500 dark:text-gray-400">
+                {t('dashboard.publicProfile.description')}
+              </p>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Agendas Overview */}
       <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
         <div className="flex items-center justify-between mb-6">
@@ -207,7 +360,7 @@ function DashboardPage() {
             {t('dashboard.agendas.createNew')}
           </Link>
         </div>
-        
+
         {eventTypes.length > 0 ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             {eventTypes.slice(0, 6).map((eventType) => (
@@ -221,13 +374,13 @@ function DashboardPage() {
                     {eventType.duration} {t('common.min')}
                   </div>
                 </div>
-                
+
                 {eventType.description && (
                   <p className="text-sm text-gray-600 dark:text-gray-300 mb-4 line-clamp-2">
                     {eventType.description}
                   </p>
                 )}
-                
+
                 <div className="space-y-2">
                   <div className="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wide">
                     {t('dashboard.agendas.availability')}
@@ -255,7 +408,7 @@ function DashboardPage() {
                     })}
                   </div>
                 </div>
-                
+
                 <div className="mt-4 pt-3 border-t border-gray-200 dark:border-gray-600">
                   <Link
                     to={`/dashboard/event-types?edit=${eventType.id}`}
@@ -342,12 +495,13 @@ function DashboardPage() {
           >
             <Users className="h-6 w-6 text-primary-600 mr-3" />
             <div>
-              <h3 className="font-medium text-gray-900 dark:text-white">{t('dashboard.quickActions.masterDashboard')}</h3>
-              <p className="text-sm text-gray-500 dark:text-gray-400">{t('dashboard.quickActions.masterDashboardDesc')}</p>
+              <h3 className="font-medium text-gray-900 dark:text-white">{t('masterDashboard.followAgendas')}</h3>
+              <p className="text-sm text-gray-500 dark:text-gray-400">{t('masterDashboard.followAgendasSubtitle')}</p>
             </div>
           </Link>
 
-          <button
+          {/* Notification Settings - Hidden for now */}
+          {/* <button
             onClick={() => setShowNotificationSettings(true)}
             className="flex items-center p-4 border border-gray-200 dark:border-gray-600 rounded-lg hover:border-primary-300 hover:bg-primary-50 dark:hover:bg-primary-900/20 transition-colors text-left w-full"
           >
@@ -356,84 +510,11 @@ function DashboardPage() {
               <h3 className="font-medium text-gray-900 dark:text-white">{t('dashboard.quickActions.notificationSettings')}</h3>
               <p className="text-sm text-gray-500 dark:text-gray-400">{t('dashboard.quickActions.notificationSettingsDesc')}</p>
             </div>
-          </button>
+          </button> */}
         </div>
       </div>
 
-      {/* Public Profile Preview */}
-      {profile?.alias && (
-        <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
-          <div className="flex items-center justify-between mb-4">
-            <h2 className="text-lg font-medium text-gray-900 dark:text-white flex items-center">
-              <Users className="h-5 w-5 text-primary-600 mr-2" />
-              {t('dashboard.publicProfile.title')}
-            </h2>
-            <div className="flex space-x-2">
-              <Link
-                to="/dashboard/profile"
-                className="inline-flex items-center px-3 py-1.5 text-sm font-medium text-gray-700 dark:text-gray-300 bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-md hover:bg-gray-100 dark:hover:bg-gray-600 transition-colors"
-              >
-                <Edit className="w-4 h-4 mr-1.5" />
-                {t('dashboard.publicProfile.edit')}
-              </Link>
-            </div>
-          </div>
-          
-          <div className="bg-gradient-to-r from-primary-50 to-blue-50 dark:from-primary-900/10 dark:to-blue-900/10 border border-primary-200 dark:border-primary-800 rounded-lg p-4">
-            <div className="flex items-start space-x-4">
-              <div className="flex-shrink-0">
-                <div className="w-16 h-16 rounded-full bg-primary-100 dark:bg-primary-900/30 flex items-center justify-center overflow-hidden" style={{ aspectRatio: '1/1' }}>
-                  {profile.avatar_url ? (
-                    <img
-                      src={profile.avatar_url}
-                      alt="Profile"
-                      className="w-full h-full object-cover rounded-full"
-                      style={{ aspectRatio: '1/1' }}
-                    />
-                  ) : (
-                    <Users className="w-8 h-8 text-primary-600 dark:text-primary-400" />
-                  )}
-                </div>
-              </div>
-              
-              <div className="flex-1 min-w-0">
-                <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-1">
-                  {profile.full_name || t('common.pastor')}
-                </h3>
-                {profile.bio && (
-                  <p className="text-sm text-gray-600 dark:text-gray-300 mb-3 line-clamp-2">
-                    {profile.bio}
-                  </p>
-                )}
-                
-                <div className="flex items-center space-x-4 text-sm text-gray-500 dark:text-gray-400">
-                  <div className="flex items-center">
-                    <Globe className="w-4 h-4 mr-1.5" />
-                    <a 
-                      href={`${window.location.origin}/${profile.alias}`}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="font-mono text-primary-600 dark:text-primary-400 hover:text-primary-700 dark:hover:text-primary-300 underline transition-colors"
-                    >
-                      /{profile.alias}
-                    </a>
-                  </div>
-                  <div className="flex items-center">
-                    <Calendar className="w-4 h-4 mr-1.5" />
-                    <span>{stats.totalEventTypes} {t('dashboard.publicProfile.eventTypes')}</span>
-                  </div>
-                </div>
-              </div>
-            </div>
-            
-            <div className="mt-4 pt-4 border-t border-primary-200 dark:border-primary-800">
-              <p className="text-xs text-gray-500 dark:text-gray-400">
-                {t('dashboard.publicProfile.description')}
-              </p>
-            </div>
-          </div>
-        </div>
-      )}
+
 
       {/* Recent Bookings */}
       <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
@@ -446,7 +527,7 @@ function DashboardPage() {
             {t('dashboard.recentBookings.viewAll')}
           </Link>
         </div>
-        
+
         {recentBookings.length > 0 ? (
           <div className="space-y-4">
             {recentBookings.map((booking) => (
@@ -454,11 +535,10 @@ function DashboardPage() {
                 <div className="flex-1">
                   <div className="flex items-center justify-between mb-2">
                     <p className="font-medium text-gray-900 dark:text-white">{booking.booker_name}</p>
-                    <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
-                      booking.status === 'confirmed' 
-                        ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200' 
+                    <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${booking.status === 'confirmed'
+                        ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200'
                         : 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200'
-                    }`}>
+                      }`}>
                       {booking.status}
                     </span>
                   </div>
@@ -474,31 +554,31 @@ function DashboardPage() {
                       hour12: true
                     })}
                   </p>
-                   {booking.booker_description && (
-                     <p className="text-sm text-gray-600 dark:text-gray-400 mt-2 italic">
-                       "{booking.booker_description}"
-                     </p>
-                   )}
-                   {booking.custom_answers && Object.keys(booking.custom_answers).length > 0 && (
-                     <div className="mt-2 p-3 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded text-xs">
-                       <div className="flex items-start space-x-2 mb-2">
-                         <MessageSquare className="w-4 h-4 text-blue-500 dark:text-blue-400 mt-0.5 flex-shrink-0" />
-                         <span className="font-medium text-blue-700 dark:text-blue-300">{t('dashboard.recentBookings.customQandA')}:</span>
-                       </div>
-                       <div className="space-y-1 ml-6">
-                         {Object.entries(booking.custom_answers).map(([questionId, answer]) => {
-                           // Find the corresponding question from event type
-                           const question = booking.event_types.custom_questions?.find(q => q.id === questionId)
-                           return (
-                             <div key={questionId} className="text-blue-600 dark:text-blue-200">
-                               <span className="font-medium">{question?.question || 'Question'}: </span>
-                               <span>{Array.isArray(answer) ? answer.join(', ') : answer}</span>
-                             </div>
-                           )
-                         })}
-                       </div>
-                     </div>
-                   )}
+                  {booking.booker_description && (
+                    <p className="text-sm text-gray-600 dark:text-gray-400 mt-2 italic">
+                      "{booking.booker_description}"
+                    </p>
+                  )}
+                  {booking.custom_answers && Object.keys(booking.custom_answers).length > 0 && (
+                    <div className="mt-2 p-3 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded text-xs">
+                      <div className="flex items-start space-x-2 mb-2">
+                        <MessageSquare className="w-4 h-4 text-blue-500 dark:text-blue-400 mt-0.5 flex-shrink-0" />
+                        <span className="font-medium text-blue-700 dark:text-blue-300">{t('dashboard.recentBookings.customQandA')}:</span>
+                      </div>
+                      <div className="space-y-1 ml-6">
+                        {Object.entries(booking.custom_answers).map(([questionId, answer]) => {
+                          // Find the corresponding question from event type
+                          const question = booking.event_types.custom_questions?.find(q => q.id === questionId)
+                          return (
+                            <div key={questionId} className="text-blue-600 dark:text-blue-200">
+                              <span className="font-medium">{question?.question || 'Question'}: </span>
+                              <span>{Array.isArray(answer) ? answer.join(', ') : answer}</span>
+                            </div>
+                          )
+                        })}
+                      </div>
+                    </div>
+                  )}
                 </div>
               </div>
             ))}
@@ -543,14 +623,14 @@ function DashboardPage() {
         </div>
       )}
 
-      {/* Notification Settings Modal */}
-      {showNotificationSettings && (
+      {/* Notification Settings Modal - Hidden for now */}
+      {/* {showNotificationSettings && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
           <div className="max-w-2xl w-full max-h-[90vh] overflow-y-auto">
             <NotificationSettings onClose={() => setShowNotificationSettings(false)} />
           </div>
         </div>
-      )}
+      )} */}
 
     </div>
   )

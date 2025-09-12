@@ -342,9 +342,13 @@ serve(async (req) => {
 
       console.log('Raw follows data:', JSON.stringify(follows, null, 2));
 
+      // Filter out the master pastor from the followed pastors list
+      const filteredFollows = (follows || []).filter(follow => follow.followed_pastor_id !== user.id);
+      console.log('Filtered follows (excluding master pastor):', JSON.stringify(filteredFollows, null, 2));
+
       // Fetch sharing settings for each followed pastor
       const followsWithSettings = await Promise.all(
-        (follows || []).map(async (follow) => {
+        filteredFollows.map(async (follow) => {
           const { data: settings } = await supabase
             .from('pastor_sharing_settings')
             .select('*')
@@ -446,12 +450,18 @@ serve(async (req) => {
 
         const followedPastorIds = follows?.map(f => f.followed_pastor_id) || [];
         
-        if (followedPastorIds.length === 0) {
-          console.log('No followed pastors found');
+        // Explicitly exclude the master pastor's own ID to prevent self-following
+        const filteredPastorIds = followedPastorIds.filter(id => id !== user.id);
+        
+        console.log('All followed pastor IDs:', followedPastorIds);
+        console.log('Master pastor ID (to exclude):', user.id);
+        console.log('Filtered pastor IDs (excluding master):', filteredPastorIds);
+        console.log('Is master pastor following themselves?', followedPastorIds.includes(user.id));
+        
+        if (filteredPastorIds.length === 0) {
+          console.log('No followed pastors found (excluding master pastor)');
           return new Response(JSON.stringify({ data: [] }), { headers: corsHeaders });
         }
-
-        console.log('Followed pastor IDs:', followedPastorIds);
 
         // Fetch bookings for followed pastors using service role
         const pastorId = body.pastor_id;
@@ -479,7 +489,7 @@ serve(async (req) => {
               )
             )
           `)
-          .in('event_type.user_id', followedPastorIds)
+          .in('event_type.user_id', filteredPastorIds)
           .order('start_time', { ascending: false });
 
         // Filter by specific pastor if requested
@@ -497,15 +507,187 @@ serve(async (req) => {
 
         console.log('Raw bookings data:', JSON.stringify(bookings, null, 2));
 
-        // Transform the data to include pastor name
-        const transformedBookings = (bookings || []).map(booking => ({
-          ...booking,
-          pastor_name: booking.event_type?.pastor?.full_name || booking.event_type?.pastor?.alias || 'Unknown Pastor'
-        }));
+        // Transform the data to include pastor name and filter out invalid bookings
+        const transformedBookings = (bookings || [])
+          .filter(booking => {
+            // Only include bookings that have a valid event_type with a pastor
+            const hasValidEventType = booking.event_type && 
+                                    booking.event_type.pastor && 
+                                    booking.event_type.pastor.id;
+            console.log(`Booking ${booking.id}: hasValidEventType=${hasValidEventType}, event_type=${JSON.stringify(booking.event_type)}`);
+            return hasValidEventType;
+          })
+          .map(booking => ({
+            ...booking,
+            pastor_name: booking.event_type?.pastor?.full_name || booking.event_type?.pastor?.alias || 'Unknown Pastor'
+          }));
 
         console.log('Transformed bookings data:', JSON.stringify(transformedBookings, null, 2));
+        console.log('Bookings count by pastor:');
+        const pastorCounts = transformedBookings.reduce((acc, booking) => {
+          const pastor = booking.pastor_name;
+          acc[pastor] = (acc[pastor] || 0) + 1;
+          return acc;
+        }, {});
+        console.log(pastorCounts);
         
         return new Response(JSON.stringify({ data: transformedBookings }), { headers: corsHeaders });
+      }
+
+      if (path === 'pastor-agenda') {
+        // Fetch pastor agenda data for master pastor
+        const pastorAlias = body.pastor_alias;
+        
+        console.log('=== FETCHING PASTOR AGENDA ===');
+        console.log('Master pastor ID:', user.id);
+        console.log('Pastor alias (followed pastor):', pastorAlias);
+        console.log('Master pastor email:', user.email);
+        
+        // First, look up the pastor by alias to get their ID
+        const { data: pastorProfile, error: pastorLookupError } = await supabase
+          .from('profiles')
+          .select('id, alias, full_name, email')
+          .eq('alias', pastorAlias)
+          .single();
+
+        if (pastorLookupError || !pastorProfile) {
+          console.error('Error looking up pastor by alias:', pastorLookupError);
+          return new Response(JSON.stringify({ error: 'Pastor not found' }), { 
+            status: 404, 
+            headers: corsHeaders 
+          });
+        }
+
+        const pastorId = pastorProfile.id;
+        console.log('Found pastor ID:', pastorId, 'for alias:', pastorAlias);
+        console.log('Are IDs the same?', user.id === pastorId);
+        
+        // First verify that the master pastor is following this pastor
+        const { data: followData, error: followError } = await supabase
+          .from('master_pastor_follows')
+          .select('*')
+          .eq('master_pastor_id', user.id)
+          .eq('followed_pastor_id', pastorId)
+          .eq('invitation_status', 'accepted');
+
+        if (followError) {
+          console.error('Error checking follow relationship:', followError);
+          throw followError;
+        }
+
+        if (!followData || followData.length === 0) {
+          console.log('No follow relationship found');
+          return new Response(JSON.stringify({ error: 'You are not authorized to view this pastor\'s agenda' }), { 
+            status: 403, 
+            headers: corsHeaders 
+          });
+        }
+
+        console.log('Follow relationship verified:', followData[0]);
+
+        // Use service role to fetch pastor data
+        const { createClient } = await import('https://esm.sh/@supabase/supabase-js@2.38.4');
+        const serviceSupabase = createClient(
+          Deno.env.get('SUPABASE_URL') ?? '',
+          Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
+        );
+
+        // Fetch pastor profile
+        const { data: pastorData, error: pastorError } = await serviceSupabase
+          .from('profiles')
+          .select('*')
+          .eq('id', pastorId)
+          .single();
+
+        if (pastorError || !pastorData) {
+          console.error('Error fetching pastor profile:', pastorError);
+          return new Response(JSON.stringify({ error: 'Pastor not found' }), { 
+            status: 404, 
+            headers: corsHeaders 
+          });
+        }
+
+        // Fetch event types
+        const { data: eventTypesData, error: eventTypesError } = await serviceSupabase
+          .from('event_types')
+          .select('*')
+          .eq('user_id', pastorId);
+
+        if (eventTypesError) {
+          console.error('Error fetching event types:', eventTypesError);
+        }
+
+        // Fetch recent bookings
+        console.log('Fetching bookings for pastor ID:', pastorId);
+        
+        // First get the event type IDs for this pastor
+        const { data: pastorEventTypes, error: eventTypesError2 } = await serviceSupabase
+          .from('event_types')
+          .select('id')
+          .eq('user_id', pastorId);
+
+        if (eventTypesError2) {
+          console.error('Error fetching pastor event types:', eventTypesError2);
+        }
+
+        const pastorEventTypeIds = pastorEventTypes?.map(et => et.id) || [];
+        console.log('Pastor event type IDs:', pastorEventTypeIds);
+
+        if (pastorEventTypeIds.length === 0) {
+          console.log('No event types found for pastor, returning empty bookings');
+          const responseData = {
+            pastor: pastorData,
+            eventTypes: eventTypesData || [],
+            bookings: []
+          };
+          return new Response(JSON.stringify({ data: responseData }), { headers: corsHeaders });
+        }
+
+        // Now fetch bookings for these event types
+        const { data: bookingsData, error: bookingsError } = await serviceSupabase
+          .from('bookings')
+          .select(`
+            *,
+            event_type:event_types!bookings_event_type_id_fkey(
+              id,
+              title,
+              duration,
+              user_id
+            )
+          `)
+          .in('event_type_id', pastorEventTypeIds)
+          .order('start_time', { ascending: false })
+          .limit(10);
+
+        console.log('Bookings query result:', { bookingsData, bookingsError });
+
+        if (bookingsError) {
+          console.error('Error fetching bookings:', bookingsError);
+        }
+
+        const responseData = {
+          pastor: pastorData,
+          eventTypes: eventTypesData || [],
+          bookings: bookingsData || []
+        };
+
+        console.log('Pastor agenda data:', JSON.stringify(responseData, null, 2));
+        console.log('Bookings count:', bookingsData?.length || 0);
+        if (bookingsData && bookingsData.length > 0) {
+          console.log('All bookings details:');
+          bookingsData.forEach((booking, index) => {
+            console.log(`Booking ${index + 1}:`, {
+              id: booking.id,
+              event_type_user_id: booking.event_type?.user_id,
+              expected_pastor_id: pastorId,
+              booker_name: booking.booker_name,
+              start_time: booking.start_time,
+              is_correct_pastor: booking.event_type?.user_id === pastorId
+            });
+          });
+        }
+        
+        return new Response(JSON.stringify({ data: responseData }), { headers: corsHeaders });
       }
 
       if (path === 'invite') {

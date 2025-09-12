@@ -182,7 +182,11 @@ function UnavailabilityPage() {
   }
 
   const formatTime = (timeString: string) => {
-    return timeString.substring(0, 5) // Remove seconds
+    // Convert 24-hour format to 12-hour format
+    const [hours, minutes] = timeString.split(':').map(Number)
+    const period = hours >= 12 ? 'PM' : 'AM'
+    const displayHours = hours === 0 ? 12 : hours > 12 ? hours - 12 : hours
+    return `${displayHours}:${minutes.toString().padStart(2, '0')} ${period}`
   }
 
   const isActive = (period: UnavailabilityPeriod) => {

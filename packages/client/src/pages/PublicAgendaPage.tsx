@@ -1,17 +1,28 @@
 import { useState, useEffect } from 'react'
-import { useParams } from 'react-router-dom'
+import { useParams, useSearchParams } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { Helmet } from 'react-helmet-async'
 import { supabase } from '../lib/supabase'
-import { Calendar, Clock, User, Mail, Phone, MessageSquare, CheckCircle, XCircle, Share2, Copy } from 'lucide-react'
+import { Calendar, Clock, User, Mail, Phone, MessageSquare, CheckCircle, XCircle, Copy } from 'lucide-react'
 import { toast } from 'react-hot-toast'
 import type { PastorSharingSettings, Profile, BookingWithDetails } from '../lib/supabase'
 import LanguageSwitcher from '../components/LanguageSwitcher'
 import { translateDefaultEventType } from '../lib/eventTypeTranslations'
 
-function PublicAgendaPage() {
-  const { slug } = useParams<{ slug: string }>()
+interface PublicAgendaPageProps {
+  slug?: string
+  pastorId?: string
+  isPreview?: boolean
+}
+
+function PublicAgendaPage({ slug: propSlug, pastorId, isPreview = false }: PublicAgendaPageProps = {}) {
+  const { slug: urlSlug } = useParams<{ slug: string }>()
+  const [searchParams] = useSearchParams()
   const { t } = useTranslation()
+  
+  // Use prop slug first, then fall back to URL slug
+  const slug = propSlug || urlSlug
+  const token = searchParams.get('token')
   const [profile, setProfile] = useState<Profile | null>(null)
   const [sharingSettings, setSharingSettings] = useState<PastorSharingSettings | null>(null)
   const [bookings, setBookings] = useState<BookingWithDetails[]>([])
@@ -20,10 +31,10 @@ function PublicAgendaPage() {
   const [filter, setFilter] = useState<'all' | 'upcoming' | 'past' | 'cancelled'>('all')
 
   useEffect(() => {
-    if (slug) {
+    if (slug || pastorId) {
       fetchAgendaData()
     }
-  }, [slug])
+  }, [slug, pastorId])
 
   // Re-translate bookings when language changes
   useEffect(() => {
@@ -47,8 +58,7 @@ function PublicAgendaPage() {
       setLoading(true)
       setError(null)
 
-      // First, get the sharing settings by slug
-      const { data: settingsData, error: settingsError } = await supabase
+      let query = supabase
         .from('pastor_sharing_settings')
         .select(`
           *,
@@ -60,12 +70,44 @@ function PublicAgendaPage() {
             avatar_url
           )
         `)
-        .eq('public_slug', slug)
-        .eq('is_public_enabled', true)
-        .single()
+      
+      // Only require is_public_enabled = true if not in preview mode
+      if (!isPreview) {
+        query = query.eq('is_public_enabled', true)
+      }
+
+      // If we have a pastorId, use it; otherwise use slug
+      if (pastorId) {
+        query = query.eq('pastor_id', pastorId)
+      } else if (slug) {
+        query = query.eq('public_slug', slug)
+      } else {
+        throw new Error('Either slug or pastorId must be provided')
+      }
+
+      const { data: settingsData, error: settingsError } = await query.single()
 
       if (settingsError || !settingsData) {
         throw new Error('Agenda not found or not publicly available')
+      }
+
+      // Validate token if required
+      if (settingsData.sharing_type === 'time_limited') {
+        if (!token) {
+          throw new Error('Access token required for this agenda')
+        }
+        
+        if (settingsData.sharing_token !== token) {
+          throw new Error('Invalid access token')
+        }
+        
+        if (settingsData.token_expires_at) {
+          const expiresAt = new Date(settingsData.token_expires_at)
+          const now = new Date()
+          if (now > expiresAt) {
+            throw new Error('Access token has expired')
+          }
+        }
       }
 
       setSharingSettings(settingsData)
@@ -179,14 +221,6 @@ function PublicAgendaPage() {
     })
   }
 
-  const copyAgendaLink = () => {
-    const url = window.location.href
-    navigator.clipboard.writeText(url).then(() => {
-      toast.success(t('agenda.linkCopied'))
-    }).catch(() => {
-      toast.error(t('agenda.linkCopyError'))
-    })
-  }
 
   if (loading) {
     return (
@@ -215,81 +249,96 @@ function PublicAgendaPage() {
   const filteredBookings = getFilteredBookings()
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
-      <Helmet>
-        <title>{profile.full_name} - {t('agenda.title')}</title>
-        <meta name="description" content={t('agenda.metaDescription', { name: profile.full_name })} />
-      </Helmet>
+    <div className={`${isPreview ? 'bg-white dark:bg-gray-800 rounded-2xl shadow-lg overflow-hidden' : 'min-h-screen bg-gray-50 dark:bg-gray-900'}`}>
+      {!isPreview && (
+        <Helmet>
+          <title>{profile.full_name} - {t('agenda.title')}</title>
+          <meta name="description" content={t('agenda.metaDescription', { name: profile.full_name })} />
+        </Helmet>
+      )}
 
       {/* Header */}
-      <div className="bg-white dark:bg-gray-800 shadow">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center py-6">
+      <div className={`${isPreview ? 'bg-gradient-to-r from-blue-600 to-blue-700 px-6 py-8' : 'bg-white dark:bg-gray-800 shadow'}`}>
+        <div className={`${isPreview ? '' : 'max-w-7xl mx-auto px-4 sm:px-6 lg:px-8'}`}>
+          <div className={`flex ${isPreview ? 'items-center space-x-4' : 'justify-between items-center py-6'}`}>
             <div className="flex items-center space-x-4">
               {profile.avatar_url && (
                 <img
                   src={profile.avatar_url}
                   alt={profile.full_name}
-                  className="h-12 w-12 rounded-full object-cover"
+                  className={`${isPreview ? 'h-16 w-16 rounded-full object-cover border-2 border-white' : 'h-12 w-12 rounded-full object-cover'}`}
                 />
               )}
-              <div>
-                <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
+              <div className="flex-1">
+                <h1 className={`${isPreview ? 'text-2xl font-bold text-white' : 'text-2xl font-bold text-gray-900 dark:text-white'}`}>
                   {sharingSettings.show_pastor_name ? profile.full_name : t('agenda.pastor')}
                 </h1>
-                <p className="text-gray-500 dark:text-gray-400">
+                <p className={`${isPreview ? 'text-blue-100' : 'text-gray-500 dark:text-gray-400'}`}>
                   {t('agenda.title')}
                 </p>
               </div>
             </div>
-            <div className="flex items-center space-x-4">
-              <LanguageSwitcher />
-              <button
-                onClick={copyAgendaLink}
-                className="btn-secondary flex items-center space-x-2"
-              >
-                <Share2 className="w-4 h-4" />
-                <span>{t('agenda.share')}</span>
-              </button>
-            </div>
+            {isPreview && (
+              <div className="text-right">
+                <div className="bg-white/20 rounded-lg p-2 mb-2">
+                  <div className="w-16 h-16 bg-white rounded"></div>
+                </div>
+                <p className="text-xs text-blue-100">Scan to share</p>
+              </div>
+            )}
+            {!isPreview && (
+              <div className="flex items-center space-x-4">
+                <LanguageSwitcher />
+              </div>
+            )}
           </div>
         </div>
       </div>
 
       {/* Main Content */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <div className={`${isPreview ? 'p-6' : 'max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8'}`}>
         <div className="space-y-6">
-          {/* Filter Tabs */}
-          <div className="border-b border-gray-200 dark:border-gray-700">
-            <nav className="-mb-px flex flex-wrap gap-2 sm:gap-8 overflow-x-auto">
-              {[
-                { key: 'all', label: t('bookings.filter.all'), count: bookings.length },
-                { key: 'upcoming', label: t('bookings.filter.upcoming'), count: bookings.filter(b => new Date(b.start_time) > new Date() && b.status === 'confirmed').length },
-                { key: 'past', label: t('bookings.filter.past'), count: bookings.filter(b => new Date(b.start_time) < new Date() && b.status === 'confirmed').length },
-                { key: 'cancelled', label: t('bookings.filter.cancelled'), count: bookings.filter(b => b.status === 'cancelled').length }
-              ].map((tab) => (
-                <button
-                  key={tab.key}
-                  onClick={() => setFilter(tab.key as any)}
-                  className={`py-2 px-1 border-b-2 font-medium text-sm whitespace-nowrap flex items-center ${filter === tab.key
-                      ? 'border-primary-500 text-primary-600 dark:text-primary-400'
-                      : 'border-transparent text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 hover:border-gray-300 dark:hover:border-gray-600'
-                    }`}
-                >
-                  <span>{tab.label}</span>
-                  <span className="ml-2 bg-gray-100 dark:bg-gray-700 text-gray-900 dark:text-gray-100 py-0.5 px-2.5 rounded-full text-xs flex-shrink-0">
-                    {tab.count}
-                  </span>
-                </button>
-              ))}
-            </nav>
-          </div>
+          {!isPreview && (
+            <>
+              {/* Filter Tabs */}
+              <div className="border-b border-gray-200 dark:border-gray-700">
+                <nav className="-mb-px flex flex-wrap gap-2 sm:gap-8 overflow-x-auto">
+                  {[
+                    { key: 'all', label: t('bookings.filter.all'), count: bookings.length },
+                    { key: 'upcoming', label: t('bookings.filter.upcoming'), count: bookings.filter(b => new Date(b.start_time) > new Date() && b.status === 'confirmed').length },
+                    { key: 'past', label: t('bookings.filter.past'), count: bookings.filter(b => new Date(b.start_time) < new Date() && b.status === 'confirmed').length },
+                    { key: 'cancelled', label: t('bookings.filter.cancelled'), count: bookings.filter(b => b.status === 'cancelled').length }
+                  ].map((tab) => (
+                    <button
+                      key={tab.key}
+                      onClick={() => setFilter(tab.key as any)}
+                      className={`py-2 px-1 border-b-2 font-medium text-sm whitespace-nowrap flex items-center ${filter === tab.key
+                          ? 'border-primary-500 text-primary-600 dark:text-primary-400'
+                          : 'border-transparent text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 hover:border-gray-300 dark:hover:border-gray-600'
+                        }`}
+                    >
+                      <span>{tab.label}</span>
+                      <span className="ml-2 bg-gray-100 dark:bg-gray-700 text-gray-900 dark:text-gray-100 py-0.5 px-2.5 rounded-full text-xs flex-shrink-0">
+                        {tab.count}
+                      </span>
+                    </button>
+                  ))}
+                </nav>
+              </div>
+            </>
+          )}
+
+          {isPreview && (
+            <h4 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
+              Available Appointments
+            </h4>
+          )}
 
           {/* Bookings List */}
           {filteredBookings.length > 0 ? (
-            <div className="space-y-4">
-              {filteredBookings.map((booking) => (
-                <div key={booking.id} className="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
+            <div className={`space-y-4 ${isPreview ? 'max-h-96 overflow-y-auto' : ''}`}>
+              {filteredBookings.slice(0, isPreview ? 3 : undefined).map((booking) => (
+                <div key={booking.id} className={`${isPreview ? 'bg-gray-50 dark:bg-gray-700 rounded-lg p-4' : 'bg-white dark:bg-gray-800 rounded-lg shadow p-6'}`}>
                   <div className="flex items-start justify-between">
                     <div className="flex-1">
                       <div className="flex items-center space-x-3 mb-3">
@@ -393,6 +442,23 @@ function PublicAgendaPage() {
               <p className="text-gray-500 dark:text-gray-400">
                 {t(`bookings.noBookingsDesc.${filter}`)}
               </p>
+            </div>
+          )}
+
+          {/* View Full Agenda Link for Preview */}
+          {isPreview && (
+            <div className="mt-6 text-center">
+              <a
+                href={`/agenda/${sharingSettings?.public_slug}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center px-4 py-2 text-sm font-medium text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 transition-colors"
+              >
+                View Full Agenda
+                <svg className="ml-2 w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                </svg>
+              </a>
             </div>
           )}
         </div>

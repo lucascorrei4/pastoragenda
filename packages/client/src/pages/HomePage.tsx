@@ -3,6 +3,7 @@ import { useAuth } from '../contexts/AuthContext'
 import { Calendar, Users, Clock, Shield, ArrowRight, CheckCircle, MessageSquare, Mail } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import LanguageSwitcher from '../components/LanguageSwitcher'
+import PublicProfilePage from './PublicProfilePage'
 import packageJson from '../../package.json'
 
 function HomePage() {
@@ -264,6 +265,27 @@ function HomePage() {
                 {t('home.features.feature4.description')}
               </p>
             </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Preview Section */}
+      <section className="py-20 bg-gray-50 dark:bg-gray-800">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-16">
+            <h2 className="text-4xl md:text-5xl font-bold text-gray-900 dark:text-white mb-6">
+              {t('home.preview.title')}
+            </h2>
+            <p className="text-xl text-gray-600 dark:text-gray-300 max-w-4xl mx-auto leading-relaxed mb-8">
+              {t('home.preview.description')}
+            </p>
+            <p className="text-lg text-gray-500 dark:text-gray-400 max-w-3xl mx-auto leading-relaxed">
+              {t('home.preview.subtitle')}
+            </p>
+          </div>
+
+          <div className="max-w-4xl mx-auto">
+            <PublicProfilePage pastorId="b4b4fab2-3635-4c79-a912-1af234b08e83" isPreview={true} />
           </div>
         </div>
       </section>

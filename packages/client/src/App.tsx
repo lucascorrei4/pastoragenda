@@ -41,6 +41,8 @@ import BookingSuccessPage from './pages/BookingSuccessPage'
 import UnavailabilityPage from './pages/UnavailabilityPage'
 import SitemapPage from './pages/SitemapPage'
 import MasterPastorDashboard from './pages/MasterPastorDashboard'
+import FollowedPastorAgendaPage from './pages/FollowedPastorAgendaPage'
+import AgendaSharingPage from './pages/AgendaSharingPage'
 
 function App() {
   return (
@@ -53,7 +55,7 @@ function App() {
             <Route path="/" element={<HomePage />} />
             <Route path="/auth" element={<AuthPageWrapper />} />
             <Route path="/sitemap.xml" element={<SitemapPage />} />
-            <Route path="/agenda/:slug" element={<PublicAgendaPage />} />
+            <Route path="/public/:slug" element={<PublicAgendaPage />} />
             <Route path="/:alias" element={<PublicProfilePage />} />
             <Route path="/:alias/:eventTypeId" element={<EventBookingPage />} />
             <Route path="/:alias/:eventTypeId/confirmation" element={<BookingConfirmationPage />} />
@@ -81,6 +83,13 @@ function App() {
                 </Layout>
               </ProtectedRoute>
             } />
+            <Route path="/dashboard/agenda-sharing" element={
+              <ProtectedRoute>
+                <Layout>
+                  <AgendaSharingPage />
+                </Layout>
+              </ProtectedRoute>
+            } />
             <Route path="/dashboard/bookings" element={
               <ProtectedRoute>
                 <Layout>
@@ -102,6 +111,11 @@ function App() {
                 </Layout>
               </ProtectedRoute>
             } />
+        <Route path="/dashboard/master/agenda/:pastorAlias" element={
+          <ProtectedRoute>
+            <FollowedPastorAgendaPage />
+          </ProtectedRoute>
+        } />
           </Routes>
         </div>
         <Toaster position="top-right" />
