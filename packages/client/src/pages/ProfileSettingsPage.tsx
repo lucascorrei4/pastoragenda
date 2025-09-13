@@ -107,31 +107,41 @@ function ProfileSettingsPage() {
     try {
       setUploading(true)
 
-      const fileExt = file.name.split('.').pop()
-      const fileName = `${Date.now()}.${fileExt}`
-      // Use user ID as folder name to match storage policy
-      const filePath = `${user?.id}/${fileName}`
+      // Convert file to base64 for storage in database
+      const reader = new FileReader()
+      reader.onload = async (event) => {
+        try {
+          const base64String = event.target?.result as string
+          
+          // Store avatar as base64 in the profiles table
+          const { error: updateError } = await supabase
+            .from('profiles')
+            .update({ 
+              avatar_url: base64String,
+              updated_at: new Date().toISOString()
+            })
+            .eq('id', user?.id)
 
-      const { error: uploadError } = await supabase.storage
-        .from('avatars')
-        .upload(filePath, file)
+          if (updateError) throw updateError
 
-      if (uploadError) throw uploadError
+          setFormData(prev => ({
+            ...prev,
+            avatar_url: base64String
+          }))
 
-      const { data: { publicUrl } } = supabase.storage
-        .from('avatars')
-        .getPublicUrl(filePath)
-
-      setFormData(prev => ({
-        ...prev,
-        avatar_url: publicUrl
-      }))
-
-      toast.success(t('profile.avatarUploadSuccess'))
+          toast.success(t('profile.avatarUploadSuccess'))
+        } catch (error) {
+          console.error('Error saving avatar:', error)
+          toast.error(t('profile.avatarUploadError'))
+        } finally {
+          setUploading(false)
+        }
+      }
+      
+      reader.readAsDataURL(file)
     } catch (error) {
-      console.error('Error uploading avatar:', error)
+      console.error('Error processing avatar:', error)
       toast.error(t('profile.avatarUploadError'))
-    } finally {
       setUploading(false)
     }
   }
