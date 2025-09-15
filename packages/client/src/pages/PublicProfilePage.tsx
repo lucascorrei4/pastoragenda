@@ -18,7 +18,7 @@ interface PublicProfilePageProps {
 function PublicProfilePage({ alias: propAlias, pastorId, isPreview = false }: PublicProfilePageProps = {}) {
   const { alias: urlAlias } = useParams<{ alias: string }>()
   const [searchParams] = useSearchParams()
-  const { t } = useTranslation()
+  const { t, i18n } = useTranslation()
   
   // Use prop alias first, then fall back to URL alias
   const alias = propAlias || urlAlias
@@ -58,7 +58,7 @@ function PublicProfilePage({ alias: propAlias, pastorId, isPreview = false }: Pu
       const translatedData = translateDefaultEventTypes(eventTypes, t)
       setEventTypes(translatedData)
     }
-  }, [t])
+  }, [t, i18n.language])
 
   // Timer for time-limited links
   useEffect(() => {

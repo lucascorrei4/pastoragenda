@@ -8,7 +8,7 @@ import packageJson from '../../package.json'
 
 function HomePage() {
   const { user } = useAuth()
-  const { t } = useTranslation()
+  const { t, i18n } = useTranslation()
 
   return (
     <div className="bg-white dark:bg-gray-900 min-h-screen">
@@ -285,7 +285,11 @@ function HomePage() {
           </div>
 
           <div className="max-w-4xl mx-auto">
-            <PublicProfilePage pastorId="b4b4fab2-3635-4c79-a912-1af234b08e83" isPreview={true} />
+            <PublicProfilePage 
+              key={i18n.language} 
+              pastorId="b4b4fab2-3635-4c79-a912-1af234b08e83" 
+              isPreview={true} 
+            />
           </div>
         </div>
       </section>
