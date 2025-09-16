@@ -4,8 +4,8 @@
   "description": "A Calendly-like application for pastors and religious leaders to manage appointments",
   "private": true,
   "workspaces": [
-    "packages/client",
-    "packages/supabase"
+    "client",
+    "supabase"
   ],
   "scripts": {
     "dev": "concurrently \"npm run dev:client\" \"npm run dev:supabase\"",
