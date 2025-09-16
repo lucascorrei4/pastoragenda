@@ -9,11 +9,11 @@
   ],
   "scripts": {
     "dev": "concurrently \"npm run dev:client\" \"npm run dev:supabase\"",
-    "dev:client": "npm run dev --workspace=packages/client",
-    "dev:supabase": "npm run dev --workspace=packages/supabase",
+    "dev:client": "npm run dev --workspace=client",
+    "dev:supabase": "npm run dev --workspace=supabase",
     "build": "npm run build --workspaces",
-    "build:client": "npm run build --workspace=packages/client",
-    "build:supabase": "npm run build --workspace=packages/supabase",
+    "build:client": "npm run build --workspace=client",
+    "build:supabase": "npm run build --workspace=supabase",
     "lint": "npm run lint --workspaces",
     "type-check": "npm run type-check --workspaces"
   },
