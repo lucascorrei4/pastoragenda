@@ -11,7 +11,6 @@ ARG VITE_APP_URL
 # Copy package configurations and source code from the flattened structure
 COPY package*.json ./
 COPY client/ ./client/
-COPY supabase/ ./supabase/
 
 # --- THE MAGIC FIX IS HERE ---
 # Recreate the correct 'packages' structure that our package.json expects.
