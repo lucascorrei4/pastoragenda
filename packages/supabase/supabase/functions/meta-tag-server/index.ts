@@ -2,12 +2,12 @@
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 import { serve } from 'https://deno.land/std@0.168.0/http/server.ts';
 
-// Generic default values (no changes here)
+// Generic values (no change)
 const GENERIC_TITLE = 'PastorAgenda - Schedule with Pastors';
 const GENERIC_DESCRIPTION = 'Schedule appointments with pastors and religious leaders through our easy-to-use booking platform.';
 const GENERIC_IMAGE = 'https://pastoragenda.com/pwa-512x512.png';
 
-// Placeholders (no changes here)
+// Placeholders (no change)
 const OG_TITLE = '__OG_TITLE__';
 const OG_DESCRIPTION = '__OG_DESCRIPTION__';
 const OG_IMAGE = '__OG_IMAGE__';
@@ -22,7 +22,6 @@ serve(async (req) => {
         const pathParts = url.pathname.split('/').filter((part) => part);
         const alias = pathParts[0];
 
-        // --- Handle Pastor Page (Dynamic Tags) ---
         if (alias) {
             const supabaseClient = createClient(
                 Deno.env.get('SUPABASE_URL') ?? '',
@@ -41,11 +40,12 @@ serve(async (req) => {
             }
         }
 
-        // --- FIX IS HERE ---
-        // Read the local index.html file instead of fetching it from the live site
-        let html = await Deno.readTextFile('./index.html');
+        // --- ROBUST FILE READING ---
+        // Create an unambiguous path to index.html relative to this script file
+        const htmlPath = new URL('./index.html', import.meta.url);
+        let html = await Deno.readTextFile(htmlPath);
 
-        // Replace the placeholder meta tags
+        // Replace placeholders
         html = html.replaceAll(OG_TITLE, title)
                    .replaceAll(OG_DESCRIPTION, description)
                    .replaceAll(OG_IMAGE, imageUrl);
@@ -56,9 +56,10 @@ serve(async (req) => {
 
     } catch (error) {
         console.error(error);
-        // Fallback: Read the local file and serve it with generic tags
+        // Fallback with robust file reading
         try {
-            let html = await Deno.readTextFile('./index.html');
+            const htmlPath = new URL('./index.html', import.meta.url);
+            let html = await Deno.readTextFile(htmlPath);
             html = html.replaceAll(OG_TITLE, GENERIC_TITLE)
                        .replaceAll(OG_DESCRIPTION, GENERIC_DESCRIPTION)
                        .replaceAll(OG_IMAGE, GENERIC_IMAGE);
@@ -66,7 +67,7 @@ serve(async (req) => {
                 headers: { 'Content-Type': 'text/html; charset=utf-8' },
             });
         } catch (e) {
-            // Absolute fallback if reading the file fails
+            console.error("CRITICAL: Could not even read fallback HTML.", e);
             return new Response("Something went wrong.", { status: 500 });
         }
     }
