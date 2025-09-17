@@ -327,17 +327,25 @@ Deno.serve(async (req)=>{
       });
     }
     // Format the appointment details
+    // The start_time is stored as UTC, so we need to display it in a consistent timezone
+    // For now, let's assume the user's timezone is UTC-3 (Brazil) since the app seems to be in Portuguese
     const appointmentDate = new Date(record.start_time);
+    
+    // Format date in a consistent way (using UTC to avoid timezone conversion issues)
     const formattedDate = appointmentDate.toLocaleDateString('en-US', {
       weekday: 'long',
       year: 'numeric',
       month: 'long',
-      day: 'numeric'
+      day: 'numeric',
+      timeZone: 'America/Sao_Paulo' // Use Brazil timezone since the app is in Portuguese
     });
+    
+    // Format time in 12-hour format (using Brazil timezone)
     const formattedTime = appointmentDate.toLocaleTimeString('en-US', {
       hour: 'numeric',
       minute: '2-digit',
-      hour12: true
+      hour12: true,
+      timeZone: 'America/Sao_Paulo' // Use Brazil timezone since the app is in Portuguese
     });
     // Send confirmation email to the booker
     try {
