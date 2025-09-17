@@ -372,7 +372,8 @@
         "blog": "Blog",
         "careers": "Careers"
       },
-      "copyright": "© 2024 PastorAgenda. All rights reserved."
+      "copyright": "© 2024 PastorAgenda. All rights reserved.",
+      "support": "Support"
     }
   },
   "auth": {
@@ -773,6 +774,38 @@
       "timeLimitedHelp": "Generate temporary links that expire after a set time",
       "anonymousLinksHelp": "Share without revealing your personal alias"
     }
+  },
+  "support": {
+    "title": "Support",
+    "contactSupport": "Contact Support",
+    "contactSupportDescription": "Need help? Send us an email and we'll get back to you within 24 hours.",
+    "sendEmail": "Send Email",
+    "deleteAccount": "Delete Account",
+    "deleteAccountDescription": "Want to delete your account? Send us an email and we'll process your request.",
+    "requestDeletion": "Request Deletion",
+    "sending": "Opening Email...",
+    "emailOpened": "Email client opened successfully. Please send your message.",
+    "emailError": "Could not open email client. Please contact us directly at pastoragendaapp@gmail.com",
+    "frequentlyAsked": "Frequently Asked Questions",
+    "faq1": {
+      "question": "How do I set up my pastor profile?",
+      "answer": "After signing up, go to your dashboard and complete your profile with your name, bio, and profile picture. This helps your community recognize you."
+    },
+    "faq2": {
+      "question": "How do I share my booking link?",
+      "answer": "You can share your public profile link directly, or use the QR code feature. You can also create time-limited sharing links for specific events."
+    },
+    "faq3": {
+      "question": "Can I change my availability?",
+      "answer": "Yes! Go to your dashboard and use the availability settings to block out times when you're not available for appointments."
+    },
+    "faq4": {
+      "question": "How do I cancel an appointment?",
+      "answer": "Both you and your community members can cancel appointments. Use the cancel link in confirmation emails or manage bookings from your dashboard."
+    },
+    "responseTime": "Response Time",
+    "responseTimeDescription": "We typically respond to support requests within 24 hours during business days.",
+    "privacyNote": "Your privacy is important to us. All support communications are confidential."
   },
   "common": {
     "confirm": "Confirm",

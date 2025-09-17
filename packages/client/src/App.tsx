@@ -45,6 +45,7 @@ import SitemapPage from './pages/SitemapPage'
 import MasterPastorDashboard from './pages/MasterPastorDashboard'
 import FollowedPastorAgendaPage from './pages/FollowedPastorAgendaPage'
 import AgendaSharingPage from './pages/AgendaSharingPage'
+import SupportPage from './pages/SupportPage'
 
 function App() {
   return (
@@ -57,13 +58,14 @@ function App() {
             <Route path="/" element={<HomePage />} />
             <Route path="/auth" element={<AuthPageWrapper />} />
             <Route path="/sitemap.xml" element={<SitemapPage />} />
+            <Route path="/support" element={<SupportPage />} />
+            <Route path="/booking/cancel/:bookingId" element={<BookingCancellationPage />} />
+            <Route path="/booking/cancelled" element={<BookingCancelledPage />} />
             <Route path="/public/:slug" element={<PublicAgendaPage />} />
             <Route path="/:alias" element={<PublicProfilePage />} />
             <Route path="/:alias/:eventTypeId" element={<EventBookingPage />} />
             <Route path="/:alias/:eventTypeId/confirmation" element={<BookingConfirmationPage />} />
             <Route path="/:alias/:eventTypeId/success" element={<BookingSuccessPage />} />
-            <Route path="/booking/cancel/:bookingId" element={<BookingCancellationPage />} />
-            <Route path="/booking/cancelled" element={<BookingCancelledPage />} />
             
             {/* Protected routes */}
             <Route path="/dashboard" element={

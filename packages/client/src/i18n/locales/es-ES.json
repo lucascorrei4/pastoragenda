@@ -371,7 +371,8 @@
         "blog": "Blog",
         "careers": "Carreras"
       },
-      "copyright": "© 2024 PastorAgenda. Todos los derechos reservados."
+      "copyright": "© 2024 PastorAgenda. Todos los derechos reservados.",
+      "support": "Soporte"
     }
   },
   "auth": {
@@ -772,6 +773,38 @@
       "timeLimitedHelp": "Generar enlaces temporales que expiran después de un tiempo establecido",
       "anonymousLinksHelp": "Compartir sin revelar tu alias personal"
     }
+  },
+  "support": {
+    "title": "Soporte",
+    "contactSupport": "Contactar Soporte",
+    "contactSupportDescription": "¿Necesitas ayuda? Envíanos un email y te responderemos en 24 horas.",
+    "sendEmail": "Enviar Email",
+    "deleteAccount": "Eliminar Cuenta",
+    "deleteAccountDescription": "¿Quieres eliminar tu cuenta? Envíanos un email y procesaremos tu solicitud.",
+    "requestDeletion": "Solicitar Eliminación",
+    "sending": "Abriendo Email...",
+    "emailOpened": "Cliente de email abierto exitosamente. Por favor envía tu mensaje.",
+    "emailError": "No se pudo abrir el cliente de email. Por favor contáctanos directamente en pastoragendaapp@gmail.com",
+    "frequentlyAsked": "Preguntas Frecuentes",
+    "faq1": {
+      "question": "¿Cómo configuro mi perfil de pastor?",
+      "answer": "Después de registrarte, ve a tu panel de control y completa tu perfil con tu nombre, biografía y foto de perfil. Esto ayuda a tu comunidad a reconocerte."
+    },
+    "faq2": {
+      "question": "¿Cómo comparto mi enlace de reservas?",
+      "answer": "Puedes compartir tu enlace de perfil público directamente, o usar la función de código QR. También puedes crear enlaces de compartir con tiempo limitado para eventos específicos."
+    },
+    "faq3": {
+      "question": "¿Puedo cambiar mi disponibilidad?",
+      "answer": "¡Sí! Ve a tu panel de control y usa la configuración de disponibilidad para bloquear horarios cuando no estés disponible para citas."
+    },
+    "faq4": {
+      "question": "¿Cómo cancelo una cita?",
+      "answer": "Tanto tú como los miembros de tu comunidad pueden cancelar citas. Usa el enlace de cancelación en los emails de confirmación o gestiona las reservas desde tu panel de control."
+    },
+    "responseTime": "Tiempo de Respuesta",
+    "responseTimeDescription": "Típicamente respondemos a las solicitudes de soporte en 24 horas durante días hábiles.",
+    "privacyNote": "Tu privacidad es importante para nosotros. Todas las comunicaciones de soporte son confidenciales."
   },
   "common": {
     "confirm": "Confirmar",

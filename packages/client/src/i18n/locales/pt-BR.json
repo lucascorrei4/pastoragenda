@@ -371,7 +371,8 @@
         "blog": "Blog",
         "careers": "Carreiras"
       },
-      "copyright": "© 2024 PastorAgenda. Todos os direitos reservados."
+      "copyright": "© 2024 PastorAgenda. Todos os direitos reservados.",
+      "support": "Suporte"
     }
   },
   "auth": {
@@ -772,6 +773,38 @@
       "timeLimitedHelp": "Gerar links temporários que expiram após um tempo definido",
       "anonymousLinksHelp": "Compartilhar sem revelar seu alias pessoal"
     }
+  },
+  "support": {
+    "title": "Suporte",
+    "contactSupport": "Contatar Suporte",
+    "contactSupportDescription": "Precisa de ajuda? Envie-nos um email e responderemos em 24 horas.",
+    "sendEmail": "Enviar Email",
+    "deleteAccount": "Excluir Conta",
+    "deleteAccountDescription": "Quer excluir sua conta? Envie-nos um email e processaremos sua solicitação.",
+    "requestDeletion": "Solicitar Exclusão",
+    "sending": "Abrindo Email...",
+    "emailOpened": "Cliente de email aberto com sucesso. Por favor envie sua mensagem.",
+    "emailError": "Não foi possível abrir o cliente de email. Por favor entre em contato conosco diretamente em pastoragendaapp@gmail.com",
+    "frequentlyAsked": "Perguntas Frequentes",
+    "faq1": {
+      "question": "Como configuro meu perfil de pastor?",
+      "answer": "Após se cadastrar, vá ao seu painel e complete seu perfil com seu nome, biografia e foto de perfil. Isso ajuda sua comunidade a reconhecê-lo."
+    },
+    "faq2": {
+      "question": "Como compartilho meu link de agendamento?",
+      "answer": "Você pode compartilhar seu link de perfil público diretamente, ou usar a função de código QR. Você também pode criar links de compartilhamento com tempo limitado para eventos específicos."
+    },
+    "faq3": {
+      "question": "Posso alterar minha disponibilidade?",
+      "answer": "Sim! Vá ao seu painel e use as configurações de disponibilidade para bloquear horários quando não estiver disponível para consultas."
+    },
+    "faq4": {
+      "question": "Como cancelo um compromisso?",
+      "answer": "Tanto você quanto os membros da sua comunidade podem cancelar compromissos. Use o link de cancelamento nos emails de confirmação ou gerencie os agendamentos do seu painel."
+    },
+    "responseTime": "Tempo de Resposta",
+    "responseTimeDescription": "Normalmente respondemos às solicitações de suporte em 24 horas durante dias úteis.",
+    "privacyNote": "Sua privacidade é importante para nós. Todas as comunicações de suporte são confidenciais."
   },
   "common": {
     "confirm": "Confirmar",
