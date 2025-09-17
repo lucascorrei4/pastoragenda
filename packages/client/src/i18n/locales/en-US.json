@@ -468,7 +468,14 @@
       "cancelling": "Cancelling...",
       "confirmCancel": "Are you sure you want to cancel this booking?",
       "cancelSuccess": "Booking cancelled successfully",
-      "cancelError": "Failed to cancel booking"
+      "cancelError": "Failed to cancel booking",
+      "confirmCancelTitle": "Cancel Appointment",
+      "confirmCancelMessage": "Are you sure you want to cancel {{bookerName}}'s {{eventType}} appointment on {{date}} at {{time}}? This action cannot be undone and will notify the booker via email.",
+      "delete": "Delete",
+      "confirmDeleteTitle": "Delete Booking",
+      "confirmDeleteMessage": "Are you sure you want to permanently delete {{bookerName}}'s {{eventType}} appointment on {{date}} at {{time}}? This action cannot be undone and the booking will be permanently removed.",
+      "deleteSuccess": "Booking deleted successfully",
+      "deleteError": "Failed to delete booking"
     },
     "noBookings": {
       "all": "No bookings yet",
@@ -560,7 +567,14 @@
     "bookingAppointment": "Booking Appointment...",
     "backToTimeSelection": "← Back to time selection",
     "bookingSuccess": "Appointment booked successfully!",
-    "bookingError": "Failed to book appointment. Please try again."
+    "bookingError": "Failed to book appointment. Please try again.",
+    "cancelTimeSlot": "Cancel This Time Slot",
+    "cancelling": "Cancelling...",
+    "cancelTimeSlotDescription": "This will cancel all bookings for this time slot and notify the bookers",
+    "timeSlotCancelled": "Time slot cancelled successfully",
+    "noBookingsToCancel": "No bookings found for this time slot",
+    "cancelError": "Failed to cancel time slot",
+    "notAuthorized": "You are not authorized to cancel this time slot"
   },
   "bookingSuccess": {
     "title": "Appointment Confirmed!",
@@ -581,6 +595,41 @@
     "viewPastorProfile": "View Pastor's Profile",
     "backToHome": "← Back to Home",
     "pageNotFound": "This page requires booking information."
+  },
+  "bookingCancellation": {
+    "title": "Cancel Appointment",
+    "warningTitle": "Cancel Your Appointment",
+    "warningMessage": "Are you sure you want to cancel this appointment? This action cannot be undone.",
+    "bookingDetails": "Booking Details",
+    "cancelBooking": "Cancel Appointment",
+    "keepBooking": "Keep Appointment",
+    "cancelling": "Cancelling...",
+    "confirmTitle": "Confirm Cancellation",
+    "confirmMessage": "Are you sure you want to cancel your {{eventType}} appointment on {{date}} at {{time}}? This action cannot be undone.",
+    "cancelSuccess": "Appointment cancelled successfully",
+    "cancelSuccessMessage": "Your appointment has been cancelled and you will receive a confirmation email.",
+    "cancelError": "Failed to cancel appointment",
+    "errorTitle": "Unable to Cancel",
+    "bookingNotFound": "Booking not found or access denied",
+    "backToHome": "Back to Home"
+  },
+  "bookingCancelled": {
+    "title": "Appointment Cancelled",
+    "successTitle": "Appointment Successfully Cancelled",
+    "successMessage": "Your appointment has been cancelled and you will receive a confirmation email.",
+    "cancelledBooking": "Cancelled Appointment",
+    "date": "Date",
+    "time": "Time",
+    "eventType": "Event Type",
+    "duration": "Duration",
+    "nextSteps": "Next Steps",
+    "nextStep1": "You will receive a confirmation email about the cancellation",
+    "nextStep2": "You can book a new appointment anytime",
+    "nextStep3": "Contact the pastor if you have any questions",
+    "backToHome": "Back to Home",
+    "bookAnother": "Book Another Appointment",
+    "errorTitle": "Error",
+    "noBookingData": "No booking data found"
   },
   "publicProfile": {
     "bookAppointment": "Book Appointment",
@@ -713,6 +762,47 @@
       "publicAccessHelp": "Make your agenda permanently available to anyone with the link",
       "timeLimitedHelp": "Generate temporary links that expire after a set time",
       "anonymousLinksHelp": "Share without revealing your personal alias"
+    }
+  },
+  "common": {
+    "confirm": "Confirm",
+    "cancel": "Cancel",
+    "processing": "Processing...",
+    "loading": "Loading...",
+    "minutes": "minutes",
+    "min": "min",
+    "today": "Today",
+    "goHome": "Go Home",
+    "share": "Share",
+    "domain": "Domain",
+    "saving": "Saving...",
+    "from": "From",
+    "to": "To",
+    "remove": "Remove",
+    "update": "Update",
+    "create": "Create",
+    "eventType": "Event Type",
+    "sending": "Sending...",
+    "pastor": "Pastor",
+    "save": "Save",
+    "completeProfile": {
+      "title": "Complete Your Profile",
+      "description": "Your profile is missing some important information that helps your community connect with you better.",
+      "profilePicture": "Profile Picture",
+      "bioDescription": "Bio/Description",
+      "fullName": "Full Name",
+      "publicUrlSlug": "Public URL Slug",
+      "helpText": "Complete your profile to improve your public presence and help people find you.",
+      "editProfile": "Edit Profile"
+    },
+    "days": {
+      "monday": "Monday",
+      "tuesday": "Tuesday",
+      "wednesday": "Wednesday",
+      "thursday": "Thursday",
+      "friday": "Friday",
+      "saturday": "Saturday",
+      "sunday": "Sunday"
     }
   },
   "masterDashboard": {

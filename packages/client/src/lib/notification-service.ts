@@ -4,6 +4,7 @@
  */
 
 import { sendNotificationToUser, sendNotificationToUserByEmail } from './webview-integration';
+import { supportsPushNotifications, getDeviceType } from './device-utils';
 
 export interface NotificationData {
   title: string;
@@ -101,10 +102,18 @@ class NotificationService {
         }
       };
 
-      // Send to booker by email
-      await sendNotificationToUserByEmail(data.bookerEmail, notification.title, notification.body, notification.data);
-      
-      console.log('Appointment confirmation notification sent to booker:', data.bookerEmail);
+      // Send to booker by email (only on mobile devices or when supported)
+      if (supportsPushNotifications()) {
+        try {
+          await sendNotificationToUserByEmail(data.bookerEmail, notification.title, notification.body, notification.data);
+          console.log('Appointment confirmation notification sent to booker:', data.bookerEmail);
+        } catch (emailError) {
+          console.log(`Email notification not available on ${getDeviceType()} device. Skipping email notification.`);
+          // Don't throw error - email notifications are optional
+        }
+      } else {
+        console.log(`Push notifications not supported on ${getDeviceType()} device. Skipping notification.`);
+      }
     } catch (error) {
       console.error('Error sending appointment confirmation notification:', error);
     }
@@ -130,10 +139,18 @@ class NotificationService {
         }
       };
 
-      // Send to booker by email
-      await sendNotificationToUserByEmail(data.bookerEmail, notification.title, notification.body, notification.data);
-      
-      console.log('Appointment reminder notification sent to booker:', data.bookerEmail);
+      // Send to booker by email (only on mobile devices or when supported)
+      if (supportsPushNotifications()) {
+        try {
+          await sendNotificationToUserByEmail(data.bookerEmail, notification.title, notification.body, notification.data);
+          console.log('Appointment reminder notification sent to booker:', data.bookerEmail);
+        } catch (emailError) {
+          console.log(`Email notification not available on ${getDeviceType()} device. Skipping email notification.`);
+          // Don't throw error - email notifications are optional
+        }
+      } else {
+        console.log(`Push notifications not supported on ${getDeviceType()} device. Skipping notification.`);
+      }
     } catch (error) {
       console.error('Error sending appointment reminder notification:', error);
     }
@@ -159,12 +176,63 @@ class NotificationService {
         }
       };
 
-      // Send to booker by email
-      await sendNotificationToUserByEmail(data.bookerEmail, notification.title, notification.body, notification.data);
-      
-      console.log('Appointment cancellation notification sent to booker:', data.bookerEmail);
+      // Send to booker by email (only on mobile devices or when supported)
+      if (supportsPushNotifications()) {
+        try {
+          await sendNotificationToUserByEmail(data.bookerEmail, notification.title, notification.body, notification.data);
+          console.log('Appointment cancellation notification sent to booker:', data.bookerEmail);
+        } catch (emailError) {
+          console.log(`Email notification not available on ${getDeviceType()} device. Skipping email notification.`);
+          // Don't throw error - email notifications are optional
+        }
+      } else {
+        console.log(`Push notifications not supported on ${getDeviceType()} device. Skipping notification.`);
+      }
     } catch (error) {
       console.error('Error sending appointment cancellation notification:', error);
+    }
+  }
+
+  /**
+   * Send appointment cancellation email to booker
+   */
+  async sendAppointmentCancelled(
+    bookerEmail: string,
+    bookerName: string,
+    eventTypeName: string,
+    appointmentDate: string,
+    appointmentTime: string
+  ): Promise<void> {
+    try {
+      const notification = {
+        title: `❌ Appointment Cancelled - ${eventTypeName}`,
+        body: `Your appointment for ${appointmentDate} at ${appointmentTime} has been cancelled.`,
+        data: {
+          type: 'appointment_cancelled',
+          bookerName,
+          bookerEmail,
+          eventTypeName,
+          appointmentDate,
+          appointmentTime,
+          timestamp: new Date().toISOString()
+        }
+      };
+
+      // Send to booker by email (only on mobile devices or when supported)
+      if (supportsPushNotifications()) {
+        try {
+          await sendNotificationToUserByEmail(bookerEmail, notification.title, notification.body, notification.data);
+          console.log('Appointment cancellation email sent to:', bookerEmail);
+        } catch (emailError) {
+          console.log(`Email notification not available on ${getDeviceType()} device. Skipping email notification.`);
+          // Don't throw error - email notifications are optional
+        }
+      } else {
+        console.log(`Push notifications not supported on ${getDeviceType()} device. Skipping notification.`);
+      }
+    } catch (error) {
+      console.error('Error sending appointment cancellation email:', error);
+      throw error;
     }
   }
 }

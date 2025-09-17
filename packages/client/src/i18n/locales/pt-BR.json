@@ -467,7 +467,14 @@
       "cancelling": "Cancelando...",
       "confirmCancel": "Tem certeza de que deseja cancelar este agendamento?",
       "cancelSuccess": "Agendamento cancelado com sucesso",
-      "cancelError": "Falha ao cancelar agendamento"
+      "cancelError": "Falha ao cancelar agendamento",
+      "confirmCancelTitle": "Cancelar Compromisso",
+      "confirmCancelMessage": "Tem certeza de que deseja cancelar o compromisso de {{bookerName}} para {{eventType}} em {{date}} às {{time}}? Esta ação não pode ser desfeita e notificará o usuário por email.",
+      "delete": "Excluir",
+      "confirmDeleteTitle": "Excluir Agendamento",
+      "confirmDeleteMessage": "Tem certeza de que deseja excluir permanentemente o agendamento de {{bookerName}} para {{eventType}} em {{date}} às {{time}}? Esta ação não pode ser desfeita e o agendamento será removido permanentemente.",
+      "deleteSuccess": "Agendamento excluído com sucesso",
+      "deleteError": "Falha ao excluir agendamento"
     },
     "noBookings": {
       "all": "Nenhum agendamento ainda",
@@ -559,7 +566,14 @@
     "bookingAppointment": "Agendando Compromisso...",
     "backToTimeSelection": "← Voltar para seleção de horário",
     "bookingSuccess": "Compromisso agendado com sucesso!",
-    "bookingError": "Falha ao agendar compromisso. Tente novamente."
+    "bookingError": "Falha ao agendar compromisso. Tente novamente.",
+    "cancelTimeSlot": "Cancelar Este Horário",
+    "cancelling": "Cancelando...",
+    "cancelTimeSlotDescription": "Isso cancelará todos os agendamentos para este horário e notificará os usuários",
+    "timeSlotCancelled": "Horário cancelado com sucesso",
+    "noBookingsToCancel": "Nenhum agendamento encontrado para este horário",
+    "cancelError": "Falha ao cancelar horário",
+    "notAuthorized": "Você não tem autorização para cancelar este horário"
   },
   "bookingSuccess": {
     "title": "Compromisso Confirmado!",
@@ -580,6 +594,41 @@
     "viewPastorProfile": "Ver Perfil do Pastor",
     "backToHome": "← Voltar ao Início",
     "pageNotFound": "Esta página requer informações de agendamento."
+  },
+  "bookingCancellation": {
+    "title": "Cancelar Compromisso",
+    "warningTitle": "Cancelar Seu Compromisso",
+    "warningMessage": "Tem certeza de que deseja cancelar este compromisso? Esta ação não pode ser desfeita.",
+    "bookingDetails": "Detalhes do Agendamento",
+    "cancelBooking": "Cancelar Compromisso",
+    "keepBooking": "Manter Compromisso",
+    "cancelling": "Cancelando...",
+    "confirmTitle": "Confirmar Cancelamento",
+    "confirmMessage": "Tem certeza de que deseja cancelar seu compromisso de {{eventType}} em {{date}} às {{time}}? Esta ação não pode ser desfeita.",
+    "cancelSuccess": "Compromisso cancelado com sucesso",
+    "cancelSuccessMessage": "Seu compromisso foi cancelado e você receberá um email de confirmação.",
+    "cancelError": "Falha ao cancelar compromisso",
+    "errorTitle": "Não é possível Cancelar",
+    "bookingNotFound": "Agendamento não encontrado ou acesso negado",
+    "backToHome": "Voltar ao Início"
+  },
+  "bookingCancelled": {
+    "title": "Compromisso Cancelado",
+    "successTitle": "Compromisso Cancelado com Sucesso",
+    "successMessage": "Seu compromisso foi cancelado e você receberá um email de confirmação.",
+    "cancelledBooking": "Compromisso Cancelado",
+    "date": "Data",
+    "time": "Horário",
+    "eventType": "Tipo de Evento",
+    "duration": "Duração",
+    "nextSteps": "Próximos Passos",
+    "nextStep1": "Você receberá um email de confirmação sobre o cancelamento",
+    "nextStep2": "Você pode agendar um novo compromisso a qualquer momento",
+    "nextStep3": "Entre em contato com o pastor se tiver alguma dúvida",
+    "backToHome": "Voltar ao Início",
+    "bookAnother": "Agendar Outro Compromisso",
+    "errorTitle": "Erro",
+    "noBookingData": "Nenhum dado de agendamento encontrado"
   },
   "publicProfile": {
     "bookAppointment": "Agendar Compromisso",
@@ -712,6 +761,47 @@
       "publicAccessHelp": "Tornar sua agenda permanentemente disponível para qualquer pessoa com o link",
       "timeLimitedHelp": "Gerar links temporários que expiram após um tempo definido",
       "anonymousLinksHelp": "Compartilhar sem revelar seu alias pessoal"
+    }
+  },
+  "common": {
+    "confirm": "Confirmar",
+    "cancel": "Cancelar",
+    "processing": "Processando...",
+    "loading": "Carregando...",
+    "minutes": "minutos",
+    "min": "min",
+    "today": "Hoje",
+    "goHome": "Ir para o Início",
+    "share": "Compartilhar",
+    "domain": "Domínio",
+    "saving": "Salvando...",
+    "from": "De",
+    "to": "Até",
+    "remove": "Remover",
+    "update": "Atualizar",
+    "create": "Criar",
+    "eventType": "Tipo de Evento",
+    "sending": "Enviando...",
+    "pastor": "Pastor",
+    "save": "Salvar",
+    "completeProfile": {
+      "title": "Complete Seu Perfil",
+      "description": "Seu perfil está faltando algumas informações importantes que ajudam sua comunidade a se conectar melhor com você.",
+      "profilePicture": "Foto do Perfil",
+      "bioDescription": "Biografia/Descrição",
+      "fullName": "Nome Completo",
+      "publicUrlSlug": "URL Pública",
+      "helpText": "Complete seu perfil para melhorar sua presença pública e ajudar as pessoas a te encontrarem.",
+      "editProfile": "Editar Perfil"
+    },
+    "days": {
+      "monday": "Segunda-feira",
+      "tuesday": "Terça-feira",
+      "wednesday": "Quarta-feira",
+      "thursday": "Quinta-feira",
+      "friday": "Sexta-feira",
+      "saturday": "Sábado",
+      "sunday": "Domingo"
     }
   },
   "masterDashboard": {

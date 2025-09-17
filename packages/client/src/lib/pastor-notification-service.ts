@@ -4,6 +4,7 @@
  */
 
 import { sendNotificationToUserByEmail } from './webview-integration';
+import { supportsPushNotifications, getDeviceType } from './device-utils';
 
 export interface NotificationPreferences {
   appointmentBooked: boolean;
@@ -283,40 +284,58 @@ class PastorNotificationService {
   }
 
   /**
-   * Send push notification via Supabase Edge Function
+   * Send push notification via Supabase Edge Function (mobile devices only)
    */
   private async sendPushNotification(
     pastorEmail: string, 
     notification: any, 
     priority: 'low' | 'medium' | 'high' | 'urgent'
   ): Promise<void> {
+    // Only send push notifications on mobile devices
+    if (!supportsPushNotifications()) {
+      console.log(`Push notifications not supported on ${getDeviceType()} device. Skipping push notification.`);
+      return;
+    }
+
     try {
-      const response = await fetch(`${this.API_BASE_URL}/functions/v1/send-notification`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${import.meta.env.VITE_SUPABASE_ANON_KEY}`
-        },
-        body: JSON.stringify({
-          userEmail: pastorEmail,
-          title: notification.title,
-          body: notification.body,
-          data: notification.data,
-          priority,
-          sound: priority === 'urgent' ? 'urgent' : 'default',
-          badge: 1
-        })
+      // Note: The send-notification edge function doesn't exist yet
+      // For now, we'll just log that we would send a push notification
+      console.log('Would send push notification:', {
+        userEmail: pastorEmail,
+        title: notification.title,
+        body: notification.body,
+        data: notification.data,
+        priority,
+        deviceType: getDeviceType()
       });
 
-      if (!response.ok) {
-        throw new Error(`Failed to send push notification: ${response.statusText}`);
-      }
+      // TODO: Implement actual push notification when edge function is created
+      // const response = await fetch(`${this.API_BASE_URL}/functions/v1/send-notification`, {
+      //   method: 'POST',
+      //   headers: {
+      //     'Content-Type': 'application/json',
+      //     'Authorization': `Bearer ${import.meta.env.VITE_SUPABASE_ANON_KEY}`
+      //   },
+      //   body: JSON.stringify({
+      //     userEmail: pastorEmail,
+      //     title: notification.title,
+      //     body: notification.body,
+      //     data: notification.data,
+      //     priority,
+      //     sound: priority === 'urgent' ? 'urgent' : 'default',
+      //     badge: 1
+      //   })
+      // });
 
-      const result = await response.json();
-      console.log('Push notification sent successfully:', result);
+      // if (!response.ok) {
+      //   throw new Error(`Failed to send push notification: ${response.statusText}`);
+      // }
+
+      // const result = await response.json();
+      // console.log('Push notification sent successfully:', result);
     } catch (error) {
       console.error('Error sending push notification:', error);
-      throw error;
+      // Don't throw error - push notifications are optional
     }
   }
 

@@ -88,6 +88,15 @@ export async function sendNotificationToUserByEmail(
   data?: any
 ) {
   try {
+    // Check if we're in a mobile environment or PWA
+    const isMobile = /Android|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+    const isPWA = window.matchMedia('(display-mode: standalone)').matches || (window.navigator as any).standalone === true;
+    
+    if (!isMobile && !isPWA) {
+      console.log('Email notifications only supported on mobile devices or PWA. Skipping notification.');
+      return { success: false, reason: 'Not supported on desktop' };
+    }
+
     const response = await fetch('/api/send-notification', {
       method: 'POST',
       headers: {
@@ -110,7 +119,8 @@ export async function sendNotificationToUserByEmail(
     return result;
   } catch (error) {
     console.error('Error sending notification:', error);
-    throw error;
+    // Don't throw error - notifications are optional
+    return { success: false, error: error instanceof Error ? error.message : 'Unknown error' };
   }
 }
 

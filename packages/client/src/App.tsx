@@ -38,6 +38,8 @@ import PublicAgendaPage from './pages/PublicAgendaPage'
 import EventBookingPage from './pages/EventBookingPage'
 import BookingConfirmationPage from './pages/BookingConfirmationPage'
 import BookingSuccessPage from './pages/BookingSuccessPage'
+import BookingCancellationPage from './pages/BookingCancellationPage'
+import BookingCancelledPage from './pages/BookingCancelledPage'
 import UnavailabilityPage from './pages/UnavailabilityPage'
 import SitemapPage from './pages/SitemapPage'
 import MasterPastorDashboard from './pages/MasterPastorDashboard'
@@ -60,6 +62,8 @@ function App() {
             <Route path="/:alias/:eventTypeId" element={<EventBookingPage />} />
             <Route path="/:alias/:eventTypeId/confirmation" element={<BookingConfirmationPage />} />
             <Route path="/:alias/:eventTypeId/success" element={<BookingSuccessPage />} />
+            <Route path="/booking/cancel/:bookingId" element={<BookingCancellationPage />} />
+            <Route path="/booking/cancelled" element={<BookingCancelledPage />} />
             
             {/* Protected routes */}
             <Route path="/dashboard" element={

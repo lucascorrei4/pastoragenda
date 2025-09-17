@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import { useParams, useNavigate, useLocation } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { supabase } from '../lib/supabase'
+import { useAuth } from '../contexts/AuthContext'
 import { toast } from 'react-hot-toast'
 import { Calendar, Clock, ArrowLeft, CheckCircle } from 'lucide-react'
 import { format } from 'date-fns'
@@ -23,6 +24,7 @@ function BookingConfirmationPage() {
   const { t } = useTranslation()
   const navigate = useNavigate()
   const location = useLocation()
+  const { user } = useAuth()
   
   const [loading, setLoading] = useState(false)
   const [formData, setFormData] = useState({
@@ -58,6 +60,7 @@ function BookingConfirmationPage() {
       }
     }))
   }
+
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -100,6 +103,30 @@ function BookingConfirmationPage() {
          .single()
 
       if (bookingError) throw bookingError
+
+      // Send confirmation emails directly (custom auth compatible)
+      try {
+        // Call the on-booking-created edge function directly
+        const { error: emailError } = await supabase.functions.invoke('on-booking-created', {
+          body: {
+            record: {
+              ...booking,
+              user_id: state.eventType.user_id // Add user_id for the email function
+            },
+            old_record: null
+          }
+        })
+
+        if (emailError) {
+          console.error('Error sending confirmation emails:', emailError)
+          // Don't throw error - booking was successful, just email failed
+        } else {
+          console.log('Confirmation emails sent successfully')
+        }
+      } catch (emailError) {
+        console.error('Error calling email function:', emailError)
+        // Don't throw error - booking was successful, just email failed
+      }
 
       // Send notifications for appointment creation
       try {
@@ -397,6 +424,7 @@ function BookingConfirmationPage() {
                 </button>
               </div>
             </form>
+
 
             {/* Back Button */}
             <div className="mt-6 text-center">

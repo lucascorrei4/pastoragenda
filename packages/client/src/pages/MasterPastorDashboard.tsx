@@ -191,10 +191,10 @@ const MasterPastorDashboard: React.FC = () => {
     if (!profile) return []
     
     const missing: Array<{ field: string; label: string; icon: any }> = []
-    if (!profile.full_name) missing.push({ field: 'full_name', label: 'Full Name', icon: User })
-    if (!profile.avatar_url) missing.push({ field: 'avatar_url', label: 'Profile Picture', icon: Image })
-    if (!profile.bio) missing.push({ field: 'bio', label: 'Bio/Description', icon: FileText })
-    if (!profile.alias) missing.push({ field: 'alias', label: 'Public URL Slug', icon: Link })
+    if (!profile.full_name) missing.push({ field: 'full_name', label: t('common.completeProfile.fullName'), icon: User })
+    if (!profile.avatar_url) missing.push({ field: 'avatar_url', label: t('common.completeProfile.profilePicture'), icon: Image })
+    if (!profile.bio) missing.push({ field: 'bio', label: t('common.completeProfile.bioDescription'), icon: FileText })
+    if (!profile.alias) missing.push({ field: 'alias', label: t('common.completeProfile.publicUrlSlug'), icon: Link })
     
     return missing
   }
@@ -580,10 +580,10 @@ const MasterPastorDashboard: React.FC = () => {
                 </div>
                 <div className="ml-3 flex-1">
                   <h3 className="text-sm font-semibold text-blue-800 dark:text-blue-200 mb-2">
-                    Complete Your Profile
+                    {t('common.completeProfile.title')}
                   </h3>
                   <p className="text-sm text-blue-700 dark:text-blue-300 mb-4">
-                    Your profile is missing some important information that helps your community connect with you better.
+                    {t('common.completeProfile.description')}
                   </p>
                   
                   <div className="space-y-2 mb-4">
@@ -600,14 +600,14 @@ const MasterPastorDashboard: React.FC = () => {
                   
                   <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
                     <p className="text-xs text-blue-600 dark:text-blue-400 flex-1">
-                      Complete your profile to improve your public presence and help people find you.
+                      {t('common.completeProfile.helpText')}
                     </p>
                     <button
                       onClick={() => window.location.href = '/dashboard/profile'}
                       className="inline-flex items-center justify-center px-4 py-2.5 sm:px-3 sm:py-2 text-sm font-medium text-blue-700 dark:text-blue-300 bg-blue-100 dark:bg-blue-800/30 hover:bg-blue-200 dark:hover:bg-blue-800/50 rounded-md transition-colors duration-200 w-full sm:w-auto"
                     >
                       <Edit3 className="w-4 h-4 mr-2 flex-shrink-0" />
-                      <span className="truncate">Edit Profile</span>
+                      <span className="truncate">{t('common.completeProfile.editProfile')}</span>
                       <ArrowRight className="w-4 h-4 ml-2 flex-shrink-0" />
                     </button>
                   </div>

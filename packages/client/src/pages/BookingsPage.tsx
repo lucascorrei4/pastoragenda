@@ -3,9 +3,13 @@ import { useAuth } from '../contexts/AuthContext'
 import { useTranslation } from 'react-i18next'
 import { supabase } from '../lib/supabase'
 import { toast } from 'react-hot-toast'
-import { Calendar, Clock, User, Mail, X, CheckCircle, XCircle, Phone, MessageSquare } from 'lucide-react'
+import { Calendar, Clock, User, Mail, X, CheckCircle, XCircle, Phone, MessageSquare, Trash2 } from 'lucide-react'
 import type { BookingWithDetails } from '../lib/supabase'
 import { translateDefaultEventType } from '../lib/eventTypeTranslations'
+import { notificationService } from '../lib/notification-service'
+import { pastorNotificationService } from '../lib/pastor-notification-service'
+import { format } from 'date-fns'
+import ConfirmationModal from '../components/ConfirmationModal'
 
 function BookingsPage() {
   const { user } = useAuth()
@@ -14,6 +18,11 @@ function BookingsPage() {
   const [loading, setLoading] = useState(true)
   const [filter, setFilter] = useState<'all' | 'upcoming' | 'past' | 'cancelled'>('all')
   const [cancelling, setCancelling] = useState<string | null>(null)
+  const [showCancelModal, setShowCancelModal] = useState(false)
+  const [bookingToCancel, setBookingToCancel] = useState<BookingWithDetails | null>(null)
+  const [deleting, setDeleting] = useState<string | null>(null)
+  const [showDeleteModal, setShowDeleteModal] = useState(false)
+  const [bookingToDelete, setBookingToDelete] = useState<BookingWithDetails | null>(null)
 
   useEffect(() => {
     if (user) {
@@ -91,27 +100,82 @@ function BookingsPage() {
     }
   }
 
-  const handleCancelBooking = async (bookingId: string) => {
-    if (!confirm(t('bookings.actions.confirmCancel'))) {
-      return
-    }
+  const handleCancelBooking = (booking: BookingWithDetails) => {
+    setBookingToCancel(booking)
+    setShowCancelModal(true)
+  }
+
+  const confirmCancelBooking = async () => {
+    if (!bookingToCancel) return
 
     try {
-      setCancelling(bookingId)
+      setCancelling(bookingToCancel.id)
+      
+      // Cancel the booking
       const { error } = await supabase
         .from('bookings')
         .update({ status: 'cancelled' })
-        .eq('id', bookingId)
+        .eq('id', bookingToCancel.id)
 
       if (error) throw error
 
+      // Send cancellation emails via edge function
+      try {
+        const { error: emailError } = await supabase.functions.invoke('on-booking-cancelled', {
+          body: { bookingId: bookingToCancel.id }
+        })
+
+        if (emailError) {
+          console.error('Error sending cancellation emails:', emailError)
+          // Don't throw error - booking was cancelled successfully, just email failed
+        } else {
+          console.log('Cancellation emails sent successfully')
+        }
+      } catch (emailError) {
+        console.error('Error calling cancellation email function:', emailError)
+        // Don't throw error - booking was cancelled successfully, just email failed
+      }
+
       toast.success(t('bookings.actions.cancelSuccess'))
       fetchBookings()
+      setShowCancelModal(false)
+      setBookingToCancel(null)
     } catch (error) {
       console.error('Error cancelling booking:', error)
       toast.error(t('bookings.actions.cancelError'))
     } finally {
       setCancelling(null)
+    }
+  }
+
+  const handleDeleteBooking = (booking: BookingWithDetails) => {
+    setBookingToDelete(booking)
+    setShowDeleteModal(true)
+  }
+
+  const confirmDeleteBooking = async () => {
+    if (!bookingToDelete) return
+
+    try {
+      setDeleting(bookingToDelete.id)
+
+      // Delete the booking from database
+      const { error } = await supabase
+        .from('bookings')
+        .delete()
+        .eq('id', bookingToDelete.id)
+
+      if (error) throw error
+
+      toast.success(t('bookings.actions.deleteSuccess'))
+      fetchBookings()
+      setShowDeleteModal(false)
+      setBookingToDelete(null)
+    } catch (error) {
+      console.error('Error deleting booking:', error)
+      toast.error(t('bookings.actions.deleteError'))
+    } finally {
+      setDeleting(null)
     }
   }
 
@@ -319,7 +383,7 @@ function BookingsPage() {
 
                 {booking.status === 'confirmed' && new Date(booking.start_time) > new Date() && (
                   <button
-                    onClick={() => handleCancelBooking(booking.id)}
+                    onClick={() => handleCancelBooking(booking)}
                     disabled={cancelling === booking.id}
                     className="ml-4 p-2 text-gray-400 dark:text-gray-500 hover:text-red-600 dark:hover:text-red-400 disabled:opacity-50"
                     title={t('bookings.actions.cancel')}
@@ -328,6 +392,21 @@ function BookingsPage() {
                       <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-red-600"></div>
                     ) : (
                       <X className="w-5 h-5" />
+                    )}
+                  </button>
+                )}
+                
+                {booking.status === 'cancelled' && (
+                  <button
+                    onClick={() => handleDeleteBooking(booking)}
+                    disabled={deleting === booking.id}
+                    className="ml-4 p-2 text-gray-400 dark:text-gray-500 hover:text-red-600 dark:hover:text-red-400 disabled:opacity-50"
+                    title={t('bookings.actions.delete')}
+                  >
+                    {deleting === booking.id ? (
+                      <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-red-600"></div>
+                    ) : (
+                      <Trash2 className="w-5 h-5" />
                     )}
                   </button>
                 )}
@@ -346,6 +425,48 @@ function BookingsPage() {
           </p>
         </div>
       )}
+
+      {/* Cancel Confirmation Modal */}
+      <ConfirmationModal
+        isOpen={showCancelModal}
+        onClose={() => {
+          setShowCancelModal(false)
+          setBookingToCancel(null)
+        }}
+        onConfirm={confirmCancelBooking}
+        title={t('bookings.actions.confirmCancelTitle')}
+        message={bookingToCancel ? t('bookings.actions.confirmCancelMessage', {
+          bookerName: bookingToCancel.booker_name,
+          eventType: bookingToCancel.event_types?.title || 'Appointment',
+          date: format(new Date(bookingToCancel.start_time), 'MMMM dd, yyyy'),
+          time: format(new Date(bookingToCancel.start_time), 'h:mm a')
+        }) : ''}
+        confirmText={t('bookings.actions.cancel')}
+        cancelText={t('common.cancel')}
+        type="danger"
+        loading={cancelling === bookingToCancel?.id}
+      />
+
+      {/* Delete Confirmation Modal */}
+      <ConfirmationModal
+        isOpen={showDeleteModal}
+        onClose={() => {
+          setShowDeleteModal(false)
+          setBookingToDelete(null)
+        }}
+        onConfirm={confirmDeleteBooking}
+        title={t('bookings.actions.confirmDeleteTitle')}
+        message={bookingToDelete ? t('bookings.actions.confirmDeleteMessage', {
+          bookerName: bookingToDelete.booker_name,
+          eventType: bookingToDelete.event_types?.title || 'Appointment',
+          date: format(new Date(bookingToDelete.start_time), 'MMMM dd, yyyy'),
+          time: format(new Date(bookingToDelete.start_time), 'h:mm a')
+        }) : ''}
+        confirmText={t('bookings.actions.delete')}
+        cancelText={t('common.cancel')}
+        type="danger"
+        loading={deleting === bookingToDelete?.id}
+      />
     </div>
   )
 }

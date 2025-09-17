@@ -467,7 +467,14 @@
       "cancelling": "Cancelando...",
       "confirmCancel": "¿Estás seguro de que quieres cancelar esta reserva?",
       "cancelSuccess": "Reserva cancelada exitosamente",
-      "cancelError": "Error al cancelar reserva"
+      "cancelError": "Error al cancelar reserva",
+      "confirmCancelTitle": "Cancelar Cita",
+      "confirmCancelMessage": "¿Estás seguro de que quieres cancelar la cita de {{bookerName}} para {{eventType}} el {{date}} a las {{time}}? Esta acción no se puede deshacer y notificará al usuario por email.",
+      "delete": "Eliminar",
+      "confirmDeleteTitle": "Eliminar Reserva",
+      "confirmDeleteMessage": "¿Estás seguro de que quieres eliminar permanentemente la cita de {{bookerName}} para {{eventType}} el {{date}} a las {{time}}? Esta acción no se puede deshacer y la reserva será eliminada permanentemente.",
+      "deleteSuccess": "Reserva eliminada exitosamente",
+      "deleteError": "Error al eliminar la reserva"
     },
     "noBookings": {
       "all": "Aún no hay reservas",
@@ -559,7 +566,14 @@
     "bookingAppointment": "Reservando Cita...",
     "backToTimeSelection": "← Volver a selección de hora",
     "bookingSuccess": "¡Cita reservada exitosamente!",
-    "bookingError": "Error al reservar cita. Por favor intenta de nuevo."
+    "bookingError": "Error al reservar cita. Por favor intenta de nuevo.",
+    "cancelTimeSlot": "Cancelar Esta Hora",
+    "cancelling": "Cancelando...",
+    "cancelTimeSlotDescription": "Esto cancelará todas las reservas para esta hora y notificará a los usuarios",
+    "timeSlotCancelled": "Hora cancelada exitosamente",
+    "noBookingsToCancel": "No se encontraron reservas para esta hora",
+    "cancelError": "Error al cancelar la hora",
+    "notAuthorized": "No tienes autorización para cancelar esta hora"
   },
   "bookingSuccess": {
     "title": "¡Cita Confirmada!",
@@ -580,6 +594,41 @@
     "viewPastorProfile": "Ver Perfil del Pastor",
     "backToHome": "← Volver al Inicio",
     "pageNotFound": "Esta página requiere información de reserva."
+  },
+  "bookingCancellation": {
+    "title": "Cancelar Cita",
+    "warningTitle": "Cancelar Tu Cita",
+    "warningMessage": "¿Estás seguro de que quieres cancelar esta cita? Esta acción no se puede deshacer.",
+    "bookingDetails": "Detalles de la Reserva",
+    "cancelBooking": "Cancelar Cita",
+    "keepBooking": "Mantener Cita",
+    "cancelling": "Cancelando...",
+    "confirmTitle": "Confirmar Cancelación",
+    "confirmMessage": "¿Estás seguro de que quieres cancelar tu cita de {{eventType}} el {{date}} a las {{time}}? Esta acción no se puede deshacer.",
+    "cancelSuccess": "Cita cancelada exitosamente",
+    "cancelSuccessMessage": "Tu cita ha sido cancelada y recibirás un email de confirmación.",
+    "cancelError": "Error al cancelar la cita",
+    "errorTitle": "No se puede Cancelar",
+    "bookingNotFound": "Reserva no encontrada o acceso denegado",
+    "backToHome": "Volver al Inicio"
+  },
+  "bookingCancelled": {
+    "title": "Cita Cancelada",
+    "successTitle": "Cita Cancelada Exitosamente",
+    "successMessage": "Tu cita ha sido cancelada y recibirás un email de confirmación.",
+    "cancelledBooking": "Cita Cancelada",
+    "date": "Fecha",
+    "time": "Hora",
+    "eventType": "Tipo de Evento",
+    "duration": "Duración",
+    "nextSteps": "Próximos Pasos",
+    "nextStep1": "Recibirás un email de confirmación sobre la cancelación",
+    "nextStep2": "Puedes reservar una nueva cita en cualquier momento",
+    "nextStep3": "Contacta al pastor si tienes alguna pregunta",
+    "backToHome": "Volver al Inicio",
+    "bookAnother": "Reservar Otra Cita",
+    "errorTitle": "Error",
+    "noBookingData": "No se encontraron datos de reserva"
   },
   "publicProfile": {
     "bookAppointment": "Reservar Cita",
@@ -712,6 +761,47 @@
       "publicAccessHelp": "Hacer tu agenda permanentemente disponible para cualquiera con el enlace",
       "timeLimitedHelp": "Generar enlaces temporales que expiran después de un tiempo establecido",
       "anonymousLinksHelp": "Compartir sin revelar tu alias personal"
+    }
+  },
+  "common": {
+    "confirm": "Confirmar",
+    "cancel": "Cancelar",
+    "processing": "Procesando...",
+    "loading": "Cargando...",
+    "minutes": "minutos",
+    "min": "min",
+    "today": "Hoy",
+    "goHome": "Ir al Inicio",
+    "share": "Compartir",
+    "domain": "Dominio",
+    "saving": "Guardando...",
+    "from": "Desde",
+    "to": "Hasta",
+    "remove": "Eliminar",
+    "update": "Actualizar",
+    "create": "Crear",
+    "eventType": "Tipo de Evento",
+    "sending": "Enviando...",
+    "pastor": "Pastor",
+    "save": "Guardar",
+    "completeProfile": {
+      "title": "Completa Tu Perfil",
+      "description": "Tu perfil carece de información importante que ayuda a tu comunidad a conectarse mejor contigo.",
+      "profilePicture": "Foto de Perfil",
+      "bioDescription": "Biografía/Descripción",
+      "fullName": "Nombre Completo",
+      "publicUrlSlug": "URL Pública",
+      "helpText": "Completa tu perfil para mejorar tu presencia pública y ayudar a las personas a encontrarte.",
+      "editProfile": "Editar Perfil"
+    },
+    "days": {
+      "monday": "Lunes",
+      "tuesday": "Martes",
+      "wednesday": "Miércoles",
+      "thursday": "Jueves",
+      "friday": "Viernes",
+      "saturday": "Sábado",
+      "sunday": "Domingo"
     }
   },
   "masterDashboard": {
