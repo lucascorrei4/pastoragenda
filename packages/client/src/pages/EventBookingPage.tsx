@@ -491,8 +491,8 @@ function EventBookingPage() {
                             ${slot.isBooked
                               ? 'border-red-300 dark:border-red-600 bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 cursor-not-allowed opacity-75'
                               : selectedTime === slot.time
-                                ? 'border-primary-500 bg-primary-50 dark:bg-primary-900/30 text-primary-900 dark:text-primary-100'
-                                : 'border-gray-200 dark:border-gray-600 hover:border-primary-300 dark:hover:border-primary-400 hover:bg-primary-50 dark:hover:bg-primary-900/20 text-gray-900 dark:text-gray-100'
+                                ? 'border-green-500 bg-green-50 dark:bg-green-900/30 text-green-900 dark:text-green-100'
+                                : 'border-green-200 dark:border-green-600 bg-green-50 dark:bg-green-900/20 hover:border-green-300 dark:hover:border-green-400 hover:bg-green-100 dark:hover:bg-green-900/30 text-green-900 dark:text-green-100'
                             }
                           `}
                         >

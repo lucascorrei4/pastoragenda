@@ -573,7 +573,12 @@
     "timeSlotCancelled": "Hora cancelada exitosamente",
     "noBookingsToCancel": "No se encontraron reservas para esta hora",
     "cancelError": "Error al cancelar la hora",
-    "notAuthorized": "No tienes autorización para cancelar esta hora"
+    "notAuthorized": "No tienes autorización para cancelar esta hora",
+    "date": "Fecha",
+    "time": "Hora",
+    "eventType": "Tipo de Evento",
+    "duration": "Duración",
+    "description": "Descripción"
   },
   "bookingSuccess": {
     "title": "¡Cita Confirmada!",
@@ -610,7 +615,12 @@
     "cancelError": "Error al cancelar la cita",
     "errorTitle": "No se puede Cancelar",
     "bookingNotFound": "Reserva no encontrada o acceso denegado",
-    "backToHome": "Volver al Inicio"
+    "backToHome": "Volver al Inicio",
+    "pastBookingTitle": "Cita Pasada",
+    "pastBookingMessage": "Esta cita ya ocurrió y no se puede cancelar.",
+    "bookNewAppointment": "Reservar Nueva Cita",
+    "bookNewAppointmentMessage": "¿Te gustaría programar una nueva cita con este pastor?",
+    "viewPastorAgenda": "Ver Agenda del Pastor"
   },
   "bookingCancelled": {
     "title": "Cita Cancelada",

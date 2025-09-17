@@ -305,8 +305,16 @@ function PublicAgendaPage({ slug: propSlug, pastorId, isPreview = false }: Publi
                 <nav className="-mb-px flex flex-wrap gap-2 sm:gap-8 overflow-x-auto">
                   {[
                     { key: 'all', label: t('bookings.filter.all'), count: bookings.length },
-                    { key: 'upcoming', label: t('bookings.filter.upcoming'), count: bookings.filter(b => new Date(b.start_time) > new Date() && b.status === 'confirmed').length },
-                    { key: 'past', label: t('bookings.filter.past'), count: bookings.filter(b => new Date(b.start_time) < new Date() && b.status === 'confirmed').length },
+                    { key: 'upcoming', label: t('bookings.filter.upcoming'), count: bookings.filter(b => {
+                      const bookingTime = new Date(b.start_time)
+                      const currentTime = new Date()
+                      return bookingTime > currentTime && b.status === 'confirmed'
+                    }).length },
+                    { key: 'past', label: t('bookings.filter.past'), count: bookings.filter(b => {
+                      const bookingTime = new Date(b.start_time)
+                      const currentTime = new Date()
+                      return bookingTime < currentTime && b.status === 'confirmed'
+                    }).length },
                     { key: 'cancelled', label: t('bookings.filter.cancelled'), count: bookings.filter(b => b.status === 'cancelled').length }
                   ].map((tab) => (
                     <button

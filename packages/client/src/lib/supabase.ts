@@ -140,6 +140,10 @@ export interface BookingWithDetails extends Booking {
     duration: number
     custom_questions: CustomQuestion[]
   }
+  profiles?: {
+    alias: string
+    full_name: string
+  }
 }
 
 // Pastor Sharing Interfaces

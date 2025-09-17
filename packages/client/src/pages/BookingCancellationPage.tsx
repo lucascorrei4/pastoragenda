@@ -46,23 +46,65 @@ function BookingCancellationPage() {
 
       if (fetchError) {
         console.error('Error fetching booking:', fetchError)
+        console.error('Booking ID:', bookingId)
+        console.error('Error details:', {
+          code: fetchError.code,
+          message: fetchError.message,
+          details: fetchError.details,
+          hint: fetchError.hint
+        })
         setError('Booking not found or access denied')
         return
       }
 
+      console.log('Booking fetched successfully:', data)
+
+      // Fetch pastor profile separately
+      let pastorProfile = null
+      if (data.event_types?.user_id) {
+        const { data: profileData } = await supabase
+          .from('profiles')
+          .select('alias, full_name')
+          .eq('id', data.event_types.user_id)
+          .single()
+        pastorProfile = profileData
+      }
+
+      // Add pastor profile to booking data
+      const bookingWithProfile = {
+        ...data,
+        profiles: pastorProfile
+      }
+
       // Check if booking is already cancelled
-      if (data.status === 'cancelled') {
+      if (bookingWithProfile.status === 'cancelled') {
         setError('This booking has already been cancelled')
         return
       }
 
       // Check if booking is in the past
-      if (new Date(data.start_time) < new Date()) {
+      const bookingTime = new Date(bookingWithProfile.start_time)
+      const currentTime = new Date()
+      
+      // Debug logging to help troubleshoot timezone issues
+      console.log('Booking cancellation time check:', {
+        bookingStartTime: bookingWithProfile.start_time,
+        bookingTimeUTC: bookingTime.toISOString(),
+        currentTimeUTC: currentTime.toISOString(),
+        bookingTimeLocal: bookingTime.toLocaleString(),
+        currentTimeLocal: currentTime.toLocaleString(),
+        timeDifference: bookingTime.getTime() - currentTime.getTime(),
+        isInPast: bookingTime < currentTime
+      })
+      
+      // Compare times (both are Date objects, so comparison is in milliseconds)
+      if (bookingTime < currentTime) {
         setError('This booking is in the past and cannot be cancelled')
+        setBooking(bookingWithProfile) // Set booking data even for past bookings so we can show details
         return
       }
 
-      setBooking(data)
+      setBooking(bookingWithProfile)
     } catch (err) {
       console.error('Error fetching booking:', err)
       setError('Failed to load booking details')
@@ -134,6 +176,148 @@ function BookingCancellationPage() {
   }
 
   if (error || !booking) {
+    // If it's a "past booking" error, show booking details and new appointment link
+    if (error === 'This booking is in the past and cannot be cancelled' && booking) {
+      return (
+        <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
+          {/* Header */}
+          <div className="bg-white dark:bg-gray-800 shadow-sm">
+            <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+              <div className="flex items-center justify-between">
+                <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
+                  {t('bookingCancellation.title')}
+                </h1>
+                <LanguageSwitcher />
+              </div>
+            </div>
+          </div>
+
+          <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+            <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden">
+              {/* Past Booking Notice */}
+              <div className="bg-yellow-50 dark:bg-yellow-900/20 px-6 py-4 border-b border-yellow-200 dark:border-yellow-800">
+                <div className="flex items-center">
+                  <AlertTriangle className="h-6 w-6 text-yellow-600 dark:text-yellow-400 mr-3" />
+                  <div>
+                    <h2 className="text-lg font-semibold text-yellow-900 dark:text-yellow-100">
+                      {t('bookingCancellation.pastBookingTitle')}
+                    </h2>
+                    <p className="text-sm text-yellow-700 dark:text-yellow-300">
+                      {t('bookingCancellation.pastBookingMessage')}
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Booking Details */}
+              <div className="p-6">
+                <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
+                  {t('bookingCancellation.bookingDetails')}
+                </h3>
+                
+                <div className="bg-gray-50 dark:bg-gray-700 rounded-lg p-4 mb-6">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="flex items-center space-x-3">
+                      <Calendar className="h-5 w-5 text-gray-400" />
+                      <div>
+                        <p className="text-sm font-medium text-gray-500 dark:text-gray-400">
+                          {t('bookingConfirmation.date')}
+                        </p>
+                        <p className="text-gray-900 dark:text-white">
+                          {format(new Date(booking.start_time), 'EEEE, MMMM dd, yyyy')}
+                        </p>
+                      </div>
+                    </div>
+                    
+                    <div className="flex items-center space-x-3">
+                      <Clock className="h-5 w-5 text-gray-400" />
+                      <div>
+                        <p className="text-sm font-medium text-gray-500 dark:text-gray-400">
+                          {t('bookingConfirmation.time')}
+                        </p>
+                        <p className="text-gray-900 dark:text-white">
+                          {format(new Date(booking.start_time), 'h:mm a')} - {format(new Date(booking.end_time), 'h:mm a')}
+                        </p>
+                      </div>
+                    </div>
+                    
+                    <div className="flex items-center space-x-3">
+                      <User className="h-5 w-5 text-gray-400" />
+                      <div>
+                        <p className="text-sm font-medium text-gray-500 dark:text-gray-400">
+                          {t('bookingConfirmation.eventType')}
+                        </p>
+                        <p className="text-gray-900 dark:text-white">
+                          {booking.event_types?.title || 'Appointment'}
+                        </p>
+                      </div>
+                    </div>
+                    
+                    <div className="flex items-center space-x-3">
+                      <Clock className="h-5 w-5 text-gray-400" />
+                      <div>
+                        <p className="text-sm font-medium text-gray-500 dark:text-gray-400">
+                          {t('bookingConfirmation.duration')}
+                        </p>
+                        <p className="text-gray-900 dark:text-white">
+                          {booking.event_types?.duration || 0} {t('common.minutes')}
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {booking.booker_description && (
+                  <div className="mb-6">
+                    <h4 className="text-sm font-medium text-gray-500 dark:text-gray-400 mb-2">
+                      {t('bookingConfirmation.description')}
+                    </h4>
+                    <p className="text-gray-900 dark:text-white bg-gray-50 dark:bg-gray-700 rounded-lg p-3">
+                      {booking.booker_description}
+                    </p>
+                  </div>
+                )}
+
+                {/* New Appointment Section */}
+                <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-6 mb-6">
+                  <h3 className="text-lg font-semibold text-blue-900 dark:text-blue-100 mb-2">
+                    {t('bookingCancellation.bookNewAppointment')}
+                  </h3>
+                  <p className="text-blue-800 dark:text-blue-200 mb-4">
+                    {t('bookingCancellation.bookNewAppointmentMessage')}
+                  </p>
+                  <button
+                    onClick={() => {
+                      const pastorAlias = booking.profiles?.alias
+                      if (pastorAlias) {
+                        navigate(`/${pastorAlias}`)
+                      } else {
+                        navigate('/')
+                      }
+                    }}
+                    className="bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-lg transition-colors"
+                  >
+                    {t('bookingCancellation.viewPastorAgenda')}
+                  </button>
+                </div>
+
+                {/* Action Buttons */}
+                <div className="flex flex-col sm:flex-row gap-4">
+                  <button
+                    onClick={() => navigate('/')}
+                    className="flex-1 bg-primary-600 hover:bg-primary-700 text-white font-medium py-3 px-6 rounded-lg transition-colors"
+                  >
+                    {t('bookingCancellation.backToHome')}
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )
+    }
+
+    // For other errors, show the original error page
     return (
       <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex items-center justify-center">
         <div className="max-w-md mx-auto text-center">

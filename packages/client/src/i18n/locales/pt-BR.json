@@ -573,7 +573,12 @@
     "timeSlotCancelled": "Horário cancelado com sucesso",
     "noBookingsToCancel": "Nenhum agendamento encontrado para este horário",
     "cancelError": "Falha ao cancelar horário",
-    "notAuthorized": "Você não tem autorização para cancelar este horário"
+    "notAuthorized": "Você não tem autorização para cancelar este horário",
+    "date": "Data",
+    "time": "Horário",
+    "eventType": "Tipo de Evento",
+    "duration": "Duração",
+    "description": "Descrição"
   },
   "bookingSuccess": {
     "title": "Compromisso Confirmado!",
@@ -610,7 +615,12 @@
     "cancelError": "Falha ao cancelar compromisso",
     "errorTitle": "Não é possível Cancelar",
     "bookingNotFound": "Agendamento não encontrado ou acesso negado",
-    "backToHome": "Voltar ao Início"
+    "backToHome": "Voltar ao Início",
+    "pastBookingTitle": "Compromisso Passado",
+    "pastBookingMessage": "Este compromisso já ocorreu e não pode ser cancelado.",
+    "bookNewAppointment": "Agendar Nova Consulta",
+    "bookNewAppointmentMessage": "Gostaria de agendar uma nova consulta com este pastor?",
+    "viewPastorAgenda": "Ver Agenda do Pastor"
   },
   "bookingCancelled": {
     "title": "Compromisso Cancelado",

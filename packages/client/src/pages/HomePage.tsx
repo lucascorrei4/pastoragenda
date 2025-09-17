@@ -345,7 +345,7 @@ function HomePage() {
         </div>
       </section>
 
-      {/* Pricing Section */}
+      {/* Pricing Section 
       <div className="py-20 bg-white dark:bg-gray-800">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
@@ -358,7 +358,6 @@ function HomePage() {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-4xl mx-auto">
-            {/* Free Plan */}
             <div className="bg-white dark:bg-gray-700 rounded-2xl p-8 shadow-lg border border-gray-200 dark:border-gray-600">
               <div className="text-center">
                 <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">
@@ -396,7 +395,6 @@ function HomePage() {
               </div>
             </div>
 
-            {/* Pro Plan */}
             <div className="bg-primary-600 dark:bg-primary-700 rounded-2xl p-8 shadow-xl border-2 border-primary-500 dark:border-primary-400 transform scale-105">
               <div className="text-center">
                 <div className="inline-flex items-center px-3 py-1 rounded-full bg-primary-100 dark:bg-primary-800 text-primary-800 dark:text-primary-200 text-sm font-medium mb-4">
@@ -443,7 +441,8 @@ function HomePage() {
           </div>
         </div>
       </div>
-
+      */}
+      
       {/* Support Section */}
       <div className="py-20 bg-gray-50 dark:bg-gray-900">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">

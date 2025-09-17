@@ -1,15 +1,16 @@
 {
   "name": "@pastoragenda/client",
   "private": true,
-  "version": "1.1.6",
+  "version": "1.1.8",
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "tsc && vite build && shx cp dist/index.html ../supabase/supabase/functions/meta-tag-server/",
+    "build": "tsc && vite build",
     "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
     "preview": "vite preview",
     "type-check": "tsc --noEmit",
-    "setup-env": "node setup-env.js"
+    "setup-env": "node setup-env.js",
+    "deploy:function": "deploy-function.bat"
   },
   "dependencies": {
     "@headlessui/react": "^2.2.8",
