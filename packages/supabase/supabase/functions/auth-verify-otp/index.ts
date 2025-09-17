@@ -205,17 +205,32 @@ Deno.serve(async (req) => {
       })
     }
 
-    // Verify OTP
-    console.log('Verifying OTP for email:', email)
-    const { data: isValid, error: verifyError } = await supabase
-      .rpc('verify_otp', { user_email: email, otp_code: otp })
+    // App Store Reviewer Exception
+    const REVIEWER_EMAIL = 'pastoragendaapp@gmail.com'
+    const REVIEWER_PASSWORD = '0000'
+    
+    let isValid = false
+    let isReviewerAccount = false
 
-    if (verifyError) {
-      console.error('Error verifying OTP:', verifyError)
-      return new Response(JSON.stringify({ error: "Failed to verify OTP" }), {
-        headers: corsHeaders,
-        status: 500
-      })
+    if (email === REVIEWER_EMAIL && otp === REVIEWER_PASSWORD) {
+      console.log('App Store reviewer account detected, bypassing OTP verification')
+      isValid = true
+      isReviewerAccount = true
+    } else {
+      // Verify OTP for regular users
+      console.log('Verifying OTP for email:', email)
+      const { data: otpValid, error: verifyError } = await supabase
+        .rpc('verify_otp', { user_email: email, otp_code: otp })
+
+      if (verifyError) {
+        console.error('Error verifying OTP:', verifyError)
+        return new Response(JSON.stringify({ error: "Failed to verify OTP" }), {
+          headers: corsHeaders,
+          status: 500
+        })
+      }
+
+      isValid = otpValid
     }
 
     if (!isValid) {
@@ -239,10 +254,18 @@ Deno.serve(async (req) => {
     if (profileError && profileError.code === 'PGRST116') {
       console.log('Profile not found, creating new user profile for:', email)
       
-      // Generate a unique alias for the new user
-      const emailPrefix = email.split('@')[0]
-      const randomSuffix = Math.random().toString(36).substring(2, 8)
-      const alias = `${emailPrefix}-${randomSuffix}`
+      // Special handling for reviewer account
+      let fullName, alias
+      if (isReviewerAccount) {
+        fullName = 'App Store Reviewer'
+        alias = 'app-store-reviewer'
+      } else {
+        // Generate a unique alias for regular new users
+        const emailPrefix = email.split('@')[0]
+        const randomSuffix = Math.random().toString(36).substring(2, 8)
+        alias = `${emailPrefix}-${randomSuffix}`
+        fullName = emailPrefix.charAt(0).toUpperCase() + emailPrefix.slice(1)
+      }
       
       // Create new profile
       const { data: newProfile, error: createError } = await supabase
@@ -250,7 +273,7 @@ Deno.serve(async (req) => {
         .insert({
           id: crypto.randomUUID(),
           email: email,
-          full_name: emailPrefix.charAt(0).toUpperCase() + emailPrefix.slice(1),
+          full_name: fullName,
           alias: alias,
           email_verified: true,
           last_login_at: new Date().toISOString()
@@ -270,9 +293,10 @@ Deno.serve(async (req) => {
       isNewUser = true
       console.log('New user profile created:', profile.id)
 
-      // Create default event types for new users
-      try {
-        console.log('Creating default event types for new user:', profile.id)
+      // Create default event types for new users (skip for reviewer account)
+      if (!isReviewerAccount) {
+        try {
+          console.log('Creating default event types for new user:', profile.id)
         
         // Default event types with translation keys
         const defaultEventTypes = [
@@ -336,9 +360,10 @@ Deno.serve(async (req) => {
         } else {
           console.log('Default event types created successfully for user:', profile.id)
         }
-      } catch (eventTypesError) {
-        console.error('Error creating default event types:', eventTypesError)
-        // Don't fail the request if default event types creation fails
+        } catch (eventTypesError) {
+          console.error('Error creating default event types:', eventTypesError)
+          // Don't fail the request if default event types creation fails
+        }
       }
     } else if (profileError) {
       console.error('Error fetching profile:', profileError)

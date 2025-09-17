@@ -144,6 +144,19 @@ Deno.serve(async (req)=>{
         status: 400
       });
     }
+
+    // App Store Reviewer Exception - Skip OTP generation and email sending
+    const REVIEWER_EMAIL = 'pastoragendaapp@gmail.com'
+    if (email === REVIEWER_EMAIL) {
+      console.log('App Store reviewer account detected, skipping OTP generation and email sending')
+      return new Response(JSON.stringify({
+        message: "OTP sent successfully",
+        success: true
+      }), {
+        headers: corsHeaders,
+        status: 200
+      });
+    }
     // Check if user exists to determine if this is a new user
     const { data: existingUser } = await supabase.from('profiles').select('id').eq('email', email).single();
     const isNewUser = !existingUser;
