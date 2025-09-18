@@ -520,12 +520,22 @@ function HomePage() {
                 <p className="text-gray-400">
                   {t('home.footer.copyright')} v. {packageJson.version}
                 </p>
-                <a 
-                  href="/support" 
-                  className="text-gray-400 hover:text-white transition-colors text-sm"
-                >
-                  {t('home.footer.support')}
-                </a>
+                <div className="flex items-center space-x-4">
+                  <a 
+                    href="/support" 
+                    className="text-gray-400 hover:text-white transition-colors text-sm"
+                  >
+                    {t('home.footer.support')}
+                  </a>
+                  <a 
+                    href="https://docs.google.com/document/d/1SP93ZdXu9PSc2yrrLJuSJBRKpHNjyXW2lc5kSYN2mOI/edit?usp=sharing" 
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-gray-400 hover:text-white transition-colors text-sm"
+                  >
+                    {t('home.footer.privacyPolicy')}
+                  </a>
+                </div>
               </div>
               <LanguageSwitcher dropdownPosition="above" />
             </div>
