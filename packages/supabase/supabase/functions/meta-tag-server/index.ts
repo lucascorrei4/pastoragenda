@@ -7,10 +7,10 @@ const GENERIC_TITLE = 'PastorAgenda - Schedule with Pastors';
 const GENERIC_DESCRIPTION = 'Schedule appointments with pastors and religious leaders through our easy-to-use booking platform.';
 const GENERIC_IMAGE = 'https://pastoragenda.com/pwa-512x512.png';
 
-// Placeholders (no change)
-const OG_TITLE = '__OG_TITLE__';
-const OG_DESCRIPTION = '__OG_DESCRIPTION__';
-const OG_IMAGE = '__OG_IMAGE__';
+// Placeholders (updated to match the new HTML)
+const OG_TITLE = 'PastorAgenda - Schedule with Pastors';
+const OG_DESCRIPTION = 'Schedule appointments with pastors and religious leaders through our easy-to-use booking platform.';
+const OG_IMAGE = 'https://pastoragenda.com/pwa-512x512.png';
 
 // Embedded HTML template
 const HTML_TEMPLATE = `<!doctype html>
