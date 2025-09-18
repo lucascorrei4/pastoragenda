@@ -62,10 +62,10 @@ function App() {
             <Route path="/auth/google/callback" element={<GoogleCalendarCallback />} />
             <Route path="/sitemap.xml" element={<SitemapPage />} />
             <Route path="/support" element={<SupportPage />} />
-            <Route path="/privacy-policy" element={<PrivacyPolicyPage />} />
             <Route path="/booking/cancel/:bookingId" element={<BookingCancellationPage />} />
             <Route path="/booking/cancelled" element={<BookingCancelledPage />} />
             <Route path="/public/:slug" element={<PublicAgendaPage />} />
+            <Route path="/privacy-policy" element={<PrivacyPolicyPage />} />
             <Route path="/:alias" element={<PublicProfilePage />} />
             <Route path="/:alias/:eventTypeId" element={<EventBookingPage />} />
             <Route path="/:alias/:eventTypeId/confirmation" element={<BookingConfirmationPage />} />
