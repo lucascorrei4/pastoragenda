@@ -3,9 +3,10 @@ import { useAuth } from '../contexts/AuthContext'
 import { useTranslation } from 'react-i18next'
 import { supabase } from '../lib/supabase'
 import { toast } from 'react-hot-toast'
-import { User, Save, Upload, ExternalLink } from 'lucide-react'
+import { User, Save, Upload, ExternalLink, Calendar } from 'lucide-react'
 import { Link } from 'react-router-dom'
 import type { Profile } from '../lib/supabase'
+import GoogleCalendarIntegration from '../components/GoogleCalendarIntegration'
 
 function ProfileSettingsPage() {
   const { user } = useAuth()
@@ -14,6 +15,7 @@ function ProfileSettingsPage() {
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
   const [uploading, setUploading] = useState(false)
+  const [activeTab, setActiveTab] = useState<'profile' | 'calendar'>('profile')
 
   const [formData, setFormData] = useState({
     full_name: '',
@@ -219,12 +221,43 @@ function ProfileSettingsPage() {
   }
 
   return (
-    <div className="max-w-2xl mx-auto">
+    <div className="max-w-4xl mx-auto">
       <div className="bg-white dark:bg-gray-800 shadow rounded-lg">
         <div className="px-4 py-5 sm:p-6">
           <h3 className="text-lg leading-6 font-medium text-gray-900 dark:text-white mb-6">
             {t('profile.title')}
           </h3>
+
+          {/* Tab Navigation */}
+          <div className="border-b border-gray-200 dark:border-gray-700 mb-6">
+            <nav className="-mb-px flex space-x-8">
+              <button
+                onClick={() => setActiveTab('profile')}
+                className={`py-2 px-1 border-b-2 font-medium text-sm ${
+                  activeTab === 'profile'
+                    ? 'border-primary-500 text-primary-600 dark:text-primary-400'
+                    : 'border-transparent text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 hover:border-gray-300 dark:hover:border-gray-600'
+                }`}
+              >
+                <User className="w-4 h-4 inline mr-2" />
+                {t('profile.title')}
+              </button>
+              <button
+                onClick={() => setActiveTab('calendar')}
+                className={`py-2 px-1 border-b-2 font-medium text-sm ${
+                  activeTab === 'calendar'
+                    ? 'border-primary-500 text-primary-600 dark:text-primary-400'
+                    : 'border-transparent text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 hover:border-gray-300 dark:hover:border-gray-600'
+                }`}
+              >
+                <Calendar className="w-4 h-4 inline mr-2" />
+                {t('googleCalendar.title')}
+              </button>
+            </nav>
+          </div>
+
+          {/* Tab Content */}
+          {activeTab === 'profile' ? (
 
           <form onSubmit={handleSubmit} className="space-y-6">
             {/* Avatar Upload */}
@@ -348,6 +381,9 @@ function ProfileSettingsPage() {
               </button>
             </div>
           </form>
+          ) : (
+            <GoogleCalendarIntegration />
+          )}
         </div>
       </div>
 

@@ -119,6 +119,28 @@ function BookingsPage() {
 
       if (error) throw error
 
+      // Sync with Google Calendar (delete event)
+      try {
+        const { error: syncError } = await supabase.functions.invoke('google-calendar-sync', {
+          body: {
+            action: 'delete',
+            bookingId: bookingToCancel.id,
+            eventTypeId: bookingToCancel.event_type_id,
+            userId: user?.id
+          }
+        })
+
+        if (syncError) {
+          console.error('Error syncing with Google Calendar:', syncError)
+          // Don't throw error - booking was cancelled successfully, just sync failed
+        } else {
+          console.log('Booking removed from Google Calendar successfully')
+        }
+      } catch (syncError) {
+        console.error('Error calling Google Calendar sync function:', syncError)
+        // Don't throw error - booking was cancelled successfully, just sync failed
+      }
+
       // Send cancellation emails via edge function
       try {
         const { error: emailError } = await supabase.functions.invoke('on-booking-cancelled', {

@@ -46,6 +46,7 @@ import MasterPastorDashboard from './pages/MasterPastorDashboard'
 import FollowedPastorAgendaPage from './pages/FollowedPastorAgendaPage'
 import AgendaSharingPage from './pages/AgendaSharingPage'
 import SupportPage from './pages/SupportPage'
+import GoogleCalendarCallback from './pages/GoogleCalendarCallback'
 
 function App() {
   return (
@@ -57,6 +58,7 @@ function App() {
             {/* Public routes */}
             <Route path="/" element={<HomePage />} />
             <Route path="/auth" element={<AuthPageWrapper />} />
+            <Route path="/auth/google/callback" element={<GoogleCalendarCallback />} />
             <Route path="/sitemap.xml" element={<SitemapPage />} />
             <Route path="/support" element={<SupportPage />} />
             <Route path="/booking/cancel/:bookingId" element={<BookingCancellationPage />} />

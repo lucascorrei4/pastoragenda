@@ -10,6 +10,9 @@
     "reset": "supabase db reset",
     "status": "supabase status"
   },
+  "dependencies": {
+    "googleapis": "^128.0.0"
+  },
   "devDependencies": {
     "@supabase/supabase-js": "^2.38.4",
     "supabase": "^1.127.4"

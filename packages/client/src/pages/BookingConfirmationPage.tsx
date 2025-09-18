@@ -128,6 +128,28 @@ function BookingConfirmationPage() {
         // Don't throw error - booking was successful, just email failed
       }
 
+      // Sync with Google Calendar
+      try {
+        const { error: syncError } = await supabase.functions.invoke('google-calendar-sync', {
+          body: {
+            action: 'create',
+            bookingId: booking.id,
+            eventTypeId: eventTypeId,
+            userId: state.eventType.user_id
+          }
+        })
+
+        if (syncError) {
+          console.error('Error syncing with Google Calendar:', syncError)
+          // Don't throw error - booking was successful, just sync failed
+        } else {
+          console.log('Booking synced with Google Calendar successfully')
+        }
+      } catch (syncError) {
+        console.error('Error calling Google Calendar sync function:', syncError)
+        // Don't throw error - booking was successful, just sync failed
+      }
+
       // Send notifications for appointment creation
       try {
         // Send enhanced notification to pastor about new appointment

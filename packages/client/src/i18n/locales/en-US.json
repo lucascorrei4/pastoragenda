@@ -926,5 +926,34 @@
     "cancelError": "Failed to cancel invitation",
     "accessRevoked": "Access revoked successfully",
     "revokeError": "Failed to revoke access"
+  },
+  "googleCalendar": {
+    "title": "Google Calendar Integration",
+    "connected": "Connected",
+    "notConnected": "Not Connected",
+    "connect": "Connect to Google Calendar",
+    "disconnect": "Disconnect",
+    "refresh": "Refresh",
+    "refreshed": "Status refreshed",
+    "syncingWith": "Syncing with {calendar}",
+    "syncSettings": "Sync Settings",
+    "syncDescription": "Automatically sync your bookings with Google Calendar",
+    "syncEnabled": "Sync enabled",
+    "syncDisabled": "Sync disabled",
+    "openGoogleCalendar": "Open Google Calendar",
+    "helpText": "Connect your Google Calendar to automatically sync all your pastor bookings. New bookings will be created as events in your calendar, and you'll receive email reminders.",
+    "features": {
+      "title": "Integration Features",
+      "autoSync": "Automatic sync of new bookings",
+      "attendeeInfo": "Attendee information included",
+      "reminders": "Email and popup reminders",
+      "twoWaySync": "Real-time synchronization"
+    },
+    "errors": {
+      "checkStatus": "Failed to check connection status",
+      "connectFailed": "Failed to connect to Google Calendar",
+      "disconnectFailed": "Failed to disconnect from Google Calendar",
+      "updateSettings": "Failed to update settings"
+    }
   }
 }
