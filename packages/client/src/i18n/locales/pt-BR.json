@@ -925,5 +925,34 @@
     "cancelError": "Falha ao cancelar convite",
     "accessRevoked": "Acesso revogado com sucesso",
     "revokeError": "Falha ao revogar acesso"
+  },
+  "googleCalendar": {
+    "title": "Integração com Google Calendar",
+    "connected": "Conectado",
+    "notConnected": "Não Conectado",
+    "connect": "Conectar ao Google Calendar",
+    "disconnect": "Desconectar",
+    "refresh": "Atualizar",
+    "refreshed": "Status atualizado",
+    "syncingWith": "Sincronizando com {calendar}",
+    "syncSettings": "Configurações de Sincronização",
+    "syncDescription": "Sincronize automaticamente suas consultas com o Google Calendar",
+    "syncEnabled": "Sincronização habilitada",
+    "syncDisabled": "Sincronização desabilitada",
+    "openGoogleCalendar": "Abrir Google Calendar",
+    "helpText": "Conecte seu Google Calendar para sincronizar automaticamente todas as suas consultas de pastor. Novas consultas serão criadas como eventos em seu calendário e você receberá lembretes por email.",
+    "features": {
+      "title": "Recursos de Integração",
+      "autoSync": "Sincronização automática de novas consultas",
+      "attendeeInfo": "Informações do participante incluídas",
+      "reminders": "Lembretes por email e popup",
+      "twoWaySync": "Sincronização em tempo real"
+    },
+    "errors": {
+      "checkStatus": "Falha ao verificar status da conexão",
+      "connectFailed": "Falha ao conectar ao Google Calendar",
+      "disconnectFailed": "Falha ao desconectar do Google Calendar",
+      "updateSettings": "Falha ao atualizar configurações"
+    }
   }
 }

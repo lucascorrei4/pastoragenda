@@ -925,5 +925,34 @@
     "cancelError": "Error al cancelar invitación",
     "accessRevoked": "Acceso revocado exitosamente",
     "revokeError": "Error al revocar acceso"
+  },
+  "googleCalendar": {
+    "title": "Integración con Google Calendar",
+    "connected": "Conectado",
+    "notConnected": "No Conectado",
+    "connect": "Conectar con Google Calendar",
+    "disconnect": "Desconectar",
+    "refresh": "Actualizar",
+    "refreshed": "Estado actualizado",
+    "syncingWith": "Sincronizando con {calendar}",
+    "syncSettings": "Configuración de Sincronización",
+    "syncDescription": "Sincroniza automáticamente tus citas con Google Calendar",
+    "syncEnabled": "Sincronización habilitada",
+    "syncDisabled": "Sincronización deshabilitada",
+    "openGoogleCalendar": "Abrir Google Calendar",
+    "helpText": "Conecta tu Google Calendar para sincronizar automáticamente todas tus citas de pastor. Las nuevas citas se crearán como eventos en tu calendario y recibirás recordatorios por email.",
+    "features": {
+      "title": "Características de Integración",
+      "autoSync": "Sincronización automática de nuevas citas",
+      "attendeeInfo": "Información del asistente incluida",
+      "reminders": "Recordatorios por email y popup",
+      "twoWaySync": "Sincronización en tiempo real"
+    },
+    "errors": {
+      "checkStatus": "Error al verificar el estado de conexión",
+      "connectFailed": "Error al conectar con Google Calendar",
+      "disconnectFailed": "Error al desconectar de Google Calendar",
+      "updateSettings": "Error al actualizar configuración"
+    }
   }
 }
