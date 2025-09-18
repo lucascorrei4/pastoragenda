@@ -956,5 +956,107 @@
       "disconnectFailed": "Failed to disconnect from Google Calendar",
       "updateSettings": "Failed to update settings"
     }
+  },
+  "privacyPolicy": {
+    "title": "Privacy Policy",
+    "lastUpdated": "Last Updated: January 17, 2025",
+    "section1": {
+      "title": "1. Information We Collect",
+      "personalInfo": {
+        "title": "Personal Information:",
+        "pastorProfiles": "Pastor Profiles: Name, email address, phone number, bio, profile photo, and public URL alias.",
+        "appointmentData": "Appointment Data: Booking details, appointment times, event types, and custom questions.",
+        "userCommunications": "User Communications: Messages and descriptions provided during booking.",
+        "accountInfo": "Account Information: Email addresses and authentication data."
+      },
+      "technicalInfo": {
+        "title": "Technical Information:",
+        "deviceInfo": "Device Information: Device type, operating system, and browser information.",
+        "usageData": "Usage Data: App interactions, feature usage, and performance metrics.",
+        "locationData": "Location Data: Time zone information for appointment scheduling.",
+        "logData": "Log Data: Server logs, error reports, and diagnostic information."
+      }
+    },
+    "section2": {
+      "title": "2. How We Use Your Information",
+      "coreServices": {
+        "title": "Core Services:",
+        "appointmentManagement": "Appointment Management: Creating, scheduling, and managing pastoral appointments.",
+        "userAuth": "User Authentication: Verifying user identity and account access.",
+        "communication": "Communication: Sending appointment confirmations, reminders, and notifications.",
+        "profileManagement": "Profile Management: Maintaining pastor profiles and public booking pages."
+      },
+      "serviceImprovement": {
+        "title": "Service Improvement:",
+        "appFunctionality": "App Functionality: Enhancing features and user experience.",
+        "technicalSupport": "Technical Support: Providing customer service and troubleshooting.",
+        "analytics": "Analytics: Understanding usage patterns to improve our services.",
+        "security": "Security: Protecting against fraud and unauthorized access."
+      }
+    },
+    "section3": {
+      "title": "3. Information Sharing",
+      "noSell": {
+        "title": "We Do NOT Sell Your Data:",
+        "neverSell": "We never sell, rent, or trade your personal information to third parties.",
+        "noMarketing": "We do not share personal data for marketing purposes."
+      },
+      "limitedSharing": {
+        "title": "Limited Sharing:",
+        "serviceProviders": "Service Providers: Trusted partners who help us operate our service (e.g., email delivery, hosting).",
+        "legalRequirements": "Legal Requirements: When required by law or to protect our rights.",
+        "userConsent": "User Consent: When you explicitly authorize sharing.",
+        "businessTransfers": "Business Transfers: In case of a merger or acquisition (with notice)."
+      }
+    },
+    "section4": {
+      "title": "4. Data Security",
+      "protectionMeasures": {
+        "title": "Protection Measures:",
+        "encryption": "Encryption: All data is encrypted in transit and at rest.",
+        "accessControls": "Access Controls: Limited access to personal information.",
+        "regularAudits": "Regular Audits: Security assessments and updates.",
+        "secureInfrastructure": "Secure Infrastructure: Industry-standard security practices."
+      },
+      "dataRetention": {
+        "title": "Data Retention:",
+        "activeAccounts": "Active Accounts: Data is retained while the account is active.",
+        "inactiveAccounts": "Inactive Accounts: Data is deleted after 2 years of inactivity.",
+        "legalRequirements": "Legal Requirements: Some data may be retained longer for legal compliance."
+      }
+    },
+    "section5": {
+      "title": "5. Your Rights and Choices",
+      "accessControl": {
+        "title": "Access and Control:",
+        "viewData": "View Your Data: Access your personal information through your account.",
+        "updateInfo": "Update Information: Modify your profile and preferences.",
+        "deleteAccount": "Delete Account: Request account deletion and data removal.",
+        "dataExport": "Data Export: Request a copy of your data."
+      },
+      "communicationPrefs": {
+        "title": "Communication Preferences:",
+        "emailSettings": "Email Settings: Control appointment notifications and updates.",
+        "marketingCommunications": "Marketing Communications: Opt out of promotional emails.",
+        "pushNotifications": "Push Notifications: Manage notification preferences in your device settings."
+      }
+    },
+    "contact": {
+      "title": "Contact Information",
+      "privacyQuestions": {
+        "title": "Privacy Questions:",
+        "email": "Email: privacy@pastoragenda.com",
+        "support": "Support: pastoragendaapp@gmail.com",
+        "website": "Website: https://pastoragenda.com/support"
+      },
+      "dataProtection": {
+        "title": "Data Protection Officer:",
+        "email": "Email: dpo@pastoragenda.com",
+        "responseTime": "Response Time: Within 30 days of inquiry."
+      }
+    },
+    "footer": {
+      "effectiveDate": "This Privacy Policy is effective as of January 17, 2025, and applies to all users of the PastorAgenda application and services."
+    }
   }
 }

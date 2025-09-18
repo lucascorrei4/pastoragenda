@@ -527,14 +527,12 @@ function HomePage() {
                   >
                     {t('home.footer.support')}
                   </a>
-                  <a 
-                    href="https://docs.google.com/document/d/1SP93ZdXu9PSc2yrrLJuSJBRKpHNjyXW2lc5kSYN2mOI/edit?usp=sharing" 
-                    target="_blank"
-                    rel="noopener noreferrer"
+                  <Link 
+                    to="/privacy-policy"
                     className="text-gray-400 hover:text-white transition-colors text-sm"
                   >
                     {t('home.footer.privacyPolicy')}
-                  </a>
+                  </Link>
                 </div>
               </div>
               <LanguageSwitcher dropdownPosition="above" />
