@@ -531,7 +531,17 @@
       "legend": "Calendar Legend",
       "available": "Available",
       "booked": "Booked",
-      "past": "Past dates"
+      "past": "Past dates",
+      "hasTimeSlots": "Has time slots",
+      "days": {
+        "monday": "Mon",
+        "tuesday": "Tue",
+        "wednesday": "Wed",
+        "thursday": "Thu",
+        "friday": "Fri",
+        "saturday": "Sat",
+        "sunday": "Sun"
+      }
     },
     "timeSlots": {
       "legend": "Time Slots Legend",

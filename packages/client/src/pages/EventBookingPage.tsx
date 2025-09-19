@@ -399,14 +399,22 @@ function EventBookingPage() {
               <div className="flex items-center justify-center space-x-4 mb-4 text-xs">
                 <div className="flex items-center space-x-2">
                   <div className="w-2 h-2 bg-yellow-400 rounded-full"></div>
-                  <span className="text-gray-500 dark:text-gray-400">Has time slots</span>
+                  <span className="text-gray-500 dark:text-gray-400">{t('booking.calendar.hasTimeSlots')}</span>
                 </div>
               </div>
 
               <div className="grid grid-cols-7 gap-1">
-                {['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'].map(day => (
-                  <div key={day} className="text-center text-sm font-medium text-gray-500 dark:text-gray-400 py-2">
-                    {day}
+                {[
+                  { key: 'monday', short: t('booking.calendar.days.monday') },
+                  { key: 'tuesday', short: t('booking.calendar.days.tuesday') },
+                  { key: 'wednesday', short: t('booking.calendar.days.wednesday') },
+                  { key: 'thursday', short: t('booking.calendar.days.thursday') },
+                  { key: 'friday', short: t('booking.calendar.days.friday') },
+                  { key: 'saturday', short: t('booking.calendar.days.saturday') },
+                  { key: 'sunday', short: t('booking.calendar.days.sunday') }
+                ].map(day => (
+                  <div key={day.key} className="text-center text-sm font-medium text-gray-500 dark:text-gray-400 py-2">
+                    {day.short}
                   </div>
                 ))}
                 

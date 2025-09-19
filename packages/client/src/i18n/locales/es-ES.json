@@ -530,7 +530,17 @@
       "legend": "Leyenda del Calendario",
       "available": "Disponible",
       "booked": "Reservado",
-      "past": "Fechas pasadas"
+      "past": "Fechas pasadas",
+      "hasTimeSlots": "Tiene horarios disponibles",
+      "days": {
+        "monday": "Lun",
+        "tuesday": "Mar",
+        "wednesday": "Mié",
+        "thursday": "Jue",
+        "friday": "Vie",
+        "saturday": "Sáb",
+        "sunday": "Dom"
+      }
     },
     "timeSlots": {
       "legend": "Leyenda de Horarios",

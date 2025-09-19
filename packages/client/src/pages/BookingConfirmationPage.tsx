@@ -6,6 +6,7 @@ import { useAuth } from '../contexts/AuthContext'
 import { toast } from 'react-hot-toast'
 import { Calendar, Clock, ArrowLeft, CheckCircle } from 'lucide-react'
 import { format } from 'date-fns'
+import { ptBR, enUS, es } from 'date-fns/locale'
 import type { EventType, Profile } from '../lib/supabase'
 import LanguageSwitcher from '../components/LanguageSwitcher'
 import { notificationService } from '../lib/notification-service'
@@ -21,10 +22,23 @@ interface LocationState {
 
 function BookingConfirmationPage() {
   const { alias, eventTypeId } = useParams<{ alias: string; eventTypeId: string }>()
-  const { t } = useTranslation()
+  const { t, i18n } = useTranslation()
   const navigate = useNavigate()
   const location = useLocation()
   const { user } = useAuth()
+
+  // Get the correct locale for date formatting
+  const getDateLocale = () => {
+    switch (i18n.language) {
+      case 'pt-BR':
+        return ptBR
+      case 'es-ES':
+        return es
+      case 'en-US':
+      default:
+        return enUS
+    }
+  }
   
   const [loading, setLoading] = useState(false)
   const [formData, setFormData] = useState({
@@ -255,7 +269,7 @@ function BookingConfirmationPage() {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="flex items-center text-gray-600 dark:text-gray-300">
                   <Calendar className="w-4 h-4 mr-2" />
-                  {format(state.date, 'EEEE, MMMM d, yyyy')}
+                  {format(state.date, 'EEEE, MMMM d, yyyy', { locale: getDateLocale() })}
                 </div>
                 <div className="flex items-center text-gray-600 dark:text-gray-300">
                   <Clock className="w-4 h-4 mr-2" />
