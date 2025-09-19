@@ -1,6 +1,6 @@
 import { Link } from 'react-router-dom'
 import { useAuth } from '../contexts/AuthContext'
-import { Calendar, Users, Clock, Shield, ArrowRight, CheckCircle, MessageSquare, Mail } from 'lucide-react'
+import { Calendar, Users, Clock, Shield, ArrowRight, CheckCircle, MessageSquare, Mail, ExternalLink, Share2, UserPlus, Settings, Zap, Globe, Lock, RefreshCw } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import LanguageSwitcher from '../components/LanguageSwitcher'
 import PublicProfilePage from './PublicProfilePage'
@@ -264,6 +264,149 @@ function HomePage() {
               <p className="text-gray-600 dark:text-gray-300 leading-relaxed">
                 {t('home.features.feature4.description')}
               </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* New Features Section */}
+      <section className="py-24 bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 dark:from-blue-900/20 dark:via-indigo-900/20 dark:to-purple-900/20">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-20">
+            <div className="inline-flex items-center px-4 py-2 rounded-full bg-gradient-to-r from-blue-100 to-purple-100 dark:from-blue-900/30 dark:to-purple-900/30 text-blue-800 dark:text-blue-200 text-sm font-medium mb-8">
+              <Zap className="w-4 h-4 mr-2" />
+              {t('home.newFeatures.title')}
+            </div>
+            
+            <h2 className="text-4xl md:text-5xl font-bold text-gray-900 dark:text-white mb-6">
+              {t('home.newFeatures.subtitle')}
+            </h2>
+          </div>
+
+          <div className="grid lg:grid-cols-3 gap-8">
+            {/* Google Calendar Integration */}
+            <div className="group relative overflow-hidden rounded-3xl bg-white dark:bg-gray-800 border border-gray-200/50 dark:border-gray-700/50 hover:border-blue-300 dark:hover:border-blue-600 transition-all duration-500 hover:shadow-2xl hover:-translate-y-2">
+              <div className="absolute inset-0 bg-gradient-to-br from-blue-500/5 to-purple-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+              <div className="relative p-8">
+                <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300">
+                  <Calendar className="w-8 h-8 text-white" />
+                </div>
+                
+                <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-4">
+                  {t('home.newFeatures.googleCalendar.title')}
+                </h3>
+                
+                <p className="text-gray-600 dark:text-gray-300 mb-6 leading-relaxed">
+                  {t('home.newFeatures.googleCalendar.description')}
+                </p>
+                
+                <ul className="space-y-3 mb-8">
+                  {(t('home.newFeatures.googleCalendar.features', { returnObjects: true }) as string[]).map((feature: string, index: number) => (
+                    <li key={index} className="flex items-center text-gray-600 dark:text-gray-300">
+                      <CheckCircle className="w-5 h-5 text-green-500 mr-3 flex-shrink-0" />
+                      <span className="text-sm">{feature}</span>
+                    </li>
+                  ))}
+                </ul>
+                
+                <Link
+                  to="/auth"
+                  className="inline-flex items-center px-6 py-3 bg-gradient-to-r from-blue-500 to-blue-600 text-white font-semibold rounded-xl hover:from-blue-600 hover:to-blue-700 transition-all duration-300 shadow-lg hover:shadow-xl group-hover:scale-105"
+                >
+                  {t('home.newFeatures.googleCalendar.cta')}
+                  <ExternalLink className="w-4 h-4 ml-2" />
+                </Link>
+              </div>
+            </div>
+
+            {/* Agenda Sharing */}
+            <div className="group relative overflow-hidden rounded-3xl bg-white dark:bg-gray-800 border border-gray-200/50 dark:border-gray-700/50 hover:border-green-300 dark:hover:border-green-600 transition-all duration-500 hover:shadow-2xl hover:-translate-y-2">
+              <div className="absolute inset-0 bg-gradient-to-br from-green-500/5 to-teal-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+              <div className="relative p-8">
+                <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-green-500 to-green-600 flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300">
+                  <Share2 className="w-8 h-8 text-white" />
+                </div>
+                
+                <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-4">
+                  {t('home.newFeatures.agendaSharing.title')}
+                </h3>
+                
+                <p className="text-gray-600 dark:text-gray-300 mb-6 leading-relaxed">
+                  {t('home.newFeatures.agendaSharing.description')}
+                </p>
+                
+                <ul className="space-y-3 mb-8">
+                  {(t('home.newFeatures.agendaSharing.features', { returnObjects: true }) as string[]).map((feature: string, index: number) => (
+                    <li key={index} className="flex items-center text-gray-600 dark:text-gray-300">
+                      <CheckCircle className="w-5 h-5 text-green-500 mr-3 flex-shrink-0" />
+                      <span className="text-sm">{feature}</span>
+                    </li>
+                  ))}
+                </ul>
+                
+                <Link
+                  to="/auth"
+                  className="inline-flex items-center px-6 py-3 bg-gradient-to-r from-green-500 to-green-600 text-white font-semibold rounded-xl hover:from-green-600 hover:to-green-700 transition-all duration-300 shadow-lg hover:shadow-xl group-hover:scale-105"
+                >
+                  {t('home.newFeatures.agendaSharing.cta')}
+                  <Settings className="w-4 h-4 ml-2" />
+                </Link>
+              </div>
+            </div>
+
+            {/* Follow Agendas */}
+            <div className="group relative overflow-hidden rounded-3xl bg-white dark:bg-gray-800 border border-gray-200/50 dark:border-gray-700/50 hover:border-purple-300 dark:hover:border-purple-600 transition-all duration-500 hover:shadow-2xl hover:-translate-y-2">
+              <div className="absolute inset-0 bg-gradient-to-br from-purple-500/5 to-pink-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+              <div className="relative p-8">
+                <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-purple-500 to-purple-600 flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300">
+                  <UserPlus className="w-8 h-8 text-white" />
+                </div>
+                
+                <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-4">
+                  {t('home.newFeatures.followAgendas.title')}
+                </h3>
+                
+                <p className="text-gray-600 dark:text-gray-300 mb-6 leading-relaxed">
+                  {t('home.newFeatures.followAgendas.description')}
+                </p>
+                
+                <ul className="space-y-3 mb-8">
+                  {(t('home.newFeatures.followAgendas.features', { returnObjects: true }) as string[]).map((feature: string, index: number) => (
+                    <li key={index} className="flex items-center text-gray-600 dark:text-gray-300">
+                      <CheckCircle className="w-5 h-5 text-green-500 mr-3 flex-shrink-0" />
+                      <span className="text-sm">{feature}</span>
+                    </li>
+                  ))}
+                </ul>
+                
+                <Link
+                  to="/auth"
+                  className="inline-flex items-center px-6 py-3 bg-gradient-to-r from-purple-500 to-purple-600 text-white font-semibold rounded-xl hover:from-purple-600 hover:to-purple-700 transition-all duration-300 shadow-lg hover:shadow-xl group-hover:scale-105"
+                >
+                  {t('home.newFeatures.followAgendas.cta')}
+                  <Users className="w-4 h-4 ml-2" />
+                </Link>
+              </div>
+            </div>
+          </div>
+
+          {/* Additional Info Section */}
+          <div className="mt-20 text-center">
+            <div className="max-w-4xl mx-auto">
+              <div className="grid md:grid-cols-3 gap-8">
+                <div className="flex items-center justify-center space-x-3 text-gray-600 dark:text-gray-300">
+                  <Globe className="w-6 h-6 text-blue-500" />
+                  <span className="font-medium">Global Access</span>
+                </div>
+                <div className="flex items-center justify-center space-x-3 text-gray-600 dark:text-gray-300">
+                  <Lock className="w-6 h-6 text-green-500" />
+                  <span className="font-medium">Secure & Private</span>
+                </div>
+                <div className="flex items-center justify-center space-x-3 text-gray-600 dark:text-gray-300">
+                  <RefreshCw className="w-6 h-6 text-purple-500" />
+                  <span className="font-medium">Real-time Sync</span>
+                </div>
+              </div>
             </div>
           </div>
         </div>

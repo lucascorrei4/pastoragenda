@@ -352,6 +352,43 @@
         "access": "Free access for all users"
       }
     },
+    "newFeatures": {
+      "title": "Powerful New Features",
+      "subtitle": "Discover the latest tools designed to enhance your ministry management",
+      "googleCalendar": {
+        "title": "Google Calendar Integration",
+        "description": "Seamlessly sync your appointments with Google Calendar for better organization and automatic reminders.",
+        "features": [
+          "Automatic appointment synchronization",
+          "Email and popup reminders",
+          "Real-time calendar updates",
+          "Attendee information included"
+        ],
+        "cta": "Connect Google Calendar"
+      },
+      "agendaSharing": {
+        "title": "Agenda Sharing",
+        "description": "Share your availability with master pastors and community leaders through secure, customizable links.",
+        "features": [
+          "Public and private sharing options",
+          "Time-limited access links",
+          "Anonymous sharing capabilities",
+          "Granular privacy controls"
+        ],
+        "cta": "Manage Sharing"
+      },
+      "followAgendas": {
+        "title": "Follow Agendas",
+        "description": "Connect with other pastors and follow their agendas to build stronger pastoral networks.",
+        "features": [
+          "Follow multiple pastor agendas",
+          "Centralized booking management",
+          "Pastor invitation system",
+          "Unified calendar view"
+        ],
+        "cta": "Start Following"
+      }
+    },
     "footer": {
       "description": "Simplifying ministry scheduling for religious leaders and their communities.",
       "product": {

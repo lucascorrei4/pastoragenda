@@ -351,6 +351,43 @@
         "access": "Acceso gratuito para todos los usuarios"
       }
     },
+    "newFeatures": {
+      "title": "Características Poderosas",
+      "subtitle": "Descubre las últimas herramientas diseñadas para mejorar tu gestión ministerial",
+      "googleCalendar": {
+        "title": "Integración con Google Calendar",
+        "description": "Sincroniza perfectamente tus citas con Google Calendar para mejor organización y recordatorios automáticos.",
+        "features": [
+          "Sincronización automática de citas",
+          "Recordatorios por email y popup",
+          "Actualizaciones de calendario en tiempo real",
+          "Información del asistente incluida"
+        ],
+        "cta": "Conectar Google Calendar"
+      },
+      "agendaSharing": {
+        "title": "Compartir Agenda",
+        "description": "Comparte tu disponibilidad con pastores principales y líderes comunitarios a través de enlaces seguros y personalizables.",
+        "features": [
+          "Opciones de compartir público y privado",
+          "Enlaces de acceso con tiempo limitado",
+          "Capacidades de compartir anónimo",
+          "Controles de privacidad granulares"
+        ],
+        "cta": "Gestionar Compartir"
+      },
+      "followAgendas": {
+        "title": "Seguir Agendas",
+        "description": "Conéctate con otros pastores y sigue sus agendas para construir redes pastorales más fuertes.",
+        "features": [
+          "Sigue múltiples agendas de pastores",
+          "Gestión centralizada de reservas",
+          "Sistema de invitación para pastores",
+          "Vista unificada del calendario"
+        ],
+        "cta": "Comenzar a Seguir"
+      }
+    },
     "footer": {
       "description": "Simplificando la programación ministerial para líderes religiosos y sus comunidades.",
       "product": {
