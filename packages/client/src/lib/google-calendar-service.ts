@@ -48,6 +48,14 @@ class GoogleCalendarService {
   constructor() {
     this.clientId = import.meta.env.VITE_GOOGLE_CLIENT_ID || ''
     this.redirectUri = import.meta.env.VITE_GOOGLE_REDIRECT_URI || ''
+    
+    // Debug logging
+    console.log('Google Calendar Service initialized:', {
+      hasClientId: !!this.clientId,
+      hasRedirectUri: !!this.redirectUri,
+      clientIdLength: this.clientId.length,
+      redirectUri: this.redirectUri
+    })
   }
 
   /**
