@@ -38,6 +38,7 @@ COPY --from=builder /app/packages/client/dist /usr/share/nginx/html
 # Copy your custom Nginx configuration file into the container
 # This assumes your nginx config file is named "nginx.conf" in your project root
 COPY nginx.conf /etc/nginx/conf.d/default.conf
+COPY nginx.conf /etc/nginx/sites-available/pastoragenda
 
 # Expose port 80, which is the default for Nginx
 EXPOSE 80
