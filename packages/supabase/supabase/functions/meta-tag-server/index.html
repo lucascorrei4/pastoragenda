@@ -1,84 +1,88 @@
 <!doctype html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <title>PastorAgenda - Schedule with Pastors</title>
-    <!-- Favicon -->
-    <link rel="icon" type="image/x-icon" href="/favicon.ico" />
-    <!-- Viewport and basic meta -->
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-    <meta name="description" content="Schedule appointments with pastors and religious leaders through our easy-to-use booking platform." />
-    <meta name="keywords" content="pastor, appointment, booking, schedule, religious, ministry" />
-    <meta name="author" content="PastorAgenda" />
-    
-    <!-- PWA Meta Tags -->
-    <meta name="theme-color" content="#0ea5e9" />
-    <meta name="msapplication-TileColor" content="#0ea5e9" />
-    <meta name="apple-mobile-web-app-capable" content="yes" />
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-    <meta name="apple-mobile-web-app-title" content="PastorAgenda" />
-    <meta name="mobile-web-app-capable" content="yes" />
-    <meta name="application-name" content="PastorAgenda" />
-    <meta name="format-detection" content="telephone=no" />
-    <meta name="msapplication-tap-highlight" content="no" />
-    
-    <!-- iOS specific meta tags -->
-    <meta name="apple-touch-fullscreen" content="yes" />
-    <meta name="apple-mobile-web-app-orientations" content="portrait" />
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-    <meta name="apple-touch-startup-image" content="/apple-touch-icon.png" />
-    
-    <!-- Android specific meta tags -->
-    <meta name="mobile-web-app-capable" content="yes" />
-    <meta name="msapplication-config" content="/browserconfig.xml" />
-    
-    <!-- Open Graph / Facebook -->
-    <meta property="og:type" content="website" />
-    <meta property="og:url" content="https://pastoragenda.com/" />
-    <meta property="og:title" content="PastorAgenda - Schedule with Pastors" />
-    <meta property="og:description" content="Schedule appointments with pastors and religious leaders through our easy-to-use booking platform." />
-    <meta property="og:image" content="https://pastoragenda.com/pwa-512x512.png" />
-    <meta property="og:image:width" content="512" />
-    <meta property="og:image:height" content="512" />
-    <meta property="og:image:alt" content="PastorAgenda - Schedule with Pastors" />
-    <meta property="og:site_name" content="PastorAgenda" />
-    <meta property="og:locale" content="en_US" />
-    
-    <!-- Twitter -->
-    <meta name="twitter:card" content="summary_large_image" />
-    <meta name="twitter:url" content="https://pastoragenda.com/" />
-    <meta name="twitter:title" content="PastorAgenda - Schedule with Pastors" />
-    <meta name="twitter:description" content="Schedule appointments with pastors and religious leaders through our easy-to-use booking platform." />
-    <meta name="twitter:image" content="https://pastoragenda.com/pwa-512x512.png" />
-    <meta name="twitter:image:alt" content="PastorAgenda - Schedule with Pastors" />
-    <meta name="twitter:site" content="@pastoragenda" />
-    <meta name="twitter:creator" content="@pastoragenda" />
-    
-    <!-- Icons - Only reference existing files -->
-    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
-    <link rel="apple-touch-icon" sizes="152x152" href="/apple-touch-icon-152x152.png" />
-    <link rel="apple-touch-icon" sizes="167x167" href="/apple-touch-icon-167x167.png" />
-    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon-180x180.png" />
-    
-    <!-- PWA Icons -->
-    <link rel="icon" type="image/png" sizes="192x192" href="/pwa-192x192.png" />
-    <link rel="icon" type="image/png" sizes="512x512" href="https://pastoragenda.com/pwa-512x512.png" />
-    
-    <!-- Manifest -->
-    <link rel="manifest" href="/manifest.json" />
-    
-    <!-- Preconnect to external domains -->
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    
-    <!-- Additional SEO -->
-    <link rel="canonical" href="https://pastoragenda.com/" />
-    <meta name="robots" content="index, follow" />
-    <meta name="googlebot" content="index, follow" />
-    <meta name="bingbot" content="index, follow" />
-    
-    <!-- Structured Data for Organization -->
-    <script type="application/ld+json">
+
+<head>
+  <meta charset="UTF-8" />
+  <title>PastorAgenda - Schedule with Pastors</title>
+  <!-- Favicon -->
+  <link rel="icon" type="image/x-icon" href="/favicon.ico" />
+  <!-- Viewport and basic meta -->
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <meta name="description"
+    content="Schedule appointments with pastors and religious leaders through our easy-to-use booking platform." />
+  <meta name="keywords" content="pastor, appointment, booking, schedule, religious, ministry" />
+  <meta name="author" content="PastorAgenda" />
+
+  <!-- PWA Meta Tags -->
+  <meta name="theme-color" content="#0ea5e9" />
+  <meta name="msapplication-TileColor" content="#0ea5e9" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="PastorAgenda" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="application-name" content="PastorAgenda" />
+  <meta name="format-detection" content="telephone=no" />
+  <meta name="msapplication-tap-highlight" content="no" />
+
+  <!-- iOS specific meta tags -->
+  <meta name="apple-touch-fullscreen" content="yes" />
+  <meta name="apple-mobile-web-app-orientations" content="portrait" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-touch-startup-image" content="/apple-touch-icon.png" />
+
+  <!-- Android specific meta tags -->
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="msapplication-config" content="/browserconfig.xml" />
+
+  <!-- Open Graph / Facebook -->
+  <meta property="og:type" content="website" />
+  <meta property="og:url" content="https://pastoragenda.com/" />
+  <meta property="og:title" content="PastorAgenda - Schedule with Pastors" />
+  <meta property="og:description"
+    content="Schedule appointments with pastors and religious leaders through our easy-to-use booking platform." />
+  <meta property="og:image" content="https://pastoragenda.com/pwa-512x512.png" />
+  <meta property="og:image:width" content="512" />
+  <meta property="og:image:height" content="512" />
+  <meta property="og:image:alt" content="PastorAgenda - Schedule with Pastors" />
+  <meta property="og:site_name" content="PastorAgenda" />
+  <meta property="og:locale" content="en_US" />
+
+  <!-- Twitter -->
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:url" content="https://pastoragenda.com/" />
+  <meta name="twitter:title" content="PastorAgenda - Schedule with Pastors" />
+  <meta name="twitter:description"
+    content="Schedule appointments with pastors and religious leaders through our easy-to-use booking platform." />
+  <meta name="twitter:image" content="https://pastoragenda.com/pwa-512x512.png" />
+  <meta name="twitter:image:alt" content="PastorAgenda - Schedule with Pastors" />
+  <meta name="twitter:site" content="@pastoragenda" />
+  <meta name="twitter:creator" content="@pastoragenda" />
+
+  <!-- Icons - Only reference existing files -->
+  <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+  <link rel="apple-touch-icon" sizes="152x152" href="/apple-touch-icon-152x152.png" />
+  <link rel="apple-touch-icon" sizes="167x167" href="/apple-touch-icon-167x167.png" />
+  <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon-180x180.png" />
+
+  <!-- PWA Icons -->
+  <link rel="icon" type="image/png" sizes="192x192" href="/pwa-192x192.png" />
+  <link rel="icon" type="image/png" sizes="512x512" href="https://pastoragenda.com/pwa-512x512.png" />
+
+  <!-- Manifest -->
+  <link rel="manifest" href="/manifest.json" />
+
+  <!-- Preconnect to external domains -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+
+  <!-- Additional SEO -->
+  <link rel="canonical" href="https://pastoragenda.com/" />
+  <meta name="robots" content="index, follow" />
+  <meta name="googlebot" content="index, follow" />
+  <meta name="bingbot" content="index, follow" />
+
+  <!-- Structured Data for Organization -->
+  <script type="application/ld+json">
     {
       "@context": "https://schema.org",
       "@type": "Organization",
@@ -97,21 +101,25 @@
       }
     }
     </script>
-    
-    
-    <script type="module" crossorigin src="/assets/index-C9aYt0e7.js"></script>
-    <link rel="stylesheet" crossorigin href="/assets/index-CqSpfWE0.css">
-  <link rel="manifest" href="/manifest.webmanifest"><script id="vite-plugin-pwa:register-sw" src="/registerSW.js"></script></head>
-  <body>
-    <div id="root"></div>
-    
-    <!-- PWA Install Prompt -->
-    <div id="pwa-install-prompt" style="display: none;">
-      <div class="pwa-prompt">
-        <p>Install PastorAgenda for a better experience</p>
-        <button id="pwa-install-btn">Install</button>
-        <button id="pwa-dismiss-btn">Not now</button>
-      </div>
+
+
+  <script type="module" crossorigin src="/assets/index-C9aYt0e7.js"></script>
+  <link rel="stylesheet" crossorigin href="/assets/index-CqSpfWE0.css">
+  <link rel="manifest" href="/manifest.webmanifest">
+</head>
+
+<body>
+  <div id="root"></div>
+
+
+  <!-- PWA Install Prompt -->
+  <div id="pwa-install-prompt" style="display: none;">
+    <div class="pwa-prompt">
+      <p>Install PastorAgenda for a better experience</p>
+      <button id="pwa-install-btn">Install</button>
+      <button id="pwa-dismiss-btn">Not now</button>
     </div>
-  </body>
+  </div>
+</body>
+
 </html>

@@ -116,7 +116,8 @@ const HTML_TEMPLATE = `<!doctype html>
     
     <script type="module" crossorigin src="/assets/index-DQ57i0Sv.js"></script>
     <link rel="stylesheet" crossorigin href="/assets/index-w1pixyB6.css">
-  <link rel="manifest" href="/manifest.json"><script id="vite-plugin-pwa:register-sw" src="/registerSW.js"></script></head>
+  <link rel="manifest" href="/manifest.json">
+</head>
   <body>
     <div id="root"></div>
 
