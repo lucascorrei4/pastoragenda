@@ -39,14 +39,11 @@
     # This is the corrected stage that builds the Nginx server.
     FROM nginx:stable-alpine
     
-    # Copy the built React app from the 'builder' stage to the Nginx web root directory
+    # The 'dist' folder already contains all assets from the 'public' folder.
     COPY --from=builder /app/packages/client/dist /usr/share/nginx/html
-    RUN echo "--- Listing contents of /usr/share/nginx/html after copying dist folder ---"
-    RUN ls -la /usr/share/nginx/html
-    
-    # This is the key change to fix the issue.
-    COPY --from=builder /app/packages/client/public /usr/share/nginx/html
-    RUN echo "--- Listing contents of /usr/share/nginx/html after copying public folder ---"
+
+    # You can keep this for debugging during builds if you like
+    RUN echo "--- Listing contents of /usr/share/nginx/html ---"
     RUN ls -la /usr/share/nginx/html
     
     # Copy your custom Nginx configuration file into the container
