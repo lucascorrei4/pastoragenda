@@ -43,6 +43,9 @@ FROM nginx:stable-alpine
 # Copy the built React app from the 'builder' stage to the Nginx web root directory
 COPY --from=builder /app/packages/client/dist /usr/share/nginx/html
 
+# This is the key change to fix the issue.
+COPY --from=builder /app/packages/client/public /usr/share/nginx/html
+
 # Copy your custom Nginx configuration file into the container
 # This assumes your nginx config file is named "nginx.conf" in your project root
 COPY nginx.conf /etc/nginx/conf.d/default.conf
