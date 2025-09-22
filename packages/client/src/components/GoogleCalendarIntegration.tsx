@@ -208,7 +208,7 @@ function GoogleCalendarIntegration({ onClose }: GoogleCalendarIntegrationProps) 
 
       {/* Connection Status */}
       <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-6">
-        <div className="flex items-center justify-between">
+        <div className="space-y-4">
           <div className="flex items-center space-x-3">
             {isConnected ? (
               <CheckCircle className="w-6 h-6 text-green-500" />
@@ -227,31 +227,39 @@ function GoogleCalendarIntegration({ onClose }: GoogleCalendarIntegrationProps) 
             </div>
           </div>
           
-          {isConnected ? (
-            <button
-              onClick={handleDisconnect}
-              disabled={isDisconnecting}
-              className="btn-secondary"
-            >
-              {isDisconnecting ? (
-                <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-gray-600"></div>
-              ) : (
-                t('googleCalendar.disconnect')
-              )}
-            </button>
-          ) : (
-            <button
-              onClick={handleConnect}
-              disabled={isConnecting}
-              className="btn-primary"
-            >
-              {isConnecting ? (
-                <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
-              ) : (
-                t('googleCalendar.connect')
-              )}
-            </button>
-          )}
+          <div className="flex justify-start">
+            {isConnected ? (
+              <button
+                onClick={handleDisconnect}
+                disabled={isDisconnecting}
+                className="btn-secondary"
+              >
+                {isDisconnecting ? (
+                  <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-gray-600"></div>
+                ) : (
+                  t('googleCalendar.disconnect')
+                )}
+              </button>
+            ) : (
+              <button
+                onClick={handleConnect}
+                disabled={isConnecting}
+                className="bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 disabled:from-blue-400 disabled:to-blue-500 text-white font-semibold py-3 px-6 rounded-lg shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-200 disabled:transform-none disabled:cursor-not-allowed flex items-center space-x-2"
+              >
+                {isConnecting ? (
+                  <>
+                    <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
+                    <span>{t('googleCalendar.connecting')}</span>
+                  </>
+                ) : (
+                  <>
+                    <Calendar className="w-5 h-5" />
+                    <span>{t('googleCalendar.connect')}</span>
+                  </>
+                )}
+              </button>
+            )}
+          </div>
         </div>
       </div>
 

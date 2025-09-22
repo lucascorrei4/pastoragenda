@@ -480,7 +480,18 @@
     "updateError": "Falha ao atualizar perfil",
     "publicProfile": "Seu Perfil Público",
     "profileAvailableAt": "Seu perfil estará disponível em:",
-    "shareLinkDescription": "Compartilhe este link com sua comunidade para que eles possam agendar compromissos com você."
+    "shareLinkDescription": "Compartilhe este link com sua comunidade para que eles possam agendar compromissos com você.",
+    "account": "Conta",
+    "deleteAccount": "Excluir Conta",
+    "deleteAccountWarning": "Esta ação não pode ser desfeita. Isso excluirá permanentemente sua conta e removerá todos os seus dados de nossos servidores.",
+    "deleteAccountConfirm": "Tem certeza de que deseja excluir sua conta?",
+    "deleteAccountConfirmText": "Digite 'EXCLUIR' para confirmar",
+    "deleteAccountPlaceholder": "Digite EXCLUIR para confirmar",
+    "deleteAccountButton": "Excluir Minha Conta",
+    "deleteAccountSuccess": "Sua conta foi excluída com sucesso",
+    "deleteAccountError": "Falha ao excluir conta. Tente novamente.",
+    "deleteAccountInProgress": "Excluindo conta...",
+    "deleteAccountDataRemoved": "Todos os seus dados foram removidos permanentemente"
   },
   "bookings": {
     "title": "Agendamentos",
@@ -852,5 +863,35 @@
     "responseTime": "Tempo de Resposta",
     "responseTimeDescription": "Normalmente respondemos às solicitações de suporte em 24 horas durante dias úteis.",
     "privacyNote": "Sua privacidade é importante para nós. Todas as comunicações de suporte são confidenciais."
+  },
+  "googleCalendar": {
+    "title": "Integração com Google Calendar",
+    "connected": "Conectado",
+    "notConnected": "Não Conectado",
+    "connect": "Conectar ao Google Calendar",
+    "connecting": "Conectando...",
+    "disconnect": "Desconectar",
+    "refresh": "Atualizar",
+    "refreshed": "Status atualizado",
+    "syncingWith": "Sincronizando com {calendar}",
+    "syncSettings": "Configurações de Sincronização",
+    "syncDescription": "Sincronize automaticamente seus agendamentos com o Google Calendar",
+    "syncEnabled": "Sincronização ativada",
+    "syncDisabled": "Sincronização desativada",
+    "openGoogleCalendar": "Abrir Google Calendar",
+    "helpText": "Conecte seu Google Calendar para sincronizar automaticamente todos os seus agendamentos pastorais. Novos agendamentos serão criados como eventos em seu calendário, e você receberá lembretes por email.",
+    "features": {
+      "title": "Recursos de Integração",
+      "autoSync": "Sincronização automática de novos agendamentos",
+      "attendeeInfo": "Informações do participante incluídas",
+      "reminders": "Lembretes por email e popup",
+      "twoWaySync": "Sincronização em tempo real"
+    },
+    "errors": {
+      "checkStatus": "Erro ao verificar status da conexão",
+      "connectFailed": "Falha ao conectar com Google Calendar",
+      "disconnectFailed": "Falha ao desconectar do Google Calendar",
+      "updateSettings": "Erro ao atualizar configurações"
+    }
   }
 }

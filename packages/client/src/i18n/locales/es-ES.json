@@ -481,7 +481,18 @@
     "updateError": "Error al actualizar perfil",
     "publicProfile": "Tu Perfil Público",
     "profileAvailableAt": "Tu perfil estará disponible en:",
-    "shareLinkDescription": "Comparte este enlace con tu comunidad para que puedan reservar citas contigo."
+    "shareLinkDescription": "Comparte este enlace con tu comunidad para que puedan reservar citas contigo.",
+    "account": "Cuenta",
+    "deleteAccount": "Eliminar Cuenta",
+    "deleteAccountWarning": "Esta acción no se puede deshacer. Esto eliminará permanentemente tu cuenta y removerá todos tus datos de nuestros servidores.",
+    "deleteAccountConfirm": "¿Estás seguro de que quieres eliminar tu cuenta?",
+    "deleteAccountConfirmText": "Escribe 'ELIMINAR' para confirmar",
+    "deleteAccountPlaceholder": "Escribe ELIMINAR para confirmar",
+    "deleteAccountButton": "Eliminar Mi Cuenta",
+    "deleteAccountSuccess": "Tu cuenta ha sido eliminada exitosamente",
+    "deleteAccountError": "Error al eliminar la cuenta. Por favor intenta de nuevo.",
+    "deleteAccountInProgress": "Eliminando cuenta...",
+    "deleteAccountDataRemoved": "Todos tus datos han sido eliminados permanentemente"
   },
   "bookings": {
     "title": "Reservas",
@@ -979,6 +990,7 @@
     "connected": "Conectado",
     "notConnected": "No Conectado",
     "connect": "Conectar con Google Calendar",
+    "connecting": "Conectando...",
     "disconnect": "Desconectar",
     "refresh": "Actualizar",
     "refreshed": "Estado actualizado",

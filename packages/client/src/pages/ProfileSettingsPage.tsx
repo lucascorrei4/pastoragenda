@@ -2,8 +2,9 @@ import { useState, useEffect } from 'react'
 import { useAuth } from '../contexts/AuthContext'
 import { useTranslation } from 'react-i18next'
 import { supabase } from '../lib/supabase'
+import { customAuth } from '../lib/custom-auth'
 import { toast } from 'react-hot-toast'
-import { User, Save, Upload, ExternalLink, Calendar } from 'lucide-react'
+import { User, Save, Upload, ExternalLink, Calendar, Trash2, AlertTriangle } from 'lucide-react'
 import { Link } from 'react-router-dom'
 import type { Profile } from '../lib/supabase'
 import GoogleCalendarIntegration from '../components/GoogleCalendarIntegration'
@@ -15,7 +16,10 @@ function ProfileSettingsPage() {
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
   const [uploading, setUploading] = useState(false)
-  const [activeTab, setActiveTab] = useState<'profile' | 'calendar'>('profile')
+  const [activeTab, setActiveTab] = useState<'profile' | 'calendar' | 'account'>('profile')
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false)
+  const [deleteConfirmText, setDeleteConfirmText] = useState('')
+  const [deleting, setDeleting] = useState(false)
 
   const [formData, setFormData] = useState({
     full_name: '',
@@ -212,6 +216,66 @@ function ProfileSettingsPage() {
     }
   }
 
+  const handleDeleteAccount = async () => {
+    if (deleteConfirmText !== 'DELETE') {
+      toast.error(t('profile.deleteAccountConfirmText'))
+      return
+    }
+
+    try {
+      setDeleting(true)
+
+      // Delete all user data in the correct order (respecting foreign key constraints)
+      const userId = user?.id
+      if (!userId) {
+        throw new Error('User ID not found')
+      }
+
+      // 1. Delete bookings
+      await supabase.from('bookings').delete().eq('user_id', userId)
+      
+      // 2. Delete event types
+      await supabase.from('event_types').delete().eq('user_id', userId)
+      
+      // 3. Delete unavailability
+      await supabase.from('unavailability').delete().eq('user_id', userId)
+      
+      // 4. Delete notification preferences
+      await supabase.from('notification_preferences').delete().eq('user_id', userId)
+      
+      // 5. Delete device registrations
+      await supabase.from('device_registrations').delete().eq('user_id', userId)
+      
+      // 6. Delete pastor invitations (both sent and received)
+      await supabase.from('pastor_invitations').delete().or(`inviter_id.eq.${userId},invitee_id.eq.${userId}`)
+      
+      // 7. Delete agenda sharing settings
+      await supabase.from('agenda_sharing_settings').delete().eq('user_id', userId)
+      
+      // 8. Delete followed pastors
+      await supabase.from('followed_pastors').delete().eq('follower_id', userId)
+      
+      // 9. Delete profile (this should be last as it might be referenced by other tables)
+      await supabase.from('profiles').delete().eq('id', userId)
+
+      toast.success(t('profile.deleteAccountSuccess'))
+      
+      // Sign out the user
+      await customAuth.signOut()
+      
+      // Redirect to home page
+      window.location.href = '/'
+      
+    } catch (error) {
+      console.error('Error deleting account:', error)
+      toast.error(t('profile.deleteAccountError'))
+    } finally {
+      setDeleting(false)
+      setShowDeleteConfirm(false)
+      setDeleteConfirmText('')
+    }
+  }
+
   if (loading) {
     return (
       <div className="flex items-center justify-center h-64">
@@ -230,35 +294,48 @@ function ProfileSettingsPage() {
 
           {/* Tab Navigation */}
           <div className="border-b border-gray-200 dark:border-gray-700 mb-6">
-            <nav className="-mb-px flex space-x-8">
+            <nav className="-mb-px flex flex-wrap gap-2 sm:gap-4">
               <button
                 onClick={() => setActiveTab('profile')}
-                className={`py-2 px-1 border-b-2 font-medium text-sm ${
+                className={`py-3 px-3 sm:px-4 border-b-2 font-medium text-xs sm:text-sm whitespace-nowrap flex items-center ${
                   activeTab === 'profile'
                     ? 'border-primary-500 text-primary-600 dark:text-primary-400'
                     : 'border-transparent text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 hover:border-gray-300 dark:hover:border-gray-600'
                 }`}
               >
-                <User className="w-4 h-4 inline mr-2" />
-                {t('profile.title')}
+                <User className="w-4 h-4 mr-2 flex-shrink-0" />
+                <span className="hidden sm:inline">{t('profile.title')}</span>
+                <span className="sm:hidden">Profile</span>
               </button>
               <button
                 onClick={() => setActiveTab('calendar')}
-                className={`py-2 px-1 border-b-2 font-medium text-sm ${
+                className={`py-3 px-3 sm:px-4 border-b-2 font-medium text-xs sm:text-sm whitespace-nowrap flex items-center ${
                   activeTab === 'calendar'
                     ? 'border-primary-500 text-primary-600 dark:text-primary-400'
                     : 'border-transparent text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 hover:border-gray-300 dark:hover:border-gray-600'
                 }`}
               >
-                <Calendar className="w-4 h-4 inline mr-2" />
-                {t('googleCalendar.title')}
+                <Calendar className="w-4 h-4 mr-2 flex-shrink-0" />
+                <span className="hidden sm:inline">{t('googleCalendar.title')}</span>
+                <span className="sm:hidden">Calendar</span>
+              </button>
+              <button
+                onClick={() => setActiveTab('account')}
+                className={`py-3 px-3 sm:px-4 border-b-2 font-medium text-xs sm:text-sm whitespace-nowrap flex items-center ${
+                  activeTab === 'account'
+                    ? 'border-primary-500 text-primary-600 dark:text-primary-400'
+                    : 'border-transparent text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 hover:border-gray-300 dark:hover:border-gray-600'
+                }`}
+              >
+                <Trash2 className="w-4 h-4 mr-2 flex-shrink-0" />
+                <span className="hidden sm:inline">{t('profile.account')}</span>
+                <span className="sm:hidden">Account</span>
               </button>
             </nav>
           </div>
 
           {/* Tab Content */}
           {activeTab === 'profile' ? (
-
           <form onSubmit={handleSubmit} className="space-y-6">
             {/* Avatar Upload */}
             <div>
@@ -381,8 +458,31 @@ function ProfileSettingsPage() {
               </button>
             </div>
           </form>
-          ) : (
+          ) : activeTab === 'calendar' ? (
             <GoogleCalendarIntegration />
+          ) : (
+            <div className="space-y-6">
+              <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-6">
+                <div className="flex items-start">
+                  <AlertTriangle className="w-6 h-6 text-red-600 dark:text-red-400 mr-3 mt-0.5" />
+                  <div>
+                    <h3 className="text-lg font-medium text-red-800 dark:text-red-200 mb-2">
+                      {t('profile.deleteAccount')}
+                    </h3>
+                    <p className="text-sm text-red-700 dark:text-red-300 mb-4">
+                      {t('profile.deleteAccountWarning')}
+                    </p>
+                    <button
+                      onClick={() => setShowDeleteConfirm(true)}
+                      className="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-md text-sm font-medium transition-colors duration-200 flex items-center"
+                    >
+                      <Trash2 className="w-4 h-4 mr-2" />
+                      {t('profile.deleteAccountButton')}
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
           )}
         </div>
       </div>
@@ -408,6 +508,69 @@ function ProfileSettingsPage() {
               <p className="text-xs text-gray-500 dark:text-gray-400 mt-2">
                 {t('profile.shareLinkDescription')}
               </p>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Delete Account Confirmation Modal */}
+      {showDeleteConfirm && (
+        <div className="fixed inset-0 bg-gray-600 bg-opacity-50 dark:bg-gray-900 dark:bg-opacity-75 overflow-y-auto h-full w-full z-50">
+          <div className="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white dark:bg-gray-800">
+            <div className="mt-3">
+              <div className="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-red-100 dark:bg-red-900/20">
+                <AlertTriangle className="h-6 w-6 text-red-600 dark:text-red-400" />
+              </div>
+              <div className="mt-2 px-7 py-3">
+                <h3 className="text-lg font-medium text-gray-900 dark:text-white text-center">
+                  {t('profile.deleteAccountConfirm')}
+                </h3>
+                <div className="mt-2 px-7 py-3">
+                  <p className="text-sm text-gray-500 dark:text-gray-400 text-center mb-4">
+                    {t('profile.deleteAccountWarning')}
+                  </p>
+                  <p className="text-sm text-gray-700 dark:text-gray-300 text-center mb-4">
+                    {t('profile.deleteAccountConfirmText')}
+                  </p>
+                  <input
+                    type="text"
+                    value={deleteConfirmText}
+                    onChange={(e) => setDeleteConfirmText(e.target.value)}
+                    placeholder={t('profile.deleteAccountPlaceholder')}
+                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-primary-500 focus:border-primary-500 dark:bg-gray-700 dark:text-gray-100"
+                  />
+                </div>
+              </div>
+              <div className="items-center px-4 py-3">
+                <div className="flex space-x-3">
+                  <button
+                    onClick={() => {
+                      setShowDeleteConfirm(false)
+                      setDeleteConfirmText('')
+                    }}
+                    className="px-4 py-2 bg-gray-500 text-white text-base font-medium rounded-md shadow-sm hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-gray-300"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    onClick={handleDeleteAccount}
+                    disabled={deleting || deleteConfirmText !== 'DELETE'}
+                    className="px-4 py-2 bg-red-600 text-white text-base font-medium rounded-md shadow-sm hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 disabled:opacity-50 disabled:cursor-not-allowed flex items-center"
+                  >
+                    {deleting ? (
+                      <>
+                        <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                        {t('profile.deleteAccountInProgress')}
+                      </>
+                    ) : (
+                      <>
+                        <Trash2 className="w-4 h-4 mr-2" />
+                        {t('profile.deleteAccountButton')}
+                      </>
+                    )}
+                  </button>
+                </div>
+              </div>
             </div>
           </div>
         </div>

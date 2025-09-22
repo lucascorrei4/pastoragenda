@@ -482,7 +482,18 @@
     "updateError": "Failed to update profile",
     "publicProfile": "Your Public Profile",
     "profileAvailableAt": "Your profile will be available at:",
-    "shareLinkDescription": "Share this link with your community to let them book appointments with you."
+    "shareLinkDescription": "Share this link with your community to let them book appointments with you.",
+    "account": "Account",
+    "deleteAccount": "Delete Account",
+    "deleteAccountWarning": "This action cannot be undone. This will permanently delete your account and remove all your data from our servers.",
+    "deleteAccountConfirm": "Are you sure you want to delete your account?",
+    "deleteAccountConfirmText": "Type 'DELETE' to confirm",
+    "deleteAccountPlaceholder": "Type DELETE to confirm",
+    "deleteAccountButton": "Delete My Account",
+    "deleteAccountSuccess": "Your account has been deleted successfully",
+    "deleteAccountError": "Failed to delete account. Please try again.",
+    "deleteAccountInProgress": "Deleting account...",
+    "deleteAccountDataRemoved": "All your data has been permanently removed"
   },
   "bookings": {
     "title": "Bookings",
@@ -980,6 +991,7 @@
     "connected": "Connected",
     "notConnected": "Not Connected",
     "connect": "Connect to Google Calendar",
+    "connecting": "Connecting...",
     "disconnect": "Disconnect",
     "refresh": "Refresh",
     "refreshed": "Status refreshed",
