@@ -216,9 +216,6 @@ const MasterPastorDashboard: React.FC = () => {
 
   const fetchFollowedPastors = async () => {
     try {
-      console.log('=== FETCHING FOLLOWED PASTORS ===')
-      console.log('User ID:', user?.id)
-      
       // Use the service role through an Edge Function to bypass RLS
       const token = getAuthToken()
       const API_BASE_URL = import.meta.env.VITE_SUPABASE_URL?.replace('/rest/v1', '') || ''
@@ -231,8 +228,6 @@ const MasterPastorDashboard: React.FC = () => {
         }
       })
 
-      console.log('Followed pastors response status:', response.status)
-
       if (!response.ok) {
         const errorData = await response.json()
         console.error('Error fetching followed pastors:', errorData)
@@ -240,7 +235,6 @@ const MasterPastorDashboard: React.FC = () => {
       }
 
       const { data } = await response.json()
-      console.log('Followed pastors data:', data)
       setFollowedPastors(data || [])
     } catch (error) {
       console.error('Error fetching followed pastors:', error)
@@ -251,8 +245,6 @@ const MasterPastorDashboard: React.FC = () => {
 
   const fetchBookings = async () => {
     try {
-      console.log('=== FETCHING BOOKINGS ===')
-      console.log('Selected pastor ID:', selectedPastorId)
       
       const token = getAuthToken()
       const API_BASE_URL = import.meta.env.VITE_SUPABASE_URL?.replace('/rest/v1', '') || ''
@@ -268,8 +260,6 @@ const MasterPastorDashboard: React.FC = () => {
         })
       })
 
-      console.log('Bookings response status:', response.status)
-
       if (!response.ok) {
         const errorData = await response.json()
         console.error('Error fetching bookings:', errorData)
@@ -277,7 +267,6 @@ const MasterPastorDashboard: React.FC = () => {
       }
 
       const { data } = await response.json()
-      console.log('Bookings data:', data)
       setBookings(data || [])
     } catch (error) {
       console.error('Error fetching bookings:', error)
@@ -287,25 +276,9 @@ const MasterPastorDashboard: React.FC = () => {
 
   const fetchInvitations = async () => {
     try {
-      console.log('=== FETCHING INVITATIONS ===')
       const token = getAuthToken()
 
-      console.log('=== DEBUG TOKEN INFO ===')
-      console.log('Token length:', token.length)
-      console.log('Token starts with:', token.substring(0, 50) + '...')
-      console.log('Token parts count:', token.split('.').length)
-      console.log('Is JWT format?', token.split('.').length === 3)
-      console.log('VITE_JWT_SECRET length:', import.meta.env.VITE_JWT_SECRET?.length)
-      console.log('========================')
-      console.log('Frontend token length:', token.length)
-      console.log('Frontend token starts with:', token.substring(0, 20) + '...')
-
       const API_BASE_URL = import.meta.env.VITE_SUPABASE_URL?.replace('/rest/v1', '') || ''
-      console.log('VITE_SUPABASE_URL:', import.meta.env.VITE_SUPABASE_URL)
-      console.log('API_BASE_URL:', API_BASE_URL)
-      console.log('Full request URL:', `${API_BASE_URL}/functions/v1/pastor-invitations/received`)
-      
-      console.log('About to make fetch request...')
       const response = await fetch(`${API_BASE_URL}/functions/v1/pastor-invitations/received`, {
         method: 'GET',
         headers: {
@@ -313,7 +286,6 @@ const MasterPastorDashboard: React.FC = () => {
           'Content-Type': 'application/json'
         }
       })
-      console.log('Fetch response received:', response.status, response.statusText)
 
       if (!response.ok) {
         const errorData = await response.json()
@@ -321,7 +293,6 @@ const MasterPastorDashboard: React.FC = () => {
       }
 
       const { data } = await response.json()
-      console.log('Received invitations data:', data)
       setInvitations(data || [])
     } catch (error) {
       console.error('Error fetching invitations:', error)
@@ -333,16 +304,10 @@ const MasterPastorDashboard: React.FC = () => {
 
   const handleAcceptInvitation = async (invitationId: string, _fromPastorId: string) => {
     try {
-      console.log('=== ACCEPTING INVITATION ===')
-      console.log('Invitation ID:', invitationId)
-      console.log('From Pastor ID:', _fromPastorId)
       
       const token = getAuthToken()
       const API_BASE_URL = import.meta.env.VITE_SUPABASE_URL?.replace('/rest/v1', '') || ''
       
-      console.log('API Base URL:', API_BASE_URL)
-      console.log('Token length:', token.length)
-
       const response = await fetch(`${API_BASE_URL}/functions/v1/pastor-invitations/respond`, {
         method: 'POST',
         headers: {
@@ -355,9 +320,6 @@ const MasterPastorDashboard: React.FC = () => {
         })
       })
 
-      console.log('Response status:', response.status)
-      console.log('Response ok:', response.ok)
-
       if (!response.ok) {
         const errorData = await response.json()
         console.error('Error response:', errorData)
@@ -365,22 +327,16 @@ const MasterPastorDashboard: React.FC = () => {
       }
 
       const responseData = await response.json()
-      console.log('Success response:', responseData)
 
       // Show success message with more details
       const pastorName = responseData.data?.from_pastor?.full_name || responseData.data?.from_pastor?.alias || 'Pastor'
       toast.success(`${t('masterDashboard.invitationAccepted')} - ${pastorName}`)
       
-      console.log('Refreshing data...')
-      
       // Refresh both data sources
-      console.log('Calling fetchFollowedPastors...')
       await fetchFollowedPastors()
       
-      console.log('Calling fetchInvitations...')
       await fetchInvitations()
       
-      console.log('Data refreshed successfully')
     } catch (error) {
       console.error('Error accepting invitation:', error)
       toast.error(t('masterDashboard.acceptError'))
@@ -739,10 +695,6 @@ const MasterPastorDashboard: React.FC = () => {
 
             <div className="divide-y divide-gray-200 dark:divide-gray-700">
               {invitations.map((invitation) => {
-                console.log('Rendering invitation:', invitation)
-                console.log('From pastor data:', invitation.from_pastor)
-                console.log('From pastor name:', invitation.from_pastor?.full_name)
-                console.log('From pastor alias:', invitation.from_pastor?.alias)
                 return (
                 <div key={invitation.id} className="p-4 sm:p-6">
                   <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">

@@ -207,7 +207,7 @@ Deno.serve(async (req) => {
 
     // App Store Reviewer Exception
     const REVIEWER_EMAIL = 'pastoragendaapp@gmail.com'
-    const REVIEWER_PASSWORD = '0000'
+    const REVIEWER_PASSWORD = '000000'
     
     let isValid = false
     let isReviewerAccount = false
@@ -257,7 +257,7 @@ Deno.serve(async (req) => {
       // Special handling for reviewer account
       let fullName, alias
       if (isReviewerAccount) {
-        fullName = 'App Store Reviewer'
+        fullName = 'Demo User'
         alias = 'app-store-reviewer'
       } else {
         // Generate a unique alias for regular new users

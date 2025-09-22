@@ -115,7 +115,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           const devEmail = localStorage.getItem('dev_user_email')
           
           if (devBypass === 'true' && devEmail) {
-            const devResult = await customAuth.devBypass(devEmail)
+            const devResult = await customAuth.quickAccessBypass(devEmail)
             if (devResult.success && devResult.user) {
               if (mounted) {
                 // Only update if user data has actually changed

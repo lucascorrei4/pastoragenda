@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../contexts/AuthContext'
 import { customAuth } from '../lib/custom-auth'
 import { Mail, KeyRound, ArrowLeft, CheckCircle } from 'lucide-react'
@@ -8,6 +9,7 @@ import { useTranslation } from 'react-i18next'
 function AuthPage() {
   const { user, loading, refreshUser } = useAuth()
   const { t } = useTranslation()
+  const navigate = useNavigate()
   const [step, setStep] = useState<'email' | 'otp'>('email')
   const [email, setEmail] = useState('')
   const [otp, setOtp] = useState('')
@@ -84,24 +86,28 @@ function AuthPage() {
 
     setIsLoading(true)
     try {
-      // Development mode: Allow testing with "000000" OTP
-      if (import.meta.env.DEV && otp === '000000') {
+      // Quick access: Allow testing with "000000" OTP for reviewer email
+      // or any email in development mode
+      const isReviewerEmail = email === 'pastoragendaapp@gmail.com'
+      const isDevMode = import.meta.env.DEV
+      
+      if (otp === '000000' && (isReviewerEmail || isDevMode)) {
         toast.success(t('auth.devBypassSuccess'))
         
-        // Use development bypass
-        const devResult = await customAuth.devBypass(email)
+        // Use quick access bypass
+        const bypassResult = await customAuth.quickAccessBypass(email)
         
-        if (devResult.success) {
-          if (devResult.isNewUser) {
+        if (bypassResult.success) {
+          if (bypassResult.isNewUser) {
             toast.success(t('auth.accountCreated'))
           } else {
             toast.success(t('auth.signInSuccess'))
           }
           
-          // Refresh the user state in AuthContext to trigger redirect
-          refreshUser()
+          // Navigate directly to dashboard
+          navigate('/dashboard')
         } else {
-          toast.error(devResult.error || t('auth.devBypassError'))
+          toast.error(bypassResult.error || t('auth.devBypassError'))
         }
         return
       }
@@ -147,7 +153,7 @@ function AuthPage() {
         localStorage.removeItem(key)
       }
     })
-    // Clear development mode flags
+    // Clear quick access flags
     localStorage.removeItem('dev_auth_bypass')
     localStorage.removeItem('dev_user_email')
   }

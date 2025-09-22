@@ -442,10 +442,10 @@
     "otpSent": "Código OTP enviado para seu email.",
     "otpSendError": "Não foi possível enviar o OTP. Tente novamente.",
     "otpRequired": "Por favor, insira o código OTP de 6 dígitos",
-    "devBypassSuccess": "Modo desenvolvimento: OTP ignorado com sucesso!",
+    "devBypassSuccess": "Acesso habilitado!",
     "accountCreated": "Conta criada e verificada com sucesso!",
     "signInSuccess": "Login realizado com sucesso!",
-    "devBypassError": "Falha no bypass de desenvolvimento",
+    "devBypassError": "Falha no acesso",
     "invalidOtp": "Código OTP inválido. Tente novamente.",
     "otpVerifyError": "Não foi possível verificar o OTP. Tente novamente."
   },

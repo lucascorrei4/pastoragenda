@@ -145,10 +145,10 @@ Deno.serve(async (req)=>{
       });
     }
 
-    // App Store Reviewer Exception - Skip OTP generation and email sending
+    // Demo User Exception - Skip OTP generation and email sending
     const REVIEWER_EMAIL = 'pastoragendaapp@gmail.com'
     if (email === REVIEWER_EMAIL) {
-      console.log('App Store reviewer account detected, skipping OTP generation and email sending')
+      console.log('Demo User account detected, skipping OTP generation and email sending')
       return new Response(JSON.stringify({
         message: "OTP sent successfully",
         success: true

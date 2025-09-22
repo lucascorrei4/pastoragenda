@@ -443,10 +443,10 @@
     "otpSent": "Código OTP enviado a tu correo electrónico.",
     "otpSendError": "No se pudo enviar el OTP. Por favor intenta de nuevo.",
     "otpRequired": "Por favor ingresa el código OTP de 6 dígitos",
-    "devBypassSuccess": "Modo desarrollo: ¡OTP omitido exitosamente!",
+    "devBypassSuccess": "¡Acceso rápido habilitado!",
     "accountCreated": "¡Cuenta creada y verificada exitosamente!",
     "signInSuccess": "¡Inicio de sesión exitoso!",
-    "devBypassError": "Error en el bypass de desarrollo",
+    "devBypassError": "Error en el acceso rápido",
     "invalidOtp": "Código OTP inválido. Por favor intenta de nuevo.",
     "otpVerifyError": "No se pudo verificar el OTP. Por favor intenta de nuevo."
   },

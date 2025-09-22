@@ -9,12 +9,8 @@ import { webViewBridge } from './webview-bridge';
 export function initializeWebViewIntegration() {
   // Check if we're running in a React Native WebView
   if (webViewBridge.isRunningInReactNative()) {
-    console.log('Running in React Native WebView - WebView bridge enabled');
-    
     // Set up notification handling
     setupWebNotificationHandling();
-  } else {
-    console.log('Running in regular browser - WebView bridge disabled');
   }
 }
 

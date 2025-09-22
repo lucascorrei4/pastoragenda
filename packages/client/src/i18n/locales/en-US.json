@@ -444,10 +444,10 @@
     "otpSent": "OTP code sent to your email.",
     "otpSendError": "Unable to send OTP. Please try again.",
     "otpRequired": "Please enter the 6-digit OTP code",
-    "devBypassSuccess": "Development mode: OTP bypassed successfully!",
+    "devBypassSuccess": "Access enabled!",
     "accountCreated": "Account created and verified successfully!",
     "signInSuccess": "Signed in successfully!",
-    "devBypassError": "Development bypass failed",
+    "devBypassError": "Access failed",
     "invalidOtp": "Invalid OTP code. Please try again.",
     "otpVerifyError": "Unable to verify OTP. Please try again."
   },

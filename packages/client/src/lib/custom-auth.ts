@@ -237,39 +237,32 @@ class CustomAuthService {
   }
 
   /**
-   * Development mode bypass (for testing)
+   * Quick access bypass for specific emails (works in production for reviewers)
    */
-  async devBypass(email: string): Promise<AuthResponse> {
-    if (!import.meta.env.DEV) {
-      return { success: false, error: 'Development mode only' }
+  async quickAccessBypass(email: string): Promise<AuthResponse> {
+    // Only allow bypass for specific reviewer email in production
+    // or for any email in development
+    const isReviewerEmail = email === 'pastoragendaapp@gmail.com'
+    const isDevMode = import.meta.env.DEV
+    
+    if (!isReviewerEmail && !isDevMode) {
+      return { success: false, error: 'Access not available for this email' }
     }
-
-    // Create a mock user for development
-    const mockUser: User = {
-      id: 'dev-user-id',
-      email: email,
-      full_name: 'Development User',
-      alias: 'dev-user',
-      email_verified: true,
-      last_login_at: new Date().toISOString()
+    
+    // For the reviewer email, use the special password
+    // For development, use 123456 for other emails
+    const otp = isReviewerEmail ? '000000' : '123456'
+    
+    // Call the OTP verification directly
+    const result = await this.verifyOTP(email, otp)
+    
+    // If successful, set the bypass flags for AuthContext
+    if (result.success) {
+      localStorage.setItem('dev_auth_bypass', 'true')
+      localStorage.setItem('dev_user_email', email)
     }
-
-    // Create a proper JWT token for development
-    const mockToken = await this.createDevJWT(mockUser)
-
-    this.token = mockToken
-    this.user = mockUser
-    localStorage.setItem('auth_token', mockToken)
-    localStorage.setItem('user_data', JSON.stringify(mockUser))
-    localStorage.setItem('dev_auth_bypass', 'true')
-    localStorage.setItem('dev_user_email', email)
-
-    return {
-      success: true,
-      token: mockToken,
-      user: mockUser,
-      isNewUser: false
-    }
+    
+    return result
   }
 
   /**
